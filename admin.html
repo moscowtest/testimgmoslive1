@@ -9,229 +9,48 @@
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
   <style>
-    * {
-      transition: all 0.2s ease;
-    }
-    .toast {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background: #10b981;
-      color: white;
-      padding: 12px 20px;
-      border-radius: 12px;
-      z-index: 1000;
-      animation: slideIn 0.3s ease;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-      font-weight: 500;
-    }
+    * { transition: all 0.2s ease; }
+    .toast { position: fixed; bottom: 20px; right: 20px; background: #10b981; color: white; padding: 12px 20px; border-radius: 12px; z-index: 1000; animation: slideIn 0.3s ease; box-shadow: 0 4px 12px rgba(0,0,0,0.15); font-weight: 500; }
     .toast.error { background: #ef4444; }
-    @keyframes slideIn {
-      from { transform: translateX(100%); opacity: 0; }
-      to { transform: translateX(0); opacity: 1; }
-    }
-    .toggle-switch {
-      position: relative;
-      display: inline-block;
-      width: 48px;
-      height: 24px;
-    }
-    .toggle-switch input {
-      opacity: 0;
-      width: 0;
-      height: 0;
-    }
-    .toggle-slider {
-      position: absolute;
-      cursor: pointer;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background-color: #cbd5e1;
-      transition: 0.3s;
-      border-radius: 24px;
-    }
-    .toggle-slider:before {
-      position: absolute;
-      content: "";
-      height: 18px;
-      width: 18px;
-      left: 3px;
-      bottom: 3px;
-      background-color: white;
-      transition: 0.3s;
-      border-radius: 50%;
-    }
-    input:checked + .toggle-slider {
-      background-color: #22c55e;
-    }
-    input:checked + .toggle-slider:before {
-      transform: translateX(24px);
-    }
-    .question-card {
-      background: white;
-      border-radius: 12px;
-      padding: 12px 16px;
-      margin-bottom: 8px;
-      cursor: grab;
-      transition: all 0.2s;
-      border: 1px solid #e2e8f0;
-    }
-    html.dark .question-card {
-      background: #1e293b;
-      border-color: #334155;
-    }
-    .question-card:hover {
-      transform: translateX(4px);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    }
-    .question-card:active {
-      cursor: grabbing;
-    }
-    .question-card.drag-over {
-      border-top: 2px solid #3b82f6;
-      border-left: 2px solid #3b82f6;
-    }
-    .tag {
-      display: inline-flex;
-      align-items: center;
-      background: #e0e7ff;
-      color: #1e40af;
-      font-size: 10px;
-      padding: 2px 8px;
-      border-radius: 20px;
-      margin-right: 6px;
-      margin-bottom: 4px;
-      font-weight: 500;
-    }
-    html.dark .tag {
-      background: #1e3a5f;
-      color: #93c5fd;
-    }
-    .preview-modal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.7);
-      z-index: 2000;
-      align-items: center;
-      justify-content: center;
-    }
+    @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+    .toggle-switch { position: relative; display: inline-block; width: 48px; height: 24px; }
+    .toggle-switch input { opacity: 0; width: 0; height: 0; }
+    .toggle-slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #cbd5e1; transition: 0.3s; border-radius: 24px; }
+    .toggle-slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: 0.3s; border-radius: 50%; }
+    input:checked + .toggle-slider { background-color: #22c55e; }
+    input:checked + .toggle-slider:before { transform: translateX(24px); }
+    .question-card { background: white; border-radius: 12px; padding: 12px 16px; margin-bottom: 8px; cursor: grab; transition: all 0.2s; border: 1px solid #e2e8f0; }
+    html.dark .question-card { background: #1e293b; border-color: #334155; }
+    .question-card:hover { transform: translateX(4px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    .question-card:active { cursor: grabbing; }
+    .tag { display: inline-flex; align-items: center; background: #e0e7ff; color: #1e40af; font-size: 10px; padding: 2px 8px; border-radius: 20px; margin-right: 6px; margin-bottom: 4px; font-weight: 500; }
+    html.dark .tag { background: #1e3a5f; color: #93c5fd; }
+    .preview-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 2000; align-items: center; justify-content: center; }
     .preview-modal.active { display: flex; }
-    .preview-content {
-      background: white;
-      border-radius: 20px;
-      padding: 24px;
-      max-width: 500px;
-      width: 90%;
-      max-height: 80vh;
-      overflow-y: auto;
-    }
-    html.dark .preview-content {
-      background: #1e293b;
-      color: white;
-    }
-    .pagination-btn {
-      padding: 6px 12px;
-      margin: 0 3px;
-      border-radius: 8px;
-      background: #f1f5f9;
-      cursor: pointer;
-      font-weight: 500;
-    }
-    html.dark .pagination-btn {
-      background: #334155;
-      color: white;
-    }
-    .pagination-btn.active {
-      background: #3b82f6;
-      color: white;
-    }
-    .form-card {
-      background: #f8fafc;
-      border-radius: 16px;
-      padding: 16px;
-      margin-bottom: 20px;
-    }
-    html.dark .form-card {
-      background: #0f172a;
-    }
-    .stat-card {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      border-radius: 16px;
-      padding: 16px;
-      color: white;
-    }
-    .sidebar-item {
-      padding: 8px 12px;
-      border-radius: 10px;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .sidebar-item:hover {
-      background: #334155;
-    }
-    .sidebar-item.active {
-      background: #3b82f6;
-      color: white;
-    }
-    html.dark .sidebar-item.active {
-      background: #3b82f6;
-    }
-    .btn {
-      padding: 8px 16px;
-      border-radius: 10px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .btn-primary {
-      background: #3b82f6;
-      color: white;
-    }
-    .btn-primary:hover {
-      background: #2563eb;
-      transform: translateY(-1px);
-    }
-    .btn-success {
-      background: #10b981;
-      color: white;
-    }
-    .btn-success:hover {
-      background: #059669;
-      transform: translateY(-1px);
-    }
-    .btn-danger {
-      background: #ef4444;
-      color: white;
-    }
-    .btn-danger:hover {
-      background: #dc2626;
-    }
-    .btn-outline {
-      background: transparent;
-      border: 1px solid #cbd5e1;
-    }
-    html.dark .btn-outline {
-      border-color: #475569;
-      color: white;
-    }
-    input, textarea, select {
-      transition: all 0.2s;
-    }
-    input:focus, textarea:focus, select:focus {
-      outline: none;
-      ring: 2px solid #3b82f6;
-    }
+    .preview-content { background: white; border-radius: 20px; padding: 24px; max-width: 500px; width: 90%; max-height: 80vh; overflow-y: auto; }
+    html.dark .preview-content { background: #1e293b; color: white; }
+    .pagination-btn { padding: 6px 12px; margin: 0 3px; border-radius: 8px; background: #f1f5f9; cursor: pointer; font-weight: 500; }
+    html.dark .pagination-btn { background: #334155; color: white; }
+    .pagination-btn.active { background: #3b82f6; color: white; }
+    .form-card { background: #f8fafc; border-radius: 16px; padding: 16px; margin-bottom: 20px; }
+    html.dark .form-card { background: #0f172a; }
+    .sidebar-item { padding: 8px 12px; border-radius: 10px; cursor: pointer; transition: all 0.2s; }
+    .sidebar-item:hover { background: #334155; }
+    .sidebar-item.active { background: #3b82f6; color: white; }
+    .btn { padding: 8px 16px; border-radius: 10px; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+    .btn-primary { background: #3b82f6; color: white; }
+    .btn-primary:hover { background: #2563eb; transform: translateY(-1px); }
+    .btn-success { background: #10b981; color: white; }
+    .btn-success:hover { background: #059669; transform: translateY(-1px); }
+    .btn-outline { background: transparent; border: 1px solid #cbd5e1; }
+    html.dark .btn-outline { border-color: #475569; color: white; }
+    input, textarea, select { transition: all 0.2s; background: white; }
+    html.dark input, html.dark textarea, html.dark select { background: #1e293b; color: white; border-color: #475569; }
+    input:focus, textarea:focus, select:focus { outline: none; ring: 2px solid #3b82f6; }
   </style>
 </head>
 <body class="transition-all bg-gray-100 dark:bg-gray-950">
   <div class="max-w-7xl mx-auto p-4 md:p-6">
-    <!-- Шапка -->
     <div class="flex justify-between items-center mb-6">
       <div class="flex items-center gap-3">
         <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
@@ -246,209 +65,80 @@
     </div>
 
     <div class="flex flex-col lg:flex-row gap-6">
-      <!-- Боковая панель -->
       <aside class="lg:w-64 bg-white dark:bg-gray-900 rounded-2xl shadow-sm p-4">
         <div class="space-y-4">
-          <!-- Видимость тестов -->
           <div>
-            <p class="text-sm font-semibold mb-3 text-gray-600 dark:text-gray-400">
-              <i class="fas fa-eye mr-2"></i>Видимость тестов
-            </p>
+            <p class="text-sm font-semibold mb-3 text-gray-600 dark:text-gray-400"><i class="fas fa-eye mr-2"></i>Видимость тестов</p>
             <div class="space-y-3">
-              <div class="flex justify-between items-center">
-                <span class="text-sm"><i class="fas fa-list mr-2 text-purple-500"></i>ППО</span>
-                <label class="toggle-switch">
-                  <input type="checkbox" id="togglePpo" onchange="toggleTestVisibility('ppo', this.checked)">
-                  <span class="toggle-slider"></span>
-                </label>
-              </div>
-              <div class="flex justify-between items-center">
-                <span class="text-sm"><i class="fas fa-book mr-2 text-blue-500"></i>Устав</span>
-                <label class="toggle-switch">
-                  <input type="checkbox" id="toggleUstav" onchange="toggleTestVisibility('ustav', this.checked)">
-                  <span class="toggle-slider"></span>
-                </label>
-              </div>
-              <div class="flex justify-between items-center">
-                <span class="text-sm"><i class="fas fa-users mr-2 text-green-500"></i>Руководство</span>
-                <label class="toggle-switch">
-                  <input type="checkbox" id="toggleLeadership" onchange="toggleTestVisibility('leadership', this.checked)">
-                  <span class="toggle-slider"></span>
-                </label>
-              </div>
+              <div class="flex justify-between items-center"><span class="text-sm"><i class="fas fa-list mr-2 text-purple-500"></i>ППО</span><label class="toggle-switch"><input type="checkbox" id="togglePpo" onchange="toggleTestVisibility('ppo', this.checked)"><span class="toggle-slider"></span></label></div>
+              <div class="flex justify-between items-center"><span class="text-sm"><i class="fas fa-book mr-2 text-blue-500"></i>Устав</span><label class="toggle-switch"><input type="checkbox" id="toggleUstav" onchange="toggleTestVisibility('ustav', this.checked)"><span class="toggle-slider"></span></label></div>
+              <div class="flex justify-between items-center"><span class="text-sm"><i class="fas fa-users mr-2 text-green-500"></i>Руководство</span><label class="toggle-switch"><input type="checkbox" id="toggleLeadership" onchange="toggleTestVisibility('leadership', this.checked)"><span class="toggle-slider"></span></label></div>
             </div>
           </div>
-
           <hr class="border-gray-200 dark:border-gray-700">
-
-          <!-- Наборы вопросов -->
           <div>
-            <p class="text-sm font-semibold mb-3 text-gray-600 dark:text-gray-400">
-              <i class="fas fa-database mr-2"></i>Наборы вопросов
-            </p>
+            <p class="text-sm font-semibold mb-3 text-gray-600 dark:text-gray-400"><i class="fas fa-database mr-2"></i>Наборы вопросов</p>
             <div class="space-y-2">
-              <div onclick="switchSet('ppoQuestions')" id="btn-ppoQuestions" class="sidebar-item flex items-center gap-3 p-2 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800">
-                <i class="fas fa-check-circle text-purple-500 w-5"></i>
-                <span class="text-sm">PPO Выбор ответа</span>
-              </div>
-              <div onclick="switchSet('ppoWrittenQuestions')" id="btn-ppoWrittenQuestions" class="sidebar-item flex items-center gap-3 p-2 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800">
-                <i class="fas fa-pen text-green-500 w-5"></i>
-                <span class="text-sm">PPO Письменные</span>
-              </div>
-              <div onclick="switchSet('ustavQuestions')" id="btn-ustavQuestions" class="sidebar-item flex items-center gap-3 p-2 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800">
-                <i class="fas fa-gavel text-blue-500 w-5"></i>
-                <span class="text-sm">Устав</span>
-              </div>
+              <div onclick="switchSet('ppoQuestions')" id="btn-ppoQuestions" class="sidebar-item flex items-center gap-3 p-2 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800"><i class="fas fa-check-circle text-purple-500 w-5"></i><span class="text-sm">PPO Выбор ответа</span></div>
+              <div onclick="switchSet('ppoWrittenQuestions')" id="btn-ppoWrittenQuestions" class="sidebar-item flex items-center gap-3 p-2 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800"><i class="fas fa-pen text-green-500 w-5"></i><span class="text-sm">PPO Письменные</span></div>
+              <div onclick="switchSet('ustavQuestions')" id="btn-ustavQuestions" class="sidebar-item flex items-center gap-3 p-2 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800"><i class="fas fa-gavel text-blue-500 w-5"></i><span class="text-sm">Устав</span></div>
             </div>
           </div>
-
           <hr class="border-gray-200 dark:border-gray-700">
-
-          <!-- Действия -->
           <div>
-            <p class="text-sm font-semibold mb-3 text-gray-600 dark:text-gray-400">
-              <i class="fas fa-tools mr-2"></i>Действия
-            </p>
+            <p class="text-sm font-semibold mb-3 text-gray-600 dark:text-gray-400"><i class="fas fa-tools mr-2"></i>Действия</p>
             <div class="space-y-2">
-              <button onclick="exportAllData()" class="w-full btn btn-outline text-sm flex items-center justify-center gap-2">
-                <i class="fas fa-download"></i> Экспорт
-              </button>
-              <label class="w-full btn btn-outline text-sm flex items-center justify-center gap-2 cursor-pointer">
-                <i class="fas fa-upload"></i> Импорт
-                <input type="file" id="importFile" accept=".json" style="display:none" onchange="importAllData(this)">
-              </label>
-              <button onclick="resetToDefault()" class="w-full btn btn-outline text-sm flex items-center justify-center gap-2 text-yellow-600">
-                <i class="fas fa-undo"></i> Сбросить
-              </button>
-              <button onclick="clearAllData()" class="w-full btn btn-outline text-sm flex items-center justify-center gap-2 text-red-600">
-                <i class="fas fa-trash"></i> Очистить всё
-              </button>
+              <button onclick="exportAllData()" class="w-full btn btn-outline text-sm flex items-center justify-center gap-2"><i class="fas fa-download"></i> Экспорт</button>
+              <label class="w-full btn btn-outline text-sm flex items-center justify-center gap-2 cursor-pointer"><i class="fas fa-upload"></i> Импорт<input type="file" id="importFile" accept=".json" style="display:none" onchange="importAllData(this)"></label>
+              <button onclick="clearAllData()" class="w-full btn btn-outline text-sm flex items-center justify-center gap-2 text-red-600"><i class="fas fa-trash"></i> Очистить всё</button>
             </div>
           </div>
-
-          <!-- Горячие клавиши -->
           <div class="mt-4 p-3 bg-gray-100 dark:bg-gray-800 rounded-lg">
-            <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">
-              <i class="fas fa-keyboard mr-1"></i> Горячие клавиши
-            </p>
+            <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2"><i class="fas fa-keyboard mr-1"></i> Горячие клавиши</p>
             <p class="text-xs text-gray-500 dark:text-gray-400"><kbd class="px-1 bg-gray-300 dark:bg-gray-700 rounded">Ctrl+S</kbd> — сохранить</p>
             <p class="text-xs text-gray-500 dark:text-gray-400"><kbd class="px-1 bg-gray-300 dark:bg-gray-700 rounded">Ctrl+Enter</kbd> — добавить</p>
           </div>
-
-          <!-- Вход -->
-          <div class="mt-auto pt-4">
-            <input id="pw" type="password" placeholder="Пароль" class="w-full p-2 bg-gray-100 dark:bg-gray-800 rounded-lg text-center text-sm" />
-          </div>
+          <div class="mt-auto pt-4"><input id="pw" type="password" placeholder="Пароль" class="w-full p-2 bg-gray-100 dark:bg-gray-800 rounded-lg text-center text-sm" /></div>
         </div>
       </aside>
 
-      <!-- Основная панель -->
       <main class="flex-1 bg-white dark:bg-gray-900 rounded-2xl shadow-sm p-6">
         <div id="panel" class="hidden">
-          <!-- Статистика -->
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-            <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-3 text-white">
-              <p class="text-xs opacity-80">Всего вопросов</p>
-              <p class="text-2xl font-bold" id="statTotal">0</p>
-            </div>
-            <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-3 text-white">
-              <p class="text-xs opacity-80">Выбор ответа</p>
-              <p class="text-2xl font-bold" id="statMultiple">0</p>
-            </div>
-            <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-xl p-3 text-white">
-              <p class="text-xs opacity-80">Письменные</p>
-              <p class="text-2xl font-bold" id="statWritten">0</p>
-            </div>
-            <div class="bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl p-3 text-white">
-              <p class="text-xs opacity-80">С тегами</p>
-              <p class="text-2xl font-bold" id="statWithTags">0</p>
-            </div>
+          <div class="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6">
+            <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-3 text-white"><p class="text-xs opacity-80">Всего вопросов</p><p class="text-2xl font-bold" id="statTotal">0</p></div>
+            <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-3 text-white"><p class="text-xs opacity-80">Выбор ответа</p><p class="text-2xl font-bold" id="statMultiple">0</p></div>
+            <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-xl p-3 text-white"><p class="text-xs opacity-80">Письменные</p><p class="text-2xl font-bold" id="statWritten">0</p></div>
           </div>
 
-          <!-- Форма добавления (сворачиваемая) -->
           <div class="form-card mb-6">
-            <div class="flex justify-between items-center cursor-pointer" onclick="toggleForm()">
-              <h2 class="font-semibold text-gray-700 dark:text-gray-300">
-                <i class="fas fa-plus-circle text-green-500 mr-2"></i>Добавить вопрос
-              </h2>
-              <i id="formToggleIcon" class="fas fa-chevron-up text-gray-400"></i>
-            </div>
+            <div class="flex justify-between items-center cursor-pointer" onclick="toggleForm()"><h2 class="font-semibold text-gray-700 dark:text-gray-300"><i class="fas fa-plus-circle text-green-500 mr-2"></i>Добавить вопрос</h2><i id="formToggleIcon" class="fas fa-chevron-up text-gray-400"></i></div>
             <div id="formContent" class="mt-4 space-y-3">
-              <div class="flex gap-2">
-                <select id="type" onchange="toggleType()" class="flex-1 p-2 bg-gray-100 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-                  <option value="multiple">📌 Выбор ответа</option>
-                  <option value="written">✍️ Письменный ответ</option>
-                </select>
-                <button onclick="clearForm()" class="btn btn-outline text-sm">Очистить</button>
-              </div>
+              <div class="flex gap-2"><select id="type" onchange="toggleType()" class="flex-1 p-2 bg-gray-100 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700"><option value="multiple">📌 Выбор ответа</option><option value="written">✍️ Письменный ответ</option></select><button onclick="clearForm()" class="btn btn-outline text-sm">Очистить</button></div>
               <textarea id="q" placeholder="Вопрос..." rows="2" class="w-full p-2 bg-gray-100 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700"></textarea>
-              <div id="optionFields">
-                <input id="a1" placeholder="Вариант 1" class="w-full p-2 bg-gray-100 dark:bg-gray-800 rounded-lg mb-2 border border-gray-200 dark:border-gray-700" />
-                <input id="a2" placeholder="Вариант 2" class="w-full p-2 bg-gray-100 dark:bg-gray-800 rounded-lg mb-2 border border-gray-200 dark:border-gray-700" />
-                <input id="a3" placeholder="Вариант 3" class="w-full p-2 bg-gray-100 dark:bg-gray-800 rounded-lg mb-2 border border-gray-200 dark:border-gray-700" />
-              </div>
+              <div id="optionFields"><input id="a1" placeholder="Вариант 1" class="w-full p-2 bg-gray-100 dark:bg-gray-800 rounded-lg mb-2 border border-gray-200 dark:border-gray-700" /><input id="a2" placeholder="Вариант 2" class="w-full p-2 bg-gray-100 dark:bg-gray-800 rounded-lg mb-2 border border-gray-200 dark:border-gray-700" /><input id="a3" placeholder="Вариант 3" class="w-full p-2 bg-gray-100 dark:bg-gray-800 rounded-lg mb-2 border border-gray-200 dark:border-gray-700" /></div>
               <input id="correct" placeholder="Правильный ответ" class="w-full p-2 bg-gray-100 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700" />
               <input id="tags" placeholder="Теги (через запятую, например: транспорт, правила)" class="w-full p-2 bg-gray-100 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 text-sm" />
-              <div class="flex gap-2">
-                <button id="addBtn" onclick="addQuestion()" class="btn btn-success flex-1">
-                  <i class="fas fa-plus mr-1"></i> Добавить
-                </button>
-                <button onclick="showPreview()" class="btn btn-outline flex-1">
-                  <i class="fas fa-eye mr-1"></i> Предпросмотр
-                </button>
-              </div>
+              <div class="flex gap-2"><button id="addBtn" onclick="addQuestion()" class="btn btn-success flex-1"><i class="fas fa-plus mr-1"></i> Добавить</button><button onclick="showPreview()" class="btn btn-outline flex-1"><i class="fas fa-eye mr-1"></i> Предпросмотр</button></div>
             </div>
           </div>
 
-          <!-- Поиск и фильтры -->
           <div class="flex flex-col sm:flex-row gap-3 mb-4">
-            <div class="flex-1 relative">
-              <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
-              <input id="searchInput" type="text" placeholder="Поиск по вопросам, ответам или тегам..." oninput="filterQuestions()" class="w-full p-2 pl-9 bg-gray-100 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700" />
-            </div>
-            <div class="flex gap-2 items-center">
-              <span class="text-sm text-gray-500">Показать:</span>
-              <select id="perPage" onchange="changePerPage()" class="p-2 bg-gray-100 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 text-sm">
-                <option value="5">5</option>
-                <option value="10" selected>10</option>
-                <option value="20">20</option>
-                <option value="50">50</option>
-              </select>
-            </div>
+            <div class="flex-1 relative"><i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i><input id="searchInput" type="text" placeholder="Поиск..." oninput="filterQuestions()" class="w-full p-2 pl-9 bg-gray-100 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700" /></div>
+            <div class="flex gap-2 items-center"><span class="text-sm text-gray-500">Показать:</span><select id="perPage" onchange="changePerPage()" class="p-2 bg-gray-100 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 text-sm"><option value="5">5</option><option value="10" selected>10</option><option value="20">20</option><option value="50">50</option></select></div>
           </div>
 
-          <!-- Список вопросов -->
-          <div class="flex justify-between items-center mb-3">
-            <h2 class="font-semibold text-gray-700 dark:text-gray-300">
-              <i class="fas fa-list-ul mr-2 text-blue-500"></i>Список вопросов
-            </h2>
-            <span id="questionCount" class="text-sm text-gray-500"></span>
-          </div>
-          
+          <div class="flex justify-between items-center mb-3"><h2 class="font-semibold text-gray-700 dark:text-gray-300"><i class="fas fa-list-ul mr-2 text-blue-500"></i>Список вопросов</h2><span id="questionCount" class="text-sm text-gray-500"></span></div>
           <div id="list" class="space-y-2 max-h-[500px] overflow-y-auto pr-1"></div>
-          
-          <!-- Пагинация -->
           <div id="pagination" class="flex justify-center gap-1 mt-4"></div>
-          
-          <div class="text-center text-xs text-gray-400 mt-4">
-            <i class="fas fa-arrows-alt mr-1"></i> Перетаскивайте вопросы за значок <i class="fas fa-grip-vertical mx-1"></i> для изменения порядка
-          </div>
+          <div class="text-center text-xs text-gray-400 mt-4"><i class="fas fa-arrows-alt mr-1"></i> Перетаскивайте вопросы за значок <i class="fas fa-grip-vertical mx-1"></i> для изменения порядка</div>
         </div>
       </main>
     </div>
   </div>
 
-  <!-- Модальное окно предпросмотра -->
-  <div id="previewModal" class="preview-modal" onclick="if(event.target===this) closePreview()">
-    <div class="preview-content">
-      <h3 class="font-bold mb-3 flex items-center gap-2"><i class="fas fa-eye text-blue-500"></i>Предпросмотр вопроса</h3>
-      <div id="previewContent"></div>
-      <button onclick="closePreview()" class="btn btn-outline w-full mt-4">Закрыть</button>
-    </div>
-  </div>
+  <div id="previewModal" class="preview-modal" onclick="if(event.target===this) closePreview()"><div class="preview-content"><h3 class="font-bold mb-3 flex items-center gap-2"><i class="fas fa-eye text-blue-500"></i>Предпросмотр вопроса</h3><div id="previewContent"></div><button onclick="closePreview()" class="btn btn-outline w-full mt-4">Закрыть</button></div></div>
 
 <script>
-// ========== FIREBASE КОНФИГ ==========
 const FIREBASE_CONFIG = {
   apiKey: "AIzaSyCuOIt7wMUrN8vu9RQqivNj9w3CdFitrqE",
   authDomain: "moscow-live-tests.firebaseapp.com",
@@ -457,7 +147,6 @@ const FIREBASE_CONFIG = {
   messagingSenderId: "956332293918",
   appId: "1:956332293918:web:e7f66986cca2a30474130f"
 };
-// ====================================
 
 const PASSWORD = "admin2024";
 let currentSet = "ppoQuestions";
@@ -469,21 +158,6 @@ let currentPage = 1;
 let perPage = 10;
 let autoSaveTimer = null;
 let formExpanded = true;
-
-const DEFAULTS = {
-  ppoQuestions: [
-    { q: "Как правильно начать объявление?", options: ["а) \"продам машину\"", "б) \"Продам а/м\"", "в) \"ПРОДАМ ТАЧКУ\""], answer: "б) \"Продам а/м\"", tags: ["основные правила"] },
-    { q: "Можно ли писать цену как «5кк»?", options: ["а) Да", "б) Нет"], answer: "б) Нет", tags: ["основные правила"] },
-    { q: "Как обозначить авто с полным тюнингом?", options: ["а) FT", "б) ET"], answer: "а) FT", tags: ["транспорт"] }
-  ],
-  ppoWrittenQuestions: [
-    { q: "Продам а/м бмв м3", answer: "Не корректное объявление.", tags: ["примеры"] },
-    { q: "Куплю Майб Г цена договорная", answer: "Не корректное объявление.", tags: ["примеры"] }
-  ],
-  ustavQuestions: [
-    { q: "Кто имеет право вносить изменения в Устав?", options: ["А) Любой сотрудник", "Б) Только Директор"], answer: "Б", tags: ["общие"] }
-  ]
-};
 
 function showToast(msg, isError = false) {
   const toast = document.createElement('div');
@@ -515,217 +189,126 @@ function toggleForm() {
   formExpanded = !formExpanded;
   const content = document.getElementById('formContent');
   const icon = document.getElementById('formToggleIcon');
-  if (formExpanded) {
-    content.style.display = 'block';
-    icon.className = 'fas fa-chevron-up';
-  } else {
-    content.style.display = 'none';
-    icon.className = 'fas fa-chevron-down';
-  }
+  if (formExpanded) { content.style.display = 'block'; icon.className = 'fas fa-chevron-up'; }
+  else { content.style.display = 'none'; icon.className = 'fas fa-chevron-down'; }
 }
 
 function updateStats() {
   const multipleCount = questions.filter(q => q.options).length;
   const writtenCount = questions.filter(q => !q.options).length;
-  const withTagsCount = questions.filter(q => q.tags && q.tags.length).length;
   document.getElementById('statTotal').innerText = questions.length;
   document.getElementById('statMultiple').innerText = multipleCount;
   document.getElementById('statWritten').innerText = writtenCount;
-  document.getElementById('statWithTags').innerText = withTagsCount;
 }
 
 function initFirebase() {
   try {
-    if (!firebase.apps.length) {
-      firebase.initializeApp(FIREBASE_CONFIG);
-    }
+    if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
     db = firebase.database();
     showToast('✅ Firebase подключен');
-    loadAllFromFirebase();
+    loadFromFirebase();
     startAutoSave();
-  } catch(e) {
-    console.error(e);
-    showToast('❌ Ошибка Firebase', true);
-  }
+  } catch(e) { console.error(e); showToast('❌ Ошибка Firebase', true); }
 }
 
 function startAutoSave() {
   if (autoSaveTimer) clearInterval(autoSaveTimer);
-  autoSaveTimer = setInterval(() => {
-    if (questions.length > 0 && db) {
-      forceSyncToFirebase();
-    }
-  }, 30000);
+  autoSaveTimer = setInterval(() => { if (db) syncToFirebase(); }, 30000);
 }
 
-async function loadAllFromFirebase() {
+async function loadFromFirebase() {
   if (!db) return;
   try {
     const snapshot = await db.ref(`questions/${currentSet}`).once('value');
     if (snapshot.exists()) {
       questions = snapshot.val();
     } else {
-      questions = DEFAULTS[currentSet] || [];
-      await db.ref(`questions/${currentSet}`).set(questions);
+      questions = [];
+      await db.ref(`questions/${currentSet}`).set([]);
     }
     filteredQuestions = [...questions];
     renderList();
     updateStats();
     showToast('☁️ Данные загружены');
-  } catch(e) {
-    console.error(e);
-  }
+  } catch(e) { console.error(e); }
 }
 
-async function forceSyncToFirebase() {
+async function syncToFirebase() {
   if (!db) return;
   try {
     await db.ref(`questions/${currentSet}`).set(questions);
-  } catch(e) {
-    console.error(e);
-  }
+    console.log('💾 Сохранено в Firebase');
+  } catch(e) { console.error(e); }
 }
 
 let dragStartIndex = null;
-
-function onDragStart(e, index) {
-  dragStartIndex = index;
-  e.dataTransfer.effectAllowed = 'move';
-  e.target.classList.add('opacity-50');
-}
-
-function onDragOver(e, index) {
-  e.preventDefault();
-  const target = e.target.closest('.question-card');
-  if (target && dragStartIndex !== null && dragStartIndex !== index) {
-    target.classList.add('drag-over');
-  }
-}
-
-function onDragLeave(e) {
-  const target = e.target.closest('.question-card');
-  if (target) target.classList.remove('drag-over');
-}
-
+function onDragStart(e, index) { dragStartIndex = index; e.dataTransfer.effectAllowed = 'move'; e.target.classList.add('opacity-50'); }
+function onDragOver(e, index) { e.preventDefault(); const target = e.target.closest('.question-card'); if (target && dragStartIndex !== null && dragStartIndex !== index) target.classList.add('drag-over'); }
+function onDragLeave(e) { const target = e.target.closest('.question-card'); if (target) target.classList.remove('drag-over'); }
 function onDrop(e, dropIndex) {
   e.preventDefault();
   const target = e.target.closest('.question-card');
   if (target) target.classList.remove('drag-over');
-  
   if (dragStartIndex !== null && dragStartIndex !== dropIndex) {
     const item = questions[dragStartIndex];
     questions.splice(dragStartIndex, 1);
     questions.splice(dropIndex, 0, item);
     filteredQuestions = [...questions];
     renderList();
-    forceSyncToFirebase();
-    showToast('📌 Порядок вопросов изменён');
+    syncToFirebase();
+    showToast('📌 Порядок изменён');
   }
   dragStartIndex = null;
 }
-
-function onDragEnd(e) {
-  e.target.classList.remove('opacity-50');
-  dragStartIndex = null;
-}
+function onDragEnd(e) { e.target.classList.remove('opacity-50'); dragStartIndex = null; }
 
 function filterQuestions() {
-  const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-  if (!searchTerm) {
-    filteredQuestions = [...questions];
-  } else {
-    filteredQuestions = questions.filter(q => 
-      q.q.toLowerCase().includes(searchTerm) ||
-      (q.answer && q.answer.toLowerCase().includes(searchTerm)) ||
-      (q.tags && q.tags.some(tag => tag.toLowerCase().includes(searchTerm)))
-    );
-  }
+  const term = document.getElementById('searchInput').value.toLowerCase();
+  if (!term) filteredQuestions = [...questions];
+  else filteredQuestions = questions.filter(q => q.q.toLowerCase().includes(term) || (q.answer && q.answer.toLowerCase().includes(term)));
   currentPage = 1;
   renderList();
 }
 
-function changePerPage() {
-  perPage = parseInt(document.getElementById('perPage').value);
-  currentPage = 1;
-  renderList();
-}
+function changePerPage() { perPage = parseInt(document.getElementById('perPage').value); currentPage = 1; renderList(); }
 
 function renderPagination() {
-  const totalPages = Math.ceil(filteredQuestions.length / perPage);
-  const paginationDiv = document.getElementById('pagination');
-  if (!paginationDiv) return;
-  
-  if (totalPages <= 1) {
-    paginationDiv.innerHTML = '';
-    return;
-  }
-  
+  const total = Math.ceil(filteredQuestions.length / perPage);
+  const div = document.getElementById('pagination');
+  if (!div) return;
+  if (total <= 1) { div.innerHTML = ''; return; }
   let html = '';
-  for (let i = 1; i <= Math.min(totalPages, 10); i++) {
-    html += `<span class="pagination-btn ${i === currentPage ? 'active' : ''}" onclick="goToPage(${i})">${i}</span>`;
-  }
-  paginationDiv.innerHTML = html;
+  for (let i = 1; i <= Math.min(total, 10); i++) html += `<span class="pagination-btn ${i === currentPage ? 'active' : ''}" onclick="goToPage(${i})">${i}</span>`;
+  div.innerHTML = html;
 }
-
-function goToPage(page) {
-  currentPage = page;
-  renderList();
-}
+function goToPage(page) { currentPage = page; renderList(); }
 
 function showPreview() {
   const type = document.getElementById('type').value;
   const q = document.getElementById('q').value.trim();
   const correct = document.getElementById('correct').value.trim();
-  
-  if (!q) {
-    showToast('Сначала введите вопрос!', true);
-    return;
-  }
-  
-  let previewHtml = `<p class="font-semibold mb-3">${escapeHtml(q)}</p>`;
-  
+  if (!q) { showToast('Сначала введите вопрос!', true); return; }
+  let html = `<p class="font-semibold mb-3">${escapeHtml(q)}</p>`;
   if (type === 'multiple') {
     const a1 = document.getElementById('a1').value.trim();
     const a2 = document.getElementById('a2').value.trim();
     const a3 = document.getElementById('a3').value.trim();
-    previewHtml += `
-      <div class="space-y-2">
-        <label class="flex items-center gap-2 p-2 bg-gray-100 dark:bg-gray-800 rounded-lg"><input type="radio" disabled class="mr-2">${escapeHtml(a1 || 'Вариант 1')}</label>
-        <label class="flex items-center gap-2 p-2 bg-gray-100 dark:bg-gray-800 rounded-lg"><input type="radio" disabled class="mr-2">${escapeHtml(a2 || 'Вариант 2')}</label>
-        <label class="flex items-center gap-2 p-2 bg-gray-100 dark:bg-gray-800 rounded-lg"><input type="radio" disabled class="mr-2">${escapeHtml(a3 || 'Вариант 3')}</label>
-      </div>
-      <p class="mt-3 text-green-600"><i class="fas fa-check-circle mr-1"></i>Правильный ответ: ${escapeHtml(correct)}</p>
-    `;
+    html += `<div class="space-y-2"><label class="flex items-center gap-2 p-2 bg-gray-100 dark:bg-gray-800 rounded-lg"><input type="radio" disabled>${escapeHtml(a1 || 'Вариант 1')}</label><label class="flex items-center gap-2 p-2 bg-gray-100 dark:bg-gray-800 rounded-lg"><input type="radio" disabled>${escapeHtml(a2 || 'Вариант 2')}</label><label class="flex items-center gap-2 p-2 bg-gray-100 dark:bg-gray-800 rounded-lg"><input type="radio" disabled>${escapeHtml(a3 || 'Вариант 3')}</label></div><p class="mt-3 text-green-600"><i class="fas fa-check-circle mr-1"></i>Ответ: ${escapeHtml(correct)}</p>`;
   } else {
-    previewHtml += `<textarea rows="3" class="w-full p-2 border rounded-lg mt-2" placeholder="Введите ответ..."></textarea>`;
-    previewHtml += `<p class="mt-3 text-green-600"><i class="fas fa-check-circle mr-1"></i>Правильный ответ: ${escapeHtml(correct)}</p>`;
+    html += `<textarea rows="3" class="w-full p-2 border rounded-lg mt-2" placeholder="Введите ответ..."></textarea><p class="mt-3 text-green-600"><i class="fas fa-check-circle mr-1"></i>Ответ: ${escapeHtml(correct)}</p>`;
   }
-  
-  document.getElementById('previewContent').innerHTML = previewHtml;
+  document.getElementById('previewContent').innerHTML = html;
   document.getElementById('previewModal').classList.add('active');
 }
-
-function closePreview() {
-  document.getElementById('previewModal').classList.remove('active');
-}
-
-function escapeHtml(text) {
-  if (!text) return '';
-  return text.replace(/[&<>]/g, function(m) {
-    if (m === '&') return '&amp;';
-    if (m === '<') return '&lt;';
-    if (m === '>') return '&gt;';
-    return m;
-  });
-}
+function closePreview() { document.getElementById('previewModal').classList.remove('active'); }
+function escapeHtml(text) { if (!text) return ''; return text.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m])); }
 
 function copyQuestion(index) {
-  const original = questions[index];
-  const copy = JSON.parse(JSON.stringify(original));
+  const copy = JSON.parse(JSON.stringify(questions[index]));
   copy.q = copy.q + " (копия)";
   questions.push(copy);
   filteredQuestions = [...questions];
-  forceSyncToFirebase();
+  syncToFirebase();
   renderList();
   updateStats();
   showToast('📋 Вопрос скопирован');
@@ -734,22 +317,13 @@ function copyQuestion(index) {
 function renderList() {
   const list = document.getElementById('list');
   if (!list) return;
-  
   const start = (currentPage - 1) * perPage;
-  const end = start + perPage;
-  const pageQuestions = filteredQuestions.slice(start, end);
-  
+  const pageQuestions = filteredQuestions.slice(start, start + perPage);
   list.innerHTML = '';
-  if (!pageQuestions.length) {
-    list.innerHTML = '<div class="text-center text-gray-500 p-8"><i class="fas fa-inbox text-4xl mb-2 opacity-50"></i><p>Нет вопросов. Добавьте первый!</p></div>';
-    renderPagination();
-    return;
-  }
-  
+  if (!pageQuestions.length) { list.innerHTML = '<div class="text-center text-gray-500 p-8"><i class="fas fa-inbox text-4xl mb-2 opacity-50"></i><p>Нет вопросов. Добавьте первый!</p></div>'; renderPagination(); return; }
   pageQuestions.forEach((item, idx) => {
     const globalIndex = questions.findIndex(q => q.q === item.q && q.answer === item.answer);
     const actualIndex = globalIndex !== -1 ? globalIndex : start + idx;
-    
     const el = document.createElement('div');
     el.className = 'question-card';
     el.draggable = true;
@@ -759,38 +333,14 @@ function renderList() {
     el.ondragleave = onDragLeave;
     el.ondrop = (e) => onDrop(e, actualIndex);
     el.ondragend = onDragEnd;
-    
     const preview = item.q.length > 100 ? item.q.substring(0, 100) + '...' : item.q;
-    
     let tagsHtml = '';
-    if (item.tags && item.tags.length) {
-      tagsHtml = `<div class="flex flex-wrap mt-2">${item.tags.map(tag => `<span class="tag"><i class="fas fa-tag mr-1 text-xs"></i>${escapeHtml(tag)}</span>`).join('')}</div>`;
-    }
-    
+    if (item.tags && item.tags.length) tagsHtml = `<div class="flex flex-wrap mt-2">${item.tags.map(tag => `<span class="tag"><i class="fas fa-tag mr-1 text-xs"></i>${escapeHtml(tag)}</span>`).join('')}</div>`;
     const typeIcon = item.options ? '<i class="fas fa-list-ul text-purple-500 mr-1"></i>' : '<i class="fas fa-pen text-green-500 mr-1"></i>';
     const typeText = item.options ? 'Выбор ответа' : 'Письменный';
-    
-    el.innerHTML = `
-      <div class="flex justify-between items-start">
-        <div class="flex-1">
-          <div class="flex items-center gap-2">
-            <i class="fas fa-grip-vertical text-gray-400 cursor-grab"></i>
-            <span class="font-bold text-gray-500 text-sm">#${start + idx + 1}</span>
-            <span class="text-xs text-gray-400">${typeIcon} ${typeText}</span>
-          </div>
-          <div class="mt-1 font-medium text-gray-800 dark:text-gray-200">${escapeHtml(preview)}</div>
-          ${tagsHtml}
-        </div>
-        <div class="flex gap-1 ml-3">
-          <button onclick="editQuestion(${actualIndex})" class="text-blue-500 hover:text-blue-700 p-1 rounded" title="Редактировать"><i class="fas fa-edit"></i></button>
-          <button onclick="copyQuestion(${actualIndex})" class="text-green-500 hover:text-green-700 p-1 rounded" title="Копировать"><i class="fas fa-copy"></i></button>
-          <button onclick="del(${actualIndex})" class="text-red-500 hover:text-red-700 p-1 rounded" title="Удалить"><i class="fas fa-trash"></i></button>
-        </div>
-      </div>
-    `;
+    el.innerHTML = `<div class="flex justify-between items-start"><div class="flex-1"><div class="flex items-center gap-2"><i class="fas fa-grip-vertical text-gray-400 cursor-grab"></i><span class="font-bold text-gray-500 text-sm">#${start + idx + 1}</span><span class="text-xs text-gray-400">${typeIcon} ${typeText}</span></div><div class="mt-1 font-medium text-gray-800 dark:text-gray-200">${escapeHtml(preview)}</div>${tagsHtml}</div><div class="flex gap-1 ml-3"><button onclick="editQuestion(${actualIndex})" class="text-blue-500 hover:text-blue-700 p-1 rounded" title="Редактировать"><i class="fas fa-edit"></i></button><button onclick="copyQuestion(${actualIndex})" class="text-green-500 hover:text-green-700 p-1 rounded" title="Копировать"><i class="fas fa-copy"></i></button><button onclick="del(${actualIndex})" class="text-red-500 hover:text-red-700 p-1 rounded" title="Удалить"><i class="fas fa-trash"></i></button></div></div>`;
     list.appendChild(el);
   });
-  
   renderPagination();
   document.getElementById('questionCount').innerHTML = `<i class="fas fa-database mr-1"></i>${questions.length} вопросов (показано ${filteredQuestions.length})`;
 }
@@ -801,10 +351,8 @@ function addQuestion() {
   const correct = document.getElementById('correct').value.trim();
   const tagsText = document.getElementById('tags').value.trim();
   const tags = tagsText ? tagsText.split(',').map(t => t.trim()).filter(t => t) : [];
-  
   if (!q) { showToast('Введите вопрос!', true); return; }
   if (!correct) { showToast('Введите ответ!', true); return; }
-  
   let questionObj;
   if (type === 'multiple') {
     const a1 = document.getElementById('a1').value.trim();
@@ -815,7 +363,6 @@ function addQuestion() {
   } else {
     questionObj = { q, answer: correct, tags };
   }
-  
   if (editingIndex >= 0) {
     questions[editingIndex] = questionObj;
     editingIndex = -1;
@@ -826,7 +373,7 @@ function addQuestion() {
     showToast('✅ Вопрос добавлен');
   }
   filteredQuestions = [...questions];
-  forceSyncToFirebase();
+  syncToFirebase();
   renderList();
   updateStats();
   clearForm();
@@ -870,7 +417,7 @@ function del(i) {
   if (confirm('Удалить вопрос?')) {
     questions.splice(i, 1);
     filteredQuestions = [...questions];
-    forceSyncToFirebase();
+    syncToFirebase();
     renderList();
     updateStats();
     showToast('🗑️ Вопрос удалён');
@@ -879,24 +426,18 @@ function del(i) {
 
 function toggleType() {
   const type = document.getElementById('type').value;
-  const optionFields = document.getElementById('optionFields');
-  if (optionFields) optionFields.style.display = type === 'multiple' ? 'block' : 'none';
+  document.getElementById('optionFields').style.display = type === 'multiple' ? 'block' : 'none';
 }
 
 function switchSet(set) {
   currentSet = set;
-  loadAllFromFirebase();
+  loadFromFirebase();
   clearForm();
   document.getElementById('searchInput').value = '';
   currentPage = 1;
-  updateStats();
-  
   ['ppoQuestions', 'ppoWrittenQuestions', 'ustavQuestions'].forEach(id => {
     const btn = document.getElementById(`btn-${id}`);
-    if (btn) {
-      if (id === set) btn.classList.add('active');
-      else btn.classList.remove('active');
-    }
+    if (btn) { if (id === set) btn.classList.add('active'); else btn.classList.remove('active'); }
   });
 }
 
@@ -922,35 +463,22 @@ function importAllData(input) {
       if (data[currentSet]) {
         questions = data[currentSet];
         filteredQuestions = [...questions];
-        await forceSyncToFirebase();
+        await syncToFirebase();
         renderList();
         updateStats();
         showToast('📂 Импорт выполнен');
       }
-    } catch(err) {
-      showToast('Ошибка импорта', true);
-    }
+    } catch(err) { showToast('Ошибка импорта', true); }
   };
   reader.readAsText(file);
   input.value = '';
-}
-
-function resetToDefault() {
-  if (confirm(`Сбросить вопросы "${currentSet}" к стандартным?`)) {
-    questions = DEFAULTS[currentSet] ? JSON.parse(JSON.stringify(DEFAULTS[currentSet])) : [];
-    filteredQuestions = [...questions];
-    forceSyncToFirebase();
-    renderList();
-    updateStats();
-    showToast('🔄 Вопросы сброшены');
-  }
 }
 
 async function clearAllData() {
   if (confirm('ВНИМАНИЕ! Это удалит ВСЕ вопросы. Продолжить?')) {
     questions = [];
     filteredQuestions = [];
-    await forceSyncToFirebase();
+    await syncToFirebase();
     renderList();
     updateStats();
     showToast('🗑️ Все вопросы удалены');
@@ -963,60 +491,23 @@ function loadTestVisibility() {
   if (saved) return { ...defaults, ...JSON.parse(saved) };
   return defaults;
 }
+function saveTestVisibility(settings) { localStorage.setItem('testVisibility', JSON.stringify(settings)); if (db) db.ref('settings/testVisibility').set(settings); }
+function toggleTestVisibility(test, isVisible) { const settings = loadTestVisibility(); settings[test] = isVisible; saveTestVisibility(settings); const names = { ppo: 'Тест ППО', ustav: 'Тест Устава', leadership: 'Тест Руководства' }; showToast(`${names[test]} ${isVisible ? 'показан' : 'скрыт'}`); }
+function updateToggleButtons() { const settings = loadTestVisibility(); document.getElementById('togglePpo').checked = settings.ppo; document.getElementById('toggleUstav').checked = settings.ustav; document.getElementById('toggleLeadership').checked = settings.leadership; }
 
-function saveTestVisibility(settings) {
-  localStorage.setItem('testVisibility', JSON.stringify(settings));
-  if (db) db.ref('settings/testVisibility').set(settings);
-}
-
-function toggleTestVisibility(test, isVisible) {
-  const settings = loadTestVisibility();
-  settings[test] = isVisible;
-  saveTestVisibility(settings);
-  const names = { ppo: 'Тест ППО', ustav: 'Тест Устава', leadership: 'Тест Руководства' };
-  showToast(`${names[test]} ${isVisible ? 'показан' : 'скрыт'}`);
-}
-
-function updateToggleButtons() {
-  const settings = loadTestVisibility();
-  const ppo = document.getElementById('togglePpo');
-  const ustav = document.getElementById('toggleUstav');
-  const leadership = document.getElementById('toggleLeadership');
-  if (ppo) ppo.checked = settings.ppo;
-  if (ustav) ustav.checked = settings.ustav;
-  if (leadership) leadership.checked = settings.leadership;
-}
-
-// Горячие клавиши
 document.addEventListener('keydown', function(e) {
-  if (e.ctrlKey && e.key === 's') {
-    e.preventDefault();
-    if (editingIndex >= 0 || (document.getElementById('q').value.trim())) {
-      addQuestion();
-    } else {
-      forceSyncToFirebase();
-      showToast('💾 Сохранено');
-    }
-  }
-  if (e.ctrlKey && e.key === 'Enter') {
-    e.preventDefault();
-    addQuestion();
-  }
+  if (e.ctrlKey && e.key === 's') { e.preventDefault(); if (editingIndex >= 0 || document.getElementById('q').value.trim()) addQuestion(); else { syncToFirebase(); showToast('💾 Сохранено'); } }
+  if (e.ctrlKey && e.key === 'Enter') { e.preventDefault(); addQuestion(); }
 });
 
-// Вход в админку
 document.getElementById("pw").addEventListener("change", function(e) {
   if (e.target.value === PASSWORD) {
     document.getElementById("panel").classList.remove("hidden");
-    if (!localStorage.getItem('testVisibility')) {
-      localStorage.setItem('testVisibility', JSON.stringify({ ppo: true, ustav: true, leadership: true }));
-    }
+    if (!localStorage.getItem('testVisibility')) localStorage.setItem('testVisibility', JSON.stringify({ ppo: true, ustav: true, leadership: true }));
     updateToggleButtons();
     initFirebase();
-    showToast('🔓 Добро пожаловать в админ-панель');
-  } else {
-    showToast('❌ Неверный пароль', true);
-  }
+    showToast('🔓 Добро пожаловать');
+  } else { showToast('❌ Неверный пароль', true); }
 });
 </script>
 </body>
