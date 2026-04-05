@@ -21,6 +21,7 @@
       animation: slideIn 0.3s ease;
     }
     .toast.error { background: #ef4444; }
+    .toast.sync { background: #3b82f6; }
     @keyframes slideIn {
       from { transform: translateX(100%); opacity: 0; }
       to { transform: translateX(0); opacity: 1; }
@@ -137,7 +138,7 @@
   </div>
 
 <script>
-// ========== ВАШ FIREBASE КОНФИГ (ВШИТ) ==========
+// ========== FIREBASE КОНФИГ ==========
 const FIREBASE_CONFIG = {
   apiKey: "AIzaSyCuOIt7wMUrN8vu9RQqivNj9w3CdFitrqE",
   authDomain: "moscow-live-tests.firebaseapp.com",
@@ -146,7 +147,7 @@ const FIREBASE_CONFIG = {
   messagingSenderId: "956332293918",
   appId: "1:956332293918:web:e7f66986cca2a30474130f"
 };
-// ===============================================
+// ====================================
 
 const PASSWORD = "admin2024";
 let currentSet = "ppoQuestions";
@@ -157,18 +158,14 @@ let db = null;
 const DEFAULTS = {
   ppoQuestions: [
     { q: "Как правильно начать объявление?", options: ["а) \"продам машину\"", "б) \"Продам а/м\"", "в) \"ПРОДАМ ТАЧКУ\""], answer: "б) \"Продам а/м\"" },
-    { q: "Можно ли писать цену как «5кк»?", options: ["а) Да", "б) Нет"], answer: "б) Нет" },
-    { q: "Обязательно ли указывать «Цена:» для продажи?", options: ["а) Да", "б) Нет"], answer: "а) Да" },
-    { q: "Как обозначить авто с полным тюнингом?", options: ["а) FT", "б) ET"], answer: "а) FT" }
+    { q: "Можно ли писать цену как «5кк»?", options: ["а) Да", "б) Нет"], answer: "б) Нет" }
   ],
   ppoWrittenQuestions: [
     { q: "Продам а/м бмв м3", answer: "Не корректное объявление." },
-    { q: "Куплю Майб Г цена договорная", answer: "Не корректное объявление." },
-    { q: "куплю саблю", answer: "Куплю клад \"Сабля\". Бюджет: Свободный." }
+    { q: "Куплю Майб Г цена договорная", answer: "Не корректное объявление." }
   ],
   ustavQuestions: [
-    { q: "Кто имеет право вносить изменения в Устав?", options: ["А) Любой сотрудник", "Б) Только Директор", "В) Отдел Кадров"], answer: "Б" },
-    { q: "Какие территории закрыты для гражданских?", options: ["А) Кабинет Директора", "Б) Второй, третий этаж и крыша", "В) Весь офис"], answer: "Б" }
+    { q: "Кто имеет право вносить изменения в Устав?", options: ["А) Любой сотрудник", "Б) Только Директор"], answer: "Б" }
   ]
 };
 
@@ -206,34 +203,43 @@ function initFirebase() {
     }
     db = firebase.database();
     showToast('✅ Firebase подключен');
+    
+    // Загружаем данные и настраиваем слушатели
     loadAllFromFirebase();
-    setupFirebaseListeners();
+    setupListeners();
   } catch(e) {
     console.error(e);
+    showToast('❌ Ошибка Firebase', true);
   }
 }
 
-function setupFirebaseListeners() {
+function setupListeners() {
   if (!db) return;
   
+  // Слушаем изменения видимости
   db.ref('settings/testVisibility').on('value', (snapshot) => {
     const data = snapshot.val();
     if (data) {
       localStorage.setItem('testVisibility', JSON.stringify(data));
       updateToggleButtons();
-      showToast('🔄 Настройки обновлены');
+      showToast('🔄 Настройки видимости обновлены');
     }
   });
   
+  // Слушаем изменения вопросов для каждого набора
   const sets = ['ppoQuestions', 'ppoWrittenQuestions', 'ustavQuestions'];
   sets.forEach(setName => {
     db.ref(`questions/${setName}`).on('value', (snapshot) => {
       const data = snapshot.val();
       if (data && Array.isArray(data)) {
+        // Сохраняем в localStorage
         localStorage.setItem(setName, JSON.stringify(data));
+        // Если это текущий набор — обновляем список
         if (currentSet === setName) {
-          loadQuestions();
-          showToast(`🔄 Вопросы обновлены`);
+          questions = data;
+          renderList();
+          document.getElementById('questionCount').innerText = `${questions.length} вопросов`;
+          showToast(`🔄 Вопросы "${setName}" обновлены из облака`);
         }
       }
     });
@@ -242,41 +248,65 @@ function setupFirebaseListeners() {
 
 async function loadAllFromFirebase() {
   if (!db) return;
+  
   try {
+    // Загружаем видимость
     const visSnapshot = await db.ref('settings/testVisibility').once('value');
     if (visSnapshot.exists()) {
       localStorage.setItem('testVisibility', JSON.stringify(visSnapshot.val()));
       updateToggleButtons();
     }
     
+    // Загружаем вопросы
     const sets = ['ppoQuestions', 'ppoWrittenQuestions', 'ustavQuestions'];
     for (const setName of sets) {
       const snapshot = await db.ref(`questions/${setName}`).once('value');
       if (snapshot.exists()) {
-        localStorage.setItem(setName, JSON.stringify(snapshot.val()));
-      } else if (!localStorage.getItem(setName)) {
+        const data = snapshot.val();
+        localStorage.setItem(setName, JSON.stringify(data));
+        if (currentSet === setName) {
+          questions = data;
+          renderList();
+          document.getElementById('questionCount').innerText = `${questions.length} вопросов`;
+        }
+      } else {
+        // Если в облаке нет данных, создаём дефолтные
         localStorage.setItem(setName, JSON.stringify(DEFAULTS[setName]));
         await db.ref(`questions/${setName}`).set(DEFAULTS[setName]);
+        if (currentSet === setName) {
+          questions = DEFAULTS[setName];
+          renderList();
+          document.getElementById('questionCount').innerText = `${questions.length} вопросов`;
+        }
       }
     }
-    if (currentSet) loadQuestions();
-    showToast('☁️ Данные загружены');
-  } catch(e) { console.error(e); }
+    showToast('☁️ Данные загружены из облака');
+  } catch(e) {
+    console.error(e);
+  }
 }
 
 async function syncToFirebase() {
   if (!db) return;
+  
   try {
+    // Синхронизируем видимость
     await db.ref('settings/testVisibility').set(loadTestVisibility());
+    
+    // Синхронизируем вопросы
     const sets = ['ppoQuestions', 'ppoWrittenQuestions', 'ustavQuestions'];
     for (const setName of sets) {
       const data = JSON.parse(localStorage.getItem(setName) || '[]');
       await db.ref(`questions/${setName}`).set(data);
     }
-    showToast('☁️ Синхронизировано');
-  } catch(e) { console.error(e); }
+    showToast('☁️ Данные синхронизированы с облаком');
+  } catch(e) {
+    console.error(e);
+    showToast('❌ Ошибка синхронизации', true);
+  }
 }
 
+// ========== УПРАВЛЕНИЕ ==========
 function loadTestVisibility() {
   const saved = localStorage.getItem('testVisibility');
   const defaults = { ppo: true, ustav: true, leadership: true };
@@ -307,25 +337,11 @@ function updateToggleButtons() {
   if (leadership) leadership.checked = settings.leadership;
 }
 
-function loadQuestions() {
-  questions = JSON.parse(localStorage.getItem(currentSet) || '[]');
-  const countSpan = document.getElementById('questionCount');
-  if (countSpan) countSpan.innerText = `${questions.length} вопросов`;
-  renderList();
-}
-
-function saveQuestions() {
-  localStorage.setItem(currentSet, JSON.stringify(questions));
-  loadQuestions();
-  showToast(`✅ Сохранено ${questions.length} вопросов`);
-  if (db) db.ref(`questions/${currentSet}`).set(questions);
-}
-
 function renderList() {
   const list = document.getElementById('list');
   if (!list) return;
   list.innerHTML = '';
-  if (!questions.length) {
+  if (!questions || !questions.length) {
     list.innerHTML = '<div class="text-center text-gray-500 p-4">Нет вопросов. Добавьте первый!</div>';
     return;
   }
@@ -347,6 +363,18 @@ function renderList() {
     `;
     list.appendChild(el);
   });
+}
+
+function saveQuestions() {
+  // Сохраняем в localStorage
+  localStorage.setItem(currentSet, JSON.stringify(questions));
+  // Сохраняем в Firebase
+  if (db) {
+    db.ref(`questions/${currentSet}`).set(questions);
+  }
+  document.getElementById('questionCount').innerText = `${questions.length} вопросов`;
+  renderList();
+  showToast(`✅ Сохранено ${questions.length} вопросов`);
 }
 
 function addQuestion() {
@@ -427,8 +455,17 @@ function toggleType() {
 
 function switchSet(set) {
   currentSet = set;
-  loadQuestions();
+  // Загружаем вопросы из localStorage
+  const saved = localStorage.getItem(set);
+  if (saved) {
+    questions = JSON.parse(saved);
+  } else {
+    questions = DEFAULTS[set] || [];
+  }
+  document.getElementById('questionCount').innerText = `${questions.length} вопросов`;
+  renderList();
   clearForm();
+  
   ['ppoQuestions', 'ppoWrittenQuestions', 'ustavQuestions'].forEach(id => {
     const btn = document.getElementById(`btn-${id}`);
     if (btn) {
@@ -467,7 +504,11 @@ function importAllData(input) {
       if (data.ustavQuestions) localStorage.setItem('ustavQuestions', JSON.stringify(data.ustavQuestions));
       if (data.testVisibility) localStorage.setItem('testVisibility', JSON.stringify(data.testVisibility));
       updateToggleButtons();
-      loadQuestions();
+      if (currentSet === 'ppoQuestions') questions = data.ppoQuestions || [];
+      if (currentSet === 'ppoWrittenQuestions') questions = data.ppoWrittenQuestions || [];
+      if (currentSet === 'ustavQuestions') questions = data.ustavQuestions || [];
+      renderList();
+      document.getElementById('questionCount').innerText = `${questions.length} вопросов`;
       showToast('📂 Импорт выполнен');
       if (db) syncToFirebase();
     } catch(err) {
@@ -480,16 +521,18 @@ function importAllData(input) {
 
 function resetToDefault() {
   if (confirm(`Сбросить все вопросы "${currentSet}" к стандартным?`)) {
-    localStorage.setItem(currentSet, JSON.stringify(DEFAULTS[currentSet]));
-    loadQuestions();
+    questions = [...DEFAULTS[currentSet]];
+    saveQuestions();
     showToast('🔄 Вопросы сброшены');
-    if (db) syncToFirebase();
   }
 }
 
+// ВХОД В АДМИНКУ
 document.getElementById("pw").addEventListener("change", function(e) {
   if (e.target.value === PASSWORD) {
     document.getElementById("panel").classList.remove("hidden");
+    
+    // Инициализация localStorage дефолтными значениями
     Object.keys(DEFAULTS).forEach(key => {
       if (!localStorage.getItem(key)) {
         localStorage.setItem(key, JSON.stringify(DEFAULTS[key]));
@@ -498,9 +541,12 @@ document.getElementById("pw").addEventListener("change", function(e) {
     if (!localStorage.getItem('testVisibility')) {
       localStorage.setItem('testVisibility', JSON.stringify({ ppo: true, ustav: true, leadership: true }));
     }
+    
     updateToggleButtons();
-    switchSet("ppoQuestions");
+    switchSet(currentSet);
     showToast('🔓 Добро пожаловать в админ-панель');
+    
+    // Запускаем Firebase
     initFirebase();
   } else {
     showToast('❌ Неверный пароль', true);
