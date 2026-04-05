@@ -56,17 +56,16 @@
   </div>
 
 <script>
-// ========== ВСТАВЬТЕ ВАШ FIREBASE CONFIG СЮДА ==========
-const firebaseConfig = {
+// ========== ВАШ FIREBASE КОНФИГ (ВШИТ) ==========
+const FIREBASE_CONFIG = {
   apiKey: "AIzaSyCuOIt7wMUrN8vu9RQqivNj9w3CdFitrqE",
   authDomain: "moscow-live-tests.firebaseapp.com",
   projectId: "moscow-live-tests",
   storageBucket: "moscow-live-tests.firebasestorage.app",
   messagingSenderId: "956332293918",
-  appId: "1:956332293918:web:e7f66986cca2a30474130f",
-  measurementId: "G-DLK6Q3SNVY"
+  appId: "1:956332293918:web:e7f66986cca2a30474130f"
 };
-// ======================================================
+// ===============================================
 
 let clickCount = 0, clickTimer = null;
 let db = null;
@@ -79,26 +78,21 @@ function showToast(msg) {
   setTimeout(() => toast.remove(), 3000);
 }
 
-// Инициализация Firebase
 function initFirebase() {
   if (!firebase.apps.length) {
     firebase.initializeApp(FIREBASE_CONFIG);
   }
   db = firebase.database();
   
-  // Загружаем настройки из Firebase
   db.ref('settings/testVisibility').once('value').then((snapshot) => {
     if (snapshot.exists()) {
       localStorage.setItem('testVisibility', JSON.stringify(snapshot.val()));
-      renderVisibleTests();
-    } else {
-      renderVisibleTests();
     }
+    renderVisibleTests();
   }).catch(() => {
     renderVisibleTests();
   });
   
-  // Слушаем изменения в реальном времени
   db.ref('settings/testVisibility').on('value', (snapshot) => {
     if (snapshot.exists()) {
       localStorage.setItem('testVisibility', JSON.stringify(snapshot.val()));
@@ -197,13 +191,7 @@ function sendSuggestion() {
 }
 
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeAdminModal(); });
-document.addEventListener('DOMContentLoaded', () => {
-  if (FIREBASE_CONFIG.apiKey !== "ВАШ_API_KEY") {
-    initFirebase();
-  } else {
-    renderVisibleTests();
-  }
-});
+document.addEventListener('DOMContentLoaded', initFirebase);
 </script>
 </body>
 </html>
