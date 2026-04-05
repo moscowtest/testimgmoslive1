@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ru" class="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>МОСКВА ЛАЙВ — Тест</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link href="styles.css" rel="stylesheet">
+  <script>
+    function toggleTheme() {
+      const html = document.documentElement;
+      const isDark = html.classList.contains('dark');
+      html.classList.toggle('dark');
+      html.classList.toggle('light');
+      localStorage.setItem('theme', html.classList.contains('dark') ? 'dark' : 'light');
+      document.getElementById('theme-icon').textContent = isDark ? '🌙' : '☀️';
+    }
+
+    // On page load, apply saved theme
+    (function() {
+      const savedTheme = localStorage.getItem('theme');
+      const html = document.documentElement;
+      if (savedTheme === 'dark') {
+        html.classList.add('dark');
+        html.classList.remove('light');
+        document.getElementById('theme-icon').textContent = '☀️';
+      } else {
+        html.classList.add('light');
+        html.classList.remove('dark');
+        document.getElementById('theme-icon').textContent = '🌙';
+      }
+    })();
+  </script>
+</head>
+<body class="transition-all">
+
+  <div class="absolute top-4 right-4">
+    <button onclick="toggleTheme()" class="text-2xl" title="Сменить тему" id="theme-icon">🌙</button>
+  </div>
+
+  <div class="min-h-screen flex flex-col items-center justify-center p-6">
+    <img src="logo.png" alt="Логотип Москва ЛАЙВ" class="w-48 mb-6 drop-shadow-lg rounded-xl">
+    <h1 class="text-4xl font-bold text-center mb-2">Тест МОСКВА ЛАЙВ</h1>
+    <p class="text-center text-lg mb-6">Выберите один из тестов ниже, чтобы начать</p>
+
+    <div class="flex flex-col gap-4 w-full max-w-sm space-y-4">
+      <a href="ustav.html" class="bg-blue-600 text-white py-3 rounded-xl text-center font-semibold shadow hover:bg-blue-700 transition">Тест по Уставу</a>
+      <a href="ppo.html" class="bg-purple-600 text-white py-3 rounded-xl text-center font-semibold shadow hover:bg-purple-700 transition">Тест по ППО</a>
+      <button onclick="sendSuggestion()" class="bg-green-600 text-white py-3 rounded-xl text-center font-semibold shadow hover:bg-green-700 transition">Предложения или ошибки</button>
+    </div>
+  </div>
+
+
+  <script>
+    function sendSuggestion() {
+      const suggestion = prompt("Пожалуйста, введите ваше предложение или опишите ошибку:");
+      if (!suggestion) return;
+      const telegramToken = "7611996960:AAH7uARRG4FS8aM0M5xcK25PMagBOvnSjbQ";
+      const telegramChatId = "5755169925";
+      const message = encodeURIComponent(`Предложение/Ошибка с сайта:\n${suggestion}`);
+      fetch(`https://api.telegram.org/bot${telegramToken}/sendMessage?chat_id=${telegramChatId}&text=${message}`)
+        .then(response => {
+          if (response.ok) {
+            alert("Спасибо за ваше предложение!");
+          } else {
+            alert("Ошибка при отправке предложения. Попробуйте позже.");
+          }
+        })
+        .catch(() => alert("Ошибка при отправке предложения. Попробуйте позже."));
+    }
+
+    document.getElementById('guideLink').addEventListener('click', function(event) {
+      event.preventDefault();
+      const guideMessage = document.getElementById('guideMessage');
+      guideMessage.style.display = 'block';
+    });
+  </script>
+</body>
+</html>

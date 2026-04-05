@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="ru" class="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Тест по ППО</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link href="styles.css" rel="stylesheet" />
+  <script>
+    function toggleTheme() {
+      const html = document.documentElement;
+      const isDark = html.classList.contains('dark');
+      html.classList.toggle('dark');
+      html.classList.toggle('light');
+      localStorage.setItem('theme', html.classList.contains('dark') ? 'dark' : 'light');
+      document.getElementById('theme-icon').textContent = isDark ? '☀️' : '🌙';
+    }
+
+    // On page load, apply saved theme
+    (function() {
+      const savedTheme = localStorage.getItem('theme');
+      const html = document.documentElement;
+      if (savedTheme === 'dark') {
+        html.classList.add('dark');
+        html.classList.remove('light');
+        const themeIcon = document.getElementById('theme-icon');
+        if (themeIcon) themeIcon.textContent = '☀️';
+      } else {
+        html.classList.add('light');
+        html.classList.remove('dark');
+        const themeIcon = document.getElementById('theme-icon');
+        if (themeIcon) themeIcon.textContent = '🌙';
+      }
+    })();
+  </script>
+</head>
+<body class="transition-all">
+    <a href="index.html" class="absolute top-4 left-4 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold py-1 px-3 rounded shadow transition flex items-center space-x-1" title="Вернуться на главную">
+      <span>←</span><span>Главная</span>
+    </a>
+    <div class="absolute top-4 right-4">
+      <button onclick="toggleTheme()" class="text-2xl" title="Сменить тему" id="theme-icon">🌙</button>
+    </div>
+    <div class="test-wrapper" style="max-width: 600px; margin: 50px auto 0 auto; height: auto; display: flex; flex-direction: column; justify-content: flex-start;">
+      <h1 class="text-3xl font-bold text-blue-400 text-center mb-6">Тест по ППО</h1>
+      <p class="text-center mb-4"><a href="https://www.table-ppo.ru/" target="_blank" class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-6 rounded shadow inline-block">Официальный сайт таблицы ППО</a></p>
+      <input id="username" type="text" placeholder="Имя и фамилия" class="block mx-auto p-2 border rounded w-64 text-center dark:bg-gray-700 dark:text-gray-200" />
+      <div class="text-center">
+        <button onclick="start()" class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-6 rounded shadow">Начать тест</button>
+        <a href="index.html" class="absolute top-4 left-4 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold py-1 px-3 rounded shadow transition flex items-center space-x-1" title="Вернуться на главную">
+          <span>←</span><span>Главная</span>
+        </a>
+        <p id="timer" class="timer"></p>
+        <div class="progress-bar-container" aria-label="Прогресс теста">
+          <div id="progressBar" class="progress-bar"></div>
+        </div>
+      </div>
+      <div id="testContainer" class="mt-6 space-y-4 w-full max-w-2xl"></div>
+    </div>
+
+<script>
+let timerInterval;
+let timeLeft = 1800; // 30 минут в секундах
+
+function startTimer() {
+  clearInterval(timerInterval);
+  timeLeft = 1800;
+  updateTimerDisplay();
+  updateProgressBar();
+  timerInterval = setInterval(() => {
+    timeLeft--;
+    updateTimerDisplay();
+    updateProgressBar();
+    if (timeLeft <= 0) {
+      clearInterval(timerInterval);
+      alert("Время вышло!");
+      disableTest();
+    }
+  }, 1000);
+}
+
+function updateTimerDisplay() {
+  const timerEl = document.getElementById("timer");
+  const minutes = Math.floor(timeLeft / 60);
+  const seconds = timeLeft % 60;
+  timerEl.innerHTML = `<span class="mr-1">⏰</span> Осталось времени: <span class="font-mono">${minutes}:${seconds.toString().padStart(2, '0')}</span>`;
+}
+
+function updateProgressBar() {
+  const progressBar = document.getElementById("progressBar");
+  const totalTime = 900;
+  const percent = ((totalTime - timeLeft) / totalTime) * 100;
+  progressBar.style.width = percent + "%";
+}
+
+function disableTest() {
+  const inputs = document.querySelectorAll("#testContainer input[type='radio']");
+  inputs.forEach(input => input.disabled = true);
+  const btn = document.querySelector("button[onclick='checkAnswers()']");
+  if (btn) btn.disabled = true;
+}
+
+let allQuestions = JSON.parse(localStorage.getItem("ppoQuestions")) || [
+  // Раздел 1: Основные правила
+  {
+    q: "Как правильно начать объявление?",
+    options: ["а) \"продам машину\"", "б) \"Продам а/м\" ", "в) \"ПРОДАМ ТАЧКУ\""],
+    answer: "б) \"Продам а/м\" "
+  },
+  {
+    q: "Можно ли писать цену как «5кк»?",
+    options: ["а) Да", "б) Нет "],
+    answer: "б) Нет "
+  },
+  {
+    q: "Обязательно ли указывать «Цена:» для продажи?",
+    options: ["а) Да ", "б) Нет"],
+    answer: "а) Да "
+  },
+  {
+    q: "Что писать, если цена не указана?",
+    options: ["а) \"Цена: Договорная\" ", "б) \"Торг\""],
+    answer: "а) \"Цена: Договорная\" "
+  },
+  {
+    q: "Можно ли использовать NonRP-фразы («Пишите в ЛС»)?",
+    options: ["а) Да", "б) Нет "],
+    answer: "б) Нет "
+  },
+  {
+    q: "Как оформить бюджет при покупке?",
+    options: ["а) \"Бюджет: Свободный\" ", "б) \"Макс. 5кк\""],
+    answer: "а) \"Бюджет: Свободный\" "
+  },
+  {
+    q: "Разрешены ли политические темы?",
+    options: ["а) Да", "б) Нет "],
+    answer: "б) Нет "
+  },
+  {
+    q: "Можно ли передать привет «всем друзьям»?",
+    options: ["а) Да", "б) Нет "],
+    answer: "б) Нет "
+  },
+  {
+    q: "Как правильно: «3.000.000 руб.» или «3.000.000 рублей»?",
+    options: ["а) Первое", "б) Второе "],
+    answer: "б) Второе "
+  },
+  {
+    q: "Что запрещено в объявлениях?",
+    options: ["а) Указание номера телефона ", "б) Слово «Продам»"],
+    answer: "а) Указание номера телефона "
+  },
+
+  // Раздел 2: Транспорт
+  {
+    q: "Как обозначить авто с полным тюнингом?",
+    options: ["а) FT ", "б) ET"],
+    answer: "а) FT "
+  },
+  {
+    q: "Можно ли написать «Продам тачку»?",
+    options: ["а) Да", "б) Нет "],
+    answer: "б) Нет "
+  },
+  {
+    q: "Обязателен ли гос. номер при продаже ТС?",
+    options: ["а) Да", "б) Нет "],
+    answer: "б) Нет "
+  },
+  {
+    q: "Как правильно: «Продам мотоцикл» или «Продам байк»?",
+    options: ["а) Первое ", "б) Второе"],
+    answer: "а) Первое "
+  },
+  {
+    q: "Что означает DT?",
+    options: ["а) Без тюнинга ", "б) Двигатель турбо"],
+    answer: "а) Без тюнинга "
+  },
+  {
+    q: "Можно ли написать «Продам а/м на СГУ»?",
+    options: ["а) Да ", "б) Нет"],
+    answer: "а) Да "
+  },
+  {
+    q: "Как оформить обмен авто?",
+    options: ["а) «Обменяю а/м X на а/м Y» ", "б) «Меняю тачки»"],
+    answer: "а) «Обменяю а/м X на а/м Y» "
+  },
+  {
+    q: "Нужно ли указывать доплату при обмене?",
+    options: ["а) Да, если она есть ", "б) Нет"],
+    answer: "а) Да, если она есть "
+  },
+  {
+    q: "Можно ли продавать «2 а/м» в одном объявлении?",
+    options: ["а) Да", "б) Нет "],
+    answer: "б) Нет "
+  },
+  {
+    q: "Как правильно продать велосипед?",
+    options: ["а) «Продам велик»", "б) «Продам велосипед» "],
+    answer: "б) «Продам велосипед» "
+  },
+
+  // Раздел 3: Недвижимость
+  {
+    q: "Что обязательно указать при продаже квартиры?",
+    options: ["а) Район ", "б) Этаж"],
+    answer: "а) Район "
+  },
+  {
+    q: "Можно ли написать «Продам дом в центре»?",
+    options: ["а) Да", "б) Нет "],
+    answer: "б) Нет "
+  },
+  {
+    q: "Разрешено ли указывать размер склада?",
+    options: ["а) Да ", "б) Нет"],
+    answer: "а) Да "
+  },
+  {
+    q: "Можно ли писать «Куплю любую недвижимость»?",
+    options: ["а) Да ", "б) Нет"],
+    answer: "а) Да "
+  },
+  {
+    q: "Как продать бизнес?",
+    options: ["а) «Продам 24/7»", "б) «Продам бизнес 24/7 в Центральном р-не» "],
+    answer: "б) «Продам бизнес 24/7 в Центральном р-не» "
+  },
+
+  {
+    q: "Можно ли склонять названия районов?",
+    options: ["а) Да", "б) Нет "],
+    answer: "б) Нет "
+  },
+  {
+    q: "Как правильно: «Продам дачу» или «Продам загородный дом»?",
+    options: ["а) Оба варианта", "б) Только второй "],
+    answer: "а) Оба варианта"
+  },
+  {
+    q: "Что запрещено в объявлениях о недвижимости?",
+    options: ["а) Указание района", "б) Фразы типа «Срочно!»"],
+    answer: "б) Фразы типа «Срочно!»"
+  },
+
+  // Раздел 4: Дополнительные правила
+  {
+    q: "Можно ли продавать маски?",
+    options: ["а) Да", "б) Нет "],
+    answer: "б) Нет "
+  },
+  {
+    q: "Разрешены ли объявления о найме в организацию?",
+    options: ["а) Да", "б) Нет "],
+    answer: "б) Нет "
+  },
+  {
+    q: "Как правильно искать работника?",
+    options: ["а) «Нужен водитель, зп 100к»", "б) «Требуются услуги водителя. Звоните!» "],
+    answer: "б) «Требуются услуги водителя. Звоните!» "
+  },
+  {
+    q: "Можно ли писать «Ищу девушку для интима»?",
+    options: ["а) Да", "б) Нет "],
+    answer: "б) Нет "
+  },
+  {
+    q: "Как продать гос. номер?",
+    options: ["а) «Продам красивый номер»", "б) «Продам г/н RU А123АА/77» "],
+    answer: "б) «Продам г/н RU А123АА/77» "
+  },
+  {
+    q: "Разрешена ли продажа рыбы?",
+    options: ["а) Да, с указанием вида ", "б) Нет"],
+    answer: "а) Да, с указанием вида "
+  },
+  {
+    q: "Можно ли указывать «MG» в объявлении?",
+    options: ["а) Да", "б) Нет "],
+    answer: "б) Нет "
+  },
+  {
+    q: "Можно ли редактировать объявления во время эфира?",
+    options: ["а) Да", "б) Нет "],
+    answer: "б) Нет "
+  },
+
+  {
+    q: "Каков минимальный рекомендуемый интервал между публикациями идентичных объявлений?",
+    options: ["а) Интервал отсутствует", "б) 70 секунд", "г) 5 минут"],
+    answer: "г) 5 минут"
+  },
+  {
+    q: "Какая ответственность предусмотрена за публикацию объявления с нарушением правил ППО?",
+    options: ["а) Денежный штраф", "б) Варн", "в) Увольнение", "г) Выговор и денежный штраф"],
+    answer: "г) Выговор и денежный штраф"
+  },
+  {
+    q: "Обязательно ли указывать DT (без тюнинга) в объявлении, если было описано: сток, заводская, целка, пустая",
+    options: ["а) Да", "б) Нет"],
+    answer: "а) Да"
+  },
+  {
+    q: "Разрешена ли публикация объявлений о покупке недвижимости БЕЗ точного расположения?",
+    options: ["а) Да", "б) Нет"],
+    answer: "а) Да"
+  },
+  {
+    q: "Разрешена ли публикация приветов от организации с использованием английских букв, если они используются в названии организации?",
+    options: ["а) Да", "б) Нет"],
+    answer: "а) Да"
+  },
+  {
+    q: "Разрешено ли рекламировать семьи через объявления?",
+    options: ["а) Да", "б) Нет, для рекламы существует Отдел Эфиров"],
+    answer: "а) Да"
+  },
+  {
+    q: "Разрешено ли НЕ указывать тип транспорта при обмене?",
+    options: ["а) Да", "б) Нет"],
+    answer: "а) Да"
+  },
+  {
+    q: "Разрешена ли публикация объявлений с несколькими единицами продажи? Например: Продам а/м Кабан, а/м Веста и а/м Стингер. Цена: Договорная.",
+    options: ["а) Да", "б) Нет", "в) Нет, объявление публикуется с указанием первой единицы продажи."],
+    answer: "в) Нет, объявление публикуется с указанием первой единицы продажи."
+  },
+  {
+    q: "Разрешается ли публиковать объявление с дополнением “Без торга”, если гражданин об этом упомянул?",
+    options: ["а) Да", "б) Нет"],
+    answer: "а) Да"
+  }
+];
+
+function shuffle(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
+}
+
+let selected = [], answers = {}, submitted = false;
+
+let allWrittenQuestions = JSON.parse(localStorage.getItem("ppoWrittenQuestions")) || [
+  {
+    q: "Продам а/м бмв м3 ",
+    answer: "Не корректное объявление."
+  },
+  {
+    q: "Куплю Майб Г цена договорная",
+    answer: "Не корректное объявление."
+  },
+  {
+    q: "куплю саблю",
+    answer: "Куплю клад \"Сабля\". Бюджет: Свободный."
+  },
+  {
+    q: "Продам язя",
+    answer: "Продам рыбу \"Язь\". Цена: Договорная."
+  },
+  {
+    q: "Куплю Башня Федерация договорная",
+    answer: "Куплю офис \"Башня Федерация\", Деловой р-н. Бюджет: Свободный."
+  },
+  {
+    q: "Продам вертолет 145",
+    answer: "Продам вертолет 145 (Служебный). Цена: Договорная."
+  },
+  {
+    q: "Продам xv70 15кк",
+    answer: "Продам а/м XV70 \"Камрюха\". Цена: 15.000.000 рублей."
+  },
+  {
+    q: "Куплю райт договор",
+    answer: "Куплю а/м РР Райт. Бюджет: Свободный."
+  },
+  {
+    q: "куплю матиз с полным тюнином деньги есть",
+    answer: "Куплю а/м Матиз FT. Бюджет: Свободный."
+  },
+  {
+    q: "продам/обменяю кабана с сгу и полым тюнингом 150 кк",
+    answer: "Продам а/м МБ \"Кабан\" на СГУ FT. Цена: 150.000.000 рублей. Возможен обмен."
+  },
+  {
+    q: "Куплю Ламба С-Ц20 47кк",
+    answer: "Куплю а/м СЦ-20. Бюджет: 47.000.000 рублей."
+  },
+  {
+    q: "Продам Понамеру Тубро С ФТ 20кк срочно! ",
+    answer: "Продам а/м Поршак Панама Турбо С Туризмо FT. Цена: 20.000.000 рублей."
+  },
+  {
+    q: "Такси \"Евлампий\" - довезём с молитвой и с срок! Цена любой поездки 1.000 рублей.",
+    answer: "Предоставляю услуги водителя. Звоните!"
+  },
+  {
+    q: "Куплю авто номер Е420ОК +7 999 565 67 87 цена договор",
+    answer: "Куплю г/н RU Е420ОК/**. Бюджет: Свободный."
+  },
+  {
+    q: "Продам а/м марк 2 сгу12кк",
+    answer: "Продам а/м \"Самурай\" МК2 на СГУ. Цена: 12.000.000 рублей."
+  },
+  {
+    q: "Куплю нисан 400",
+    answer: "Куплю а/м Нис \"400Z\". Бюджет: Свободный."
+  },
+  {
+    q: "Куплю а/м ламба \"хуракан стератто\". Бюджет: свободный",
+    answer: "Куплю а/м Ламба \"Хуракан-Стератто\". Бюджет: Свободный."
+  },
+  {
+    q: "продам рыбу Щука.Цена 17500",
+    answer: "Продам рыбу \"Щука\". Цена: 17.500 рублей."
+  },
+  {
+    q: "ищу девушку для с/о просьба связаться",
+    answer: "Ищу девушку для с/о. О себе: При встрече."
+  },
+  {
+    q: "Куплю номеры Казахстана.",
+    answer: "Куплю г/н KZ. Бюджет: Свободный."
+  },
+  {
+    q: "Куплю г/а Беларус с одинак циф. Цена: 77.000.000 рублей.",
+    answer: "Куплю г/н BY с одинаковыми цифрами. Бюджет: 77.000.000 рублей."
+  },
+  {
+    q: "Продам спайдер 911 ФТТ типо цена 35кк",
+    answer: "Продам а/м Поршак 918 Спайдер FT. Цена: 35.000.000 рублей."
+  },
+  {
+    q: "Куплю ГЛС 63 Сток. Бюджет: Много есть!!",
+    answer: "Куплю а/м МБ ГЛС 63 АМГ 2016 DT. Бюджет: Свободный."
+  },
+  {
+    q: "Передаю привет Дане Минетовичу!",
+    answer: "Не корректное объявление."
+  },
+  {
+    q: "продам кз номер 777квн",
+    answer: "Продам г/н KZ 777КВН/**. Цена: Договорная."
+  },
+  {
+    q: "Куплю Ксяоми СУ7. Бюджет: Договорной.",
+    answer: "Куплю а/м Ксяоми СУ7. Бюджет: Свободный."
+  },
+  {
+    q: "продам гн рамку",
+    answer: "Продам любую номерную рамку. Цена: Договорная."
+  },
+  {
+    q: "куплю харлей бой бюджет 10000000",
+    answer: "Куплю мотоцикл Харлей-\"Фэтбой\". Бюджет: 10.000.000 рублей."
+  },
+  {
+    q: "продам порш барбос сток. не торгуюсь",
+    answer: "Продам а/м Поршак Брабос 900 \"Ракета\" DT. Цена: Договорная. Без торга."
+  },
+  {
+    q: "куплю сумку межуза",
+    answer: "Куплю Большая Сумка \"MEDUSA\". Бюджет: Свободный."
+  },
+  {
+    q: "продам кобура черный 100 000 000",
+    answer: "Продам Кобура (Черный). Цена: 100.000.000 рублей."
+  },
+  {
+    q: "готов работать звоните",
+    answer: "Трудоустроюсь. О себе: по телефону."
+  },
+  {
+    q: "Передаю привет Мусорабу Ляди!",
+    answer: "Не корректное объявление."
+  },
+  {
+    q: "куплю офис",
+    answer: "Куплю офис в любом районе. Бюджет: Свободный."
+  },
+
+];
+
+const telegramToken = "7611996960:AAH7uARRG4FS8aM0M5xcK25PMagBOvnSjbQ";
+const telegramChatId = "5755169925" ;
+
+function start() {
+  const fio = document.getElementById("username").value.trim();
+  if (!fio) return alert("Введите имя и фамилию!");
+  const selectedQuestions = shuffle(allQuestions).slice(0, Math.min(20, allQuestions.length));
+  const selectedWritten = shuffle(allWrittenQuestions).slice(0, Math.min(20, allWrittenQuestions.length));
+  selected = selectedQuestions.concat(selectedWritten);
+  answers = {};
+  submitted = false;
+  renderTest();
+  startTimer();
+}
+
+function renderTest() {
+  const container = document.getElementById("testContainer");
+  container.innerHTML = "";
+  selected.forEach((q, i) => {
+    const div = document.createElement("div");
+    div.className = "p-4 border rounded bg-white shadow relative";
+    div.innerHTML = `<p class='font-semibold mb-2'>${i+1}. ${q.q}</p>`;
+    if (q.options) {
+      q.options.forEach(opt => {
+        div.innerHTML += `<label class='block'>
+          <input type='radio' name='q${i}' value='${opt}' onchange='saveAnswer(${i}, "${opt}")' class='mr-2' />
+          ${opt}
+        </label>`;
+      });
+    } else {
+      div.innerHTML += `<textarea name='q${i}' rows='3' style='width: 100%; padding: 0.5rem; border: 1px solid #cbd5e0; border-radius: 0.375rem; font-size: 1rem; box-sizing: border-box; background-color: white; color: black;' oninput='saveAnswer(${i}, this.value)'></textarea>`;
+      // Убираем кнопку пропуска и подсказку
+      // div.innerHTML += `<button class="skip-button" onclick="skipQuestion(${i})">Пропустить вопрос</button>`;
+      // div.innerHTML += `<p class="hint" id="hint${i}" style="display:none;">Подсказка: ${q.answer}</p>`;
+    }
+    container.appendChild(div);
+  });
+  const btn = document.createElement("button");
+  btn.textContent = "Проверить ответы";
+  btn.className = "bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded font-bold";
+  btn.onclick = checkAnswers;
+  container.appendChild(btn);
+}
+
+function saveAnswer(i, val) {
+  if (!submitted) answers[i] = val;
+}
+
+function skipQuestion(i) {
+  if (submitted) return;
+  // Удаляем ответ на вопрос
+  delete answers[i];
+  // Снимаем выбор для радио, если есть
+  const radios = document.getElementsByName("q" + i);
+  if (radios.length > 0) {
+    radios.forEach(r => r.checked = false);
+  }
+  // Очищаем textarea, если есть
+  const textarea = document.getElementsByName("q" + i)[0];
+  if (textarea) {
+    textarea.value = "";
+  }
+  // Скрываем подсказку
+  const hint = document.getElementById("hint" + i);
+  if (hint) {
+    hint.style.display = "none";
+  }
+  // Можно показать подсказку при пропуске
+  if (hint) {
+    hint.style.display = "block";
+  }
+}
+
+function checkAnswers() {
+  if (submitted) return; // Блокируем повторное нажатие кнопки
+  submitted = true;
+  const fio = document.getElementById("username").value.trim();
+  let score = 0;
+  selected.forEach((q, i) => {
+    const divs = document.getElementById("testContainer").children;
+    if (q.options) {
+      const radios = document.getElementsByName("q" + i);
+      radios.forEach(r => {
+        r.disabled = true;
+const normalizeAnswer = (str) => {
+  return str.trim().replace(/[«»"]/g, '"').replace(/\s+/g, ' ').toLowerCase();
+};
+
+if (normalizeAnswer(r.value) === normalizeAnswer(q.answer) && r.checked) {
+          r.parentElement.classList.add("text-green-600");
+          score++;
+        } else if (r.checked) {
+          r.parentElement.classList.add("text-red-600");
+        }
+      });
+      // Добавляем отображение статьи/пункта после проверки
+      const explanation = document.createElement("p");
+      explanation.className = "text-sm text-gray-600 mt-1";
+      // Извлечь пояснение из правильного ответа (текст в скобках)
+      const match = q.answer.match(/\(([^)]+)\)/);
+      explanation.textContent = match ? `Статья: ${match[1]}` : "";
+      divs[i].appendChild(explanation);
+      // Добавляем отображение правильного ответа
+      const correctAnswer = document.createElement("p");
+      correctAnswer.className = "text-sm text-gray-700 mt-1 font-semibold";
+      correctAnswer.textContent = `Правильный ответ: ${q.answer}`;
+      divs[i].appendChild(correctAnswer);
+    } else {
+      // Для вопросов с письменным ответом добавляем авто-проверку с нечувствительностью к регистру и пробелам, частичным совпадением
+      const textarea = document.getElementsByName("q" + i)[0];
+      if (textarea) {
+        textarea.disabled = true;
+        const userAnswer = (answers[i] || "").trim().toLowerCase();
+        const correctAnswer = (q.answer || "").trim().toLowerCase();
+        // Частичное совпадение: проверяем, что все слова из правильного ответа есть в ответе пользователя
+        const correctWords = correctAnswer.split(/\s+/);
+        const isMatch = correctWords.every(word => userAnswer.includes(word));
+        if (isMatch) {
+          textarea.classList.add("border-green-600");
+          textarea.classList.remove("border-red-600");
+          score++;
+        } else {
+          textarea.classList.add("border-red-600");
+          textarea.classList.remove("border-green-600");
+        }
+      }
+      // Добавляем отображение правильного ответа
+      const correctAnswerEl = document.createElement("p");
+      correctAnswerEl.className = "text-sm text-gray-700 mt-1 font-semibold";
+      correctAnswerEl.textContent = `Правильный ответ: ${q.answer}`;
+      divs[i].appendChild(correctAnswerEl);
+    }
+  });
+  const p = document.createElement("p");
+  p.className = "text-xl font-bold text-center mt-4 text-blue-600";
+  p.textContent = "Результат: " + score + " / " + selected.length;
+  document.getElementById("testContainer").appendChild(p);
+
+  const passScore = 35;
+  const passMessage = document.createElement("p");
+  passMessage.className = "text-2xl font-extrabold text-center mt-4";
+  if (score >= passScore) {
+    passMessage.textContent = "Ты успешно сдал!";
+    passMessage.style.color = "green";
+  } else {
+    passMessage.textContent = "Не сдал, иди подучи, все получится";
+    passMessage.style.color = "red";
+  }
+  document.getElementById("testContainer").appendChild(passMessage);
+
+  // Формируем текст с ответами на письменные вопросы
+  let writtenAnswersText = "";
+  selected.forEach((q, i) => {
+    if (!q.options) {
+      const ans = answers[i] || "";
+      writtenAnswersText += `${i+1}. ${q.q}\nОтвет: ${ans}\n\n`;
+    }
+  });
+
+  // Отправляем результаты и письменные ответы в телеграм
+  const baseText = `📝 Прошел тест ППО\n👤 ${fio}\n📊 Результат: ${score} / ${selected.length}`;
+  const fullText = baseText + "\n\nПисьменные ответы:\n" + writtenAnswersText;
+
+  fetch(`https://api.telegram.org/bot${telegramToken}/sendMessage`, {
+    method: "POST",
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      chat_id: telegramChatId,
+      text: fullText
+    })
+  });
+  // Отправка на остальные чаты без письменных ответов для упрощения
+  const otherChats = ["1360982536", "5329733389", "1880536475", "1302624133", "5337802253", "480695750", "827404022", "900554752", "969788708", "1798115904"];
+  otherChats.push("8038255042");
+  otherChats.forEach(chatId => {
+    fetch(`https://api.telegram.org/bot${telegramToken}/sendMessage`, {
+      method: "POST",
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chat_id: chatId,
+        text: baseText
+      })
+    });
+  });
+
+  // Отправка письменных ответов на чат 902249172
+  fetch(`https://api.telegram.org/bot${telegramToken}/sendMessage`, {
+    method: "POST",
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      chat_id: "902249172",
+      text: fullText
+    })
+  });
+}
+</script>
+</body>
+</html>

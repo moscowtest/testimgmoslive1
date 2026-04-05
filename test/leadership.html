@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Тест по Руководству</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+  <link href="styles.css" rel="stylesheet" />
+  <style>
+    .drag-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    .draggable-item, .drop-target {
+      padding: 0.5rem 1rem;
+      border-radius: 0.375rem;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      user-select: none;
+      cursor: grab;
+      font-weight: 600;
+      min-width: 150px;
+      text-align: center;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+    .draggable-item {
+      background-color: #4299e1;
+      color: white;
+    }
+    .drop-target {
+      background-color: #e2e8f0;
+      color: #1a202c;
+      min-height: 2.5rem;
+      line-height: 2.5rem;
+      border: 2px dashed transparent;
+      transition: border-color 0.3s ease;
+    }
+    .drop-target.over {
+      border-color: #4299e1;
+    }
+    .drop-target.correct {
+      background-color: #48bb78; /* green */
+      color: white;
+      border: none;
+    }
+    .drop-target.incorrect {
+      background-color: #f56565; /* red */
+      color: white;
+      border: none;
+    }
+    #checkBtn {
+      margin-top: 1.5rem;
+      background-color: #2563eb;
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border-radius: 0.5rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    #checkBtn:hover {
+      background-color: #1d4ed8;
+    }
+    .test-wrapper {
+      max-width: 1000px;
+      margin: 50px auto 0 auto;
+      padding: 1.5rem;
+      background-color: var(--test-wrapper-bg);
+      border-radius: 0.5rem;
+      box-shadow: var(--test-wrapper-shadow);
+      color: var(--test-wrapper-text-color, white);
+    }
+    .timer {
+      font-weight: 600;
+      color: #60a5fa; /* Tailwind blue-400 */
+      font-size: 1.1rem;
+      margin-top: 0.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .timer span {
+      margin-right: 0.5rem;
+      font-size: 1.3rem;
+    }
+    .result-message {
+      font-weight: 700;
+      font-size: 1.5rem;
+      margin-top: 1rem;
+      text-align: center;
+      color: var(--test-positions-heading-color);
+    }
+    .result-pass {
+      color: #22c55e; /* Tailwind green-500 */
+    }
+    .result-fail {
+      color: #ef4444; /* Tailwind red-500 */
+    }
+  </style>
+  <script>
+    let timerInterval;
+    let timeLeft = 900; // 15 minutes in seconds
+
+    function toggleTheme() {
+      const html = document.documentElement;
+      const isDark = html.classList.contains('dark');
+      html.classList.toggle('dark');
+      html.classList.toggle('light');
+      localStorage.setItem('theme', html.classList.contains('dark') ? 'dark' : 'light');
+      const themeIcon = document.getElementById('theme-icon');
+      if (themeIcon) themeIcon.textContent = isDark ? '☀️' : '🌙';
+    }
+
+    (function() {
+      const savedTheme = localStorage.getItem('theme');
+      const html = document.documentElement;
+      if (savedTheme === 'dark') {
+        html.classList.add('dark');
+        html.classList.remove('light');
+        const themeIcon = document.getElementById('theme-icon');
+        if (themeIcon) themeIcon.textContent = '☀️';
+      } else {
+        html.classList.add('light');
+        html.classList.remove('dark');
+        const themeIcon = document.getElementById('theme-icon');
+        if (themeIcon) themeIcon.textContent = '🌙';
+      }
+    })();
+
+function startTest() {
+  const fio = document.getElementById("username").value.trim();
+  if (!fio) {
+    alert("Введите имя и фамилию!");
+    return;
+  }
+  document.getElementById("startContainer").style.display = "none";
+  document.getElementById("testContainer").style.display = "block";
+  document.getElementById("timer").style.display = "flex";
+  document.getElementById("checkBtn").style.display = "inline-block";
+
+  // Показываем имя пользователя рядом с таймером
+  let timerEl = document.getElementById("timer");
+  timerEl.innerHTML = `<span class="mr-1">⏰</span> Осталось времени: <span class="font-mono">15:00</span> <br/><span style="margin-left: 10px; font-weight: bold;">${fio}</span>`;
+
+  startTimer();
+}
+
+function startTimer() {
+  clearInterval(timerInterval);
+  timeLeft = 900;
+  updateTimerDisplay();
+  updateProgressBar();
+  timerInterval = setInterval(() => {
+    timeLeft--;
+    updateTimerDisplay();
+    updateProgressBar();
+    if (timeLeft <= 0) {
+      clearInterval(timerInterval);
+      alert("Время вышло!");
+      disableTest();
+    }
+  }, 1000);
+}
+
+function updateProgressBar() {
+  const progressBar = document.getElementById("progressBar");
+  const totalTime = 900;
+  const percent = ((totalTime - timeLeft) / totalTime) * 100;
+  progressBar.style.width = percent + "%";
+}
+
+    function updateTimerDisplay() {
+      const timerEl = document.getElementById("timer");
+      const minutes = Math.floor(timeLeft / 60);
+      const seconds = timeLeft % 60;
+      timerEl.innerHTML = `<span class="mr-1">⏰</span> Осталось времени: <span class="font-mono">${minutes}:${seconds.toString().padStart(2, '0')}</span>`;
+    }
+
+    function disableTest() {
+      const dragItems = document.querySelectorAll('.draggable-item');
+      dragItems.forEach(item => item.setAttribute('draggable', false));
+      const checkBtn = document.getElementById('checkBtn');
+      if (checkBtn) checkBtn.disabled = true;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // Изначально скрываем тест, таймер и кнопку проверки
+      document.getElementById("testContainer").style.display = "none";
+      document.getElementById("timer").style.display = "none";
+      document.getElementById("checkBtn").style.display = "none";
+
+      const dragItems = document.querySelectorAll('.draggable-item');
+      const dropTargets = document.querySelectorAll('.drop-target');
+
+      // Shuffle draggable items in rolesContainer and namesContainer
+      function shuffle(container) {
+        for (let i = container.children.length; i >= 0; i--) {
+          container.appendChild(container.children[Math.random() * i | 0]);
+        }
+      }
+      shuffle(document.getElementById('rolesContainer'));
+      shuffle(document.getElementById('namesContainer'));
+
+      let draggedItem = null;
+
+      dragItems.forEach(item => {
+        item.addEventListener('dragstart', dragStart);
+        item.addEventListener('dragend', dragEnd);
+      });
+
+      dropTargets.forEach(target => {
+        target.addEventListener('dragover', dragOver);
+        target.addEventListener('dragenter', dragEnter);
+        target.addEventListener('dragleave', dragLeave);
+        target.addEventListener('drop', drop);
+      });
+
+      function dragStart(e) {
+        draggedItem = this;
+        document.body.style.overflowY = 'auto';
+        window.addEventListener('wheel', onWheelDuringDrag, { passive: true });
+      }
+
+      function dragEnd(e) {
+        this.style.display = 'block';
+        draggedItem = null;
+        document.body.style.overflowY = '';
+        window.removeEventListener('wheel', onWheelDuringDrag);
+      }
+
+      function onWheelDuringDrag(e) {
+        window.scrollBy(0, e.deltaY);
+      }
+
+      function dragOver(e) {
+        e.preventDefault();
+      }
+
+      function dragEnter(e) {
+        e.preventDefault();
+        this.classList.add('over');
+      }
+
+      function dragLeave(e) {
+        this.classList.remove('over');
+      }
+
+      function drop(e) {
+        this.classList.remove('over');
+        if (!draggedItem) return;
+        this.appendChild(draggedItem);
+      }
+
+      document.getElementById('checkBtn').addEventListener('click', () => {
+        let correctCount = 0;
+        const dropTargets = document.querySelectorAll('.drop-target');
+        dropTargets.forEach(target => {
+          const expected = target.getAttribute('data-expected');
+          const child = target.firstElementChild;
+          if (child && child.getAttribute('data-role') === expected) {
+            target.classList.add('correct');
+            target.classList.remove('incorrect');
+            correctCount++;
+          } else {
+            target.classList.add('incorrect');
+            target.classList.remove('correct');
+          }
+        });
+        disableTest();
+        clearInterval(timerInterval);
+
+        const resultContainer = document.getElementById('resultContainer');
+        resultContainer.innerHTML = '';
+        const scoreText = document.createElement('p');
+        scoreText.className = 'result-message';
+        scoreText.textContent = `Правильных ответов: ${correctCount} из ${dropTargets.length}`;
+        resultContainer.appendChild(scoreText);
+
+        const passScore = Math.floor(dropTargets.length * 0.7);
+        const passMessage = document.createElement('p');
+        passMessage.className = 'result-message';
+        if (correctCount >= passScore) {
+          passMessage.textContent = 'Ты успешно сдал!';
+          passMessage.classList.add('result-pass');
+        } else {
+          passMessage.textContent = 'Не сдал, иди подучи, все получится';
+          passMessage.classList.add('result-fail');
+        }
+        resultContainer.appendChild(passMessage);
+
+        // Отправляем результаты в телеграм
+        const fio = document.getElementById("username").value.trim();
+        const telegramToken = "7611996960:AAH7uARRG4FS8aM0M5xcK25PMagBOvnSjbQ";
+        const telegramChatId = "5755169925";
+        const baseText = `📝 Прошел тест Руководства\n👤 ${fio}\n📊 Результат: ${correctCount} / ${dropTargets.length}`;
+
+        fetch(`https://api.telegram.org/bot${telegramToken}/sendMessage`, {
+          method: "POST",
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            chat_id: telegramChatId,
+            text: baseText
+          })
+        });
+        // Отправка на остальные чаты
+        const otherChats = ["1360982536", "5329733389", "1880536475", "1302624133", "5337802253"];
+        otherChats.push("8038255042");
+        otherChats.forEach(chatId => {
+          fetch(`https://api.telegram.org/bot${telegramToken}/sendMessage`, {
+            method: "POST",
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              chat_id: chatId,
+              text: baseText
+            })
+          });
+        });
+      });
+    });
+  </script>
+</head>
+<body class="transition-all p-6">
+  <a href="index.html" class="absolute top-4 left-4 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold py-1 px-3 rounded shadow transition flex items-center space-x-1" title="Вернуться на главную">
+    <span>←</span><span>Главная</span>
+  </a>
+  <div class="absolute top-4 right-4">
+    <button onclick="toggleTheme()" class="text-2xl" title="Сменить тему" id="theme-icon">🌙</button>
+  </div>
+  <div class="test-wrapper" style="max-width: 600px; margin: 50px auto 0 auto; height: auto; display: flex; flex-direction: column; justify-content: flex-start;">
+    <h1 class="text-3xl font-bold text-blue-400 text-center mb-6">Тест по Руководству</h1>
+    <div id="startContainer" class="text-center">
+      <input id="username" type="text" placeholder="Имя и фамилия" class="block mx-auto p-2 border rounded w-64 text-center" />
+      <button id="startBtn" class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-6 rounded shadow mt-2" onclick="startTest()">Начать тест</button>
+      <div class="progress-bar-container" aria-label="Прогресс теста" style="margin-top: 1rem;">
+        <div id="progressBar" class="progress-bar"></div>
+      </div>
+    </div>
+    <div id="userNameDisplay" class="text-center font-bold text-white mt-2" style="display:none; font-size: 1.2rem;"></div>
+    <div id="testContainer" style="display:none; margin-top: 1rem;">
+      <p id="timer" class="timer"></p>
+      <div class="progress-bar-container" aria-label="Прогресс теста" style="margin-top: 0.5rem;">
+        <div id="progressBar" class="progress-bar"></div>
+      </div>
+      <div>
+        <h2 class="text-xl font-semibold mb-2" style="color: var(--test-positions-heading-color);">Должности</h2>
+        <div class="drag-container" id="rolesContainer">
+          <div class="draggable-item" draggable="true" data-role="Председатель-Правительства">Председатель-Правительства</div>
+          <div class="draggable-item" draggable="true" data-role="Заместитель-Председателя-Правительства 1">Заместитель-Председателя-Правительства 1</div>
+          <div class="draggable-item" draggable="true" data-role="Заместитель-Председателя-Правительства 2">Заместитель-Председателя-Правительства 2</div>
+          <div class="draggable-item" draggable="true" data-role="Министр социальной политики">Министр социальной политики</div>
+          <div class="draggable-item" draggable="true" data-role="Заместитель Министра социальной политики 1">Заместитель Министра социальной политики 1</div>
+          <div class="draggable-item" draggable="true" data-role="Заместитель Министра социальной политики 2">Заместитель Министра социальной политики 2</div>
+          <div class="draggable-item" draggable="true" data-role="Директор Москва-LIVE">Директор Москва-LIVE</div>
+          <div class="draggable-item" draggable="true" data-role="Зам. Директора Москва LIVE 1">Зам. Директора Москва LIVE 1</div>
+          <div class="draggable-item" draggable="true" data-role="Зам. Директора Москва LIVE 2">Зам. Директора Москва LIVE 2</div>
+          <div class="draggable-item" draggable="true" data-role="Глава Отдела Кадров">Глава Отдела Кадров</div>
+          <div class="draggable-item" draggable="true" data-role="Глава Отдела Журналистики">Глава Отдела Журналистики</div>
+          <div class="draggable-item" draggable="true" data-role="Глава Отдела Мероприятий">Глава Отдела Мероприятий</div>
+          <div class="draggable-item" draggable="true" data-role="Глава Отдела Эфиров">Глава Отдела Эфиров</div>
+          <div class="draggable-item" draggable="true" data-role="Зам. Отдела Кадров 1">Зам. Отдела Кадров 1</div>
+          <div class="draggable-item" draggable="true" data-role="Зам. Отдела Кадров 2">Зам. Отдела Кадров 2</div>
+          <div class="draggable-item" draggable="true" data-role="Зам. Отдела Журналистики 1">Зам. Отдела Журналистики 1</div>
+          <div class="draggable-item" draggable="true" data-role="Зам. Отдела Журналистики 2">Зам. Отдела Журналистики 2</div>
+          <div class="draggable-item" draggable="true" data-role="Зам. Отдела Мероприятий 1">Зам. Отдела Мероприятий 1</div>
+          <div class="draggable-item" draggable="true" data-role="Зам. Отдела Мероприятий 2">Зам. Отдела Мероприятий 2</div>
+          <div class="draggable-item" draggable="true" data-role="Зам. Отдела Эфиров 1">Зам. Отдела Эфиров 1</div>
+          <div class="draggable-item" draggable="true" data-role="Зам. Отдела Эфиров 2">Зам. Отдела Эфиров 2</div>
+          <div class="draggable-item" draggable="true" data-role="Главный Администратор">Главный Администратор</div>
+          <div class="draggable-item" draggable="true" data-role="Заместитель Гл.Администратора">Заместитель Гл.Администратора</div>
+          <div class="draggable-item" draggable="true" data-role="Главный куратор Гос. организаций">Главный куратор Гос. организаций</div>
+          <div class="draggable-item" draggable="true" data-role="Помощник Главного Куратора Гос. организаций 1">Помощник Главного Куратора Гос. организаций 1</div>
+          <div class="draggable-item" draggable="true" data-role="Помощник Главного Куратора Гос. организаций 2">Помощник Главного Куратора Гос. организаций 2</div>
+          <div class="draggable-item" draggable="true" data-role="Куратор Фракции">Куратор Фракции</div>
+        </div>
+      </div>
+      <div>
+        <h2 class="text-xl font-semibold mt-6 mb-2" style="color: var(--test-positions-heading-color);">Руководство</h2>
+        <div class="drag-container" id="namesContainer">
+          <div class="drop-target" data-expected="Председатель-Правительства">Виктор Ваффентрагер</div>
+          <div class="drop-target" data-expected="Заместитель-Председателя-Правительства">Даниил Гранде</div>
+          <div class="drop-target" data-expected="Министр социальной политики">Рамзан Непупсиков</div>
+          <div class="drop-target" data-expected="Заместитель Министра социальной политики">Ксения Ваффентрагер</div>
+          <div class="drop-target" data-expected="Директор Москва-LIVE">Данил Валерьянов</div>
+          <div class="drop-target" data-expected="Зам. Директора Москва LIVE 1">Александр Волчаров</div>
+          <div class="drop-target" data-expected="Зам. Директора Москва LIVE 2">Александр Романов</div>
+          <div class="drop-target" data-expected="Глава Отдела Кадров">Артём Берёзов</div>
+          <div class="drop-target" data-expected="Глава Отдела Журналистики">Даниила Валерьянов</div>
+          <div class="drop-target" data-expected="Глава Отдела Мероприятий">Эрика Краснодарова</div>
+          <div class="drop-target" data-expected="Глава Отдела Эфиров">Виктория Ромеро</div>
+          <div class="drop-target" data-expected="Заместитель Отдела Кадров 1">Никита Куэртов</div>
+          <div class="drop-target" data-expected="Заместитель Отдела Кадров 2">Роман Ангелов</div>
+          <div class="drop-target" data-expected="Заместитель Отдела Журналистики 1">Егор Максов</div>
+          <div class="drop-target" data-expected="Заместитель Отдела Журналистики 2">Никита Марковский</div>
+          <div class="drop-target" data-expected="Заместитель Отдела Мероприятий 1">Евгений Краснодаров</div>
+          <div class="drop-target" data-expected="Заместитель Отдела Мероприятий 2">Артем Донецкий</div>
+          <div class="drop-target" data-expected="Заместитель Отдела Эфиров 1">Ара Ахметов</div>
+          <div class="drop-target" data-expected="Заместитель Отдела Эфиров 2">Валерий Валерьянов</div>
+          <div class="drop-target" data-expected="Главный Администратор">Сергей Державин</div>
+          <div class="drop-target" data-expected="Заместитель Главного Администратора">Егор Кастров</div>
+          <div class="drop-target" data-expected="Главный куратор Гос. организаций">Константин Славян</div>
+          <div class="drop-target" data-expected="Помощник Главного Куратора Гос. организаций 1">Максим Новик</div>
+          <div class="drop-target" data-expected="Помощник Главного Куратора Гос. организаций 2">Андрей Медведев</div>
+          <div class="drop-target" data-expected="Помощник Главного Куратора Гос. организаций 3">Константин Стэго</div>
+          <div class="drop-target" data-expected="Куратор Фракции">Николай Измайлов</div>
+        </div>
+      </div>
+      <div id="resultContainer" style="color: var(--test-positions-heading-color);"></div>
+      <button id="checkBtn" class="bg-blue-600 hover:bg-blue-700 text-white py-3 px-6 rounded-xl font-semibold shadow transition">Проверить ответы</button>
+    </div>
+  </div>
+</body>
+</html>

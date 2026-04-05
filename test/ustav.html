@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>Тест Устава</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="styles.css" rel="stylesheet" />
+  <script>
+    function toggleTheme() {
+      const html = document.documentElement;
+      const isDark = html.classList.contains('dark');
+      html.classList.toggle('dark');
+      html.classList.toggle('light');
+      localStorage.setItem('theme', html.classList.contains('dark') ? 'dark' : 'light');
+      const themeIcon = document.getElementById('theme-icon');
+      if (themeIcon) themeIcon.textContent = isDark ? '☀️' : '🌙';
+    }
+
+    (function() {
+      const savedTheme = localStorage.getItem('theme');
+      const html = document.documentElement;
+      if (savedTheme === 'dark') {
+        html.classList.add('dark');
+        html.classList.remove('light');
+        const themeIcon = document.getElementById('theme-icon');
+        if (themeIcon) themeIcon.textContent = '☀️';
+      } else {
+        html.classList.add('light');
+        html.classList.remove('dark');
+        const themeIcon = document.getElementById('theme-icon');
+        if (themeIcon) themeIcon.textContent = '🌙';
+      }
+    })();
+  </script>
+</head>
+  <body class="transition-all p-6">
+    <a href="index.html" class="absolute top-4 left-4 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold py-1 px-3 rounded shadow transition flex items-center space-x-1" title="Вернуться на главную">
+      <span>←</span><span>Главная</span>
+    </a>
+    <div class="absolute top-4 right-4">
+      <button onclick="toggleTheme()" class="text-2xl" title="Сменить тему" id="theme-icon">🌙</button>
+    </div>
+    <div class="test-wrapper" style="max-width: 600px; margin: 50px auto 0 auto; height: auto; display: flex; flex-direction: column; justify-content: flex-start;">
+      <h1 class="text-3xl font-bold text-blue-400 text-center mb-6">Тест Устава "Москва-LIVE"</h1>
+      <input id="username" type="text" placeholder="Имя и фамилия" class="block mx-auto p-2 border rounded w-64 text-center">
+      <div class="text-center">
+        <button onclick="start()" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-6 rounded shadow">Начать тест</button>
+        <p id="timer" class="mt-2 font-semibold text-gray-700"></p>
+        <div class="progress-bar-container" aria-label="Прогресс теста">
+          <div id="progressBar" class="progress-bar"></div>
+        </div>
+      </div>
+      <div id="testContainer" class="mt-6 space-y-4"></div>
+    </div>
+
+<script>
+let timerInterval;
+let timeLeft = 900; // 15 минут в секундах
+
+function startTimer() {
+  clearInterval(timerInterval);
+  timeLeft = 900;
+  updateTimerDisplay();
+  updateProgressBar();
+  timerInterval = setInterval(() => {
+    timeLeft--;
+    updateTimerDisplay();
+    updateProgressBar();
+    if (timeLeft <= 0) {
+      clearInterval(timerInterval);
+      alert("Время вышло!");
+      disableTest();
+    }
+  }, 1000);
+}
+
+function updateTimerDisplay() {
+  let timerEl = document.getElementById("timer");
+  if (!timerEl) {
+    timerEl = document.createElement("p");
+    timerEl.id = "timer";
+    timerEl.className = "mt-2 font-semibold text-gray-700";
+    const container = document.querySelector(".text-center");
+    if (container) container.appendChild(timerEl);
+  }
+  const minutes = Math.floor(timeLeft / 60);
+  const seconds = timeLeft % 60;
+  timerEl.innerHTML = `<span class="mr-1">⏰</span> Осталось времени: <span class="font-mono">${minutes}:${seconds.toString().padStart(2, '0')}</span>`;
+}
+
+function updateProgressBar() {
+  const progressBar = document.getElementById("progressBar");
+  const totalTime = 900;
+  const percent = ((totalTime - timeLeft) / totalTime) * 100;
+  progressBar.style.width = percent + "%";
+}
+
+function disableTest() {
+  const inputs = document.querySelectorAll("#testContainer input[type='radio']");
+  inputs.forEach(input => input.disabled = true);
+  const btn = document.querySelector("button[onclick='checkAnswers()']");
+  if (btn) btn.disabled = true;
+}
+
+let allQuestions = JSON.parse(localStorage.getItem("ustavQuestions")) || [
+  {
+    q: "Кто имеет право вносить изменения в действующий Устав ВГТРК «Москва-Live»?",
+    options: ["А) Любой сотрудник на общем собрании.", "Б) Только Директор, с последующим утверждением Министерства Социальной Политики и Труда.", "В) Отдел Кадров по согласованию с Директором."],
+    answer: "Б"
+  },
+  {
+    q: "Какие территории в здании ВГТРК «Москва-Live» являются закрытыми для свободного посещения гражданскими лицами?",
+    options: ["А) Только кабинет Директора.", "Б) Второй, третий этаж и выход на крышу.", "В) Вся территория офиса, включая холл."],
+    answer: "Б"
+  },
+  {
+    q: "С какой должности осуществляется вступление в отделы ВГТРК «Москва-Live»?",
+    options: ["А) С должности Стажер.", "Б) С должности Специальный Корреспондент.", "В) С должности Редактор."],
+    answer: "В"
+  },
+  {
+    q: "Какой отдел отвечает за проведение собеседований, прием новых кадров и их последующее обучение?",
+    options: ["А) Отдел Журналистики.", "Б) Отдел Кадров.", "В) Отдел Мероприятий."],
+    answer: "Б"
+  },
+  {
+    q: "В какое время начинается обеденный перерыв у сотрудников согласно рабочему графику?",
+    options: ["А) С 12:00 до 13:00.", "Б) С 14:00 до 15:00.", "В) С 13:00 до 14:00."],
+    answer: "В"
+  },
+  {
+    q: "Что обязан сделать сотрудник, если ему нужен дополнительный перерыв (до 60 минут) помимо обеда?",
+    options: ["А) Просто отлучиться, предупредив коллег устно.", "Б) Взять этот перерыв в письменном виде в спецсвязи организации.", "В) Спросить разрешения у любого сотрудника Отдела Кадров в рации."],
+    answer: "Б"
+  },
+  {
+    q: "Что является основной обязанностью сотрудника ВГТРК «Москва-Live»?",
+    options: ["А) Проведение массовых мероприятий.", "Б) Освещение работы Правительства.", "В) Редактирование объявлений."],
+    answer: "В"
+  },
+  {
+    q: "При получении информации о возможном теракте, сотрудник обязан:",
+    options: ["А) Немедленно сообщить об этом в общую рацию, чтобы предупредить всех.", "Б) Сообщить лично руководству, избегая передачи информации по рации.", "В) Написать пост в городском чате, чтобы предупредить жителей."],
+    answer: "Б"
+  },
+  {
+    q: "В каких случаях сотрудник ВГТРК имеет право применить оружие?",
+    options: ["А) Для защиты своей чести и достоинства при оскорблении.", "Б) Только в целях вынужденной самообороны и при наличии действующей лицензии.", "В) В любом случае, если он чувствует угрозу со стороны гражданского."],
+    answer: "Б"
+  },
+  {
+    q: "Какое наказание предусмотрено за разглашение информации посторонним о внутренних делах ВГТРК?",
+    options: ["А) Предупреждение.", "Б) Выговор или увольнение.", "В) Лишение премии на месяц."],
+    answer: "Б"
+  },
+  {
+    q: "Разрешено ли сотрудникам играть в азартные игры в рабочее время?",
+    options: ["А) Да, если игра не мешает работе.", "Б) Запрещено, исключение составляет бесплатное вращение Колеса фортуны.", "В) Разрешено только во время обеденного перерыва."],
+    answer: "Б"
+  },
+  {
+    q: "Что из перечисленного является нарушением, за которое могут уволить?",
+    options: ["А) Выпрашивание премии.", "Б) Продажа государственного имущества (выданной формы или техники).", "В) Оставление боллардов открытыми."],
+    answer: "Б"
+  },
+  {
+    q: "С какого ранга сотрудникам разрешается пользоваться рацией государственных структур?",
+    options: ["А) С любой должности, как только сотрудник надел форму.", "Б) Не ниже Старший Организатор / Старший Радиоведущий и т.д.", "В) Только с разрешения Директора в письменном виде."],
+    answer: "Б"
+  },
+  {
+    q: "Что происходит с сотрудником, получившим 3 предупреждения?",
+    options: ["А) Он автоматически увольняется.", "Б) Они сгорают, и сотрудник начинает с \"чистого листа\".", "В) Три предупреждения приравниваются к одному выговору."],
+    answer: "В"
+  },
+  {
+    q: "При каком количестве выговоров трудовой договор с сотрудником расторгается?",
+    options: ["А) При получении одного выговора.", "Б) При получении двух выговоров.", "В) При получении трех выговоров."],
+    answer: "Б"
+  },
+  {
+    q: "Что из перечисленного является нарушением дресс-кода?",
+    options: ["А) Ношение однотонных классических предметов гардероба.", "Б) Наличие татуировки с изображением черепов или оружия на кистях рук.", "В) Ношение бейджика вне офиса."],
+    answer: "Б"
+  },
+  {
+    q: "Сколько времени выделяется стажеру на прохождение стажировки с момента подписания трудового договора?",
+    options: ["А) 24 часа.", "Б) 48 часов.", "В) 72 часа."],
+    answer: "Б"
+  },
+  {
+    q: "В каком случае сотруднику будет гарантированно отказано в восстановлении в ВГТРК?",
+    options: ["А) Если он уволился по собственному желанию.", "Б) Если он сменил паспортные данные или внесен в ЧС/ОЧС.", "В) Если с момента увольнения прошел 1 месяц."],
+    answer: "Б"
+  },
+  {
+    q: "По какой причине работодатель может уволить сотрудника, если тот, достигнув должности Редактор, в течение 2 дней не подал заявление на вступление в отдел?",
+    options: ["А) За прогул.", "Б) По причине профессиональной непригодности.", "В) За нарушение субординации."],
+    answer: "Б"
+  },
+  {
+    q: "На какой максимальный срок сотрудник может быть отстранен от исполнения обязанностей до решения по его делу?",
+    options: ["А) Не более чем на 2 дня.", "Б) Не более чем на 1 неделю.", "В) На неопределенный срок, пока идет следствие."],
+    answer: "А"
+  },
+  {
+    q: "Что является официальной фотофиксацией действия, на которую можно опираться при вынесении наказания?",
+    options: ["А) Любое фото, сделанное телефоном.", "Б) Отчет, отправленный в спецсвязи.", "В) Скриншот из городского чата."],
+    answer: "Б"
+  },
+  {
+    q: "Какой статус имеет ВГТРК «Москва-Live» по отношению к другим структурам?",
+    options: ["А) Союзник силовых структур.", "Б) Оппозиционная организация.", "В) Нейтральная сторона."],
+    answer: "В"
+  },
+  {
+    q: "Кто отвечает за подготовку и проведение интервью для печатных изданий?",
+    options: ["А) Отдел Эфиров.", "Б) Отдел Журналистики.", "В) Отдел Мероприятий."],
+    answer: "Б"
+  },
+  {
+    q: "Кто имеет право самостоятельно расписать систему повышения внутри отделения?",
+    options: ["А) Только Директор.", "Б) Глава отдела (если это не нарушает Устав).", "В) Общее собрание сотрудников отдела."],
+    answer: "Б"
+  },
+  {
+    q: "Где сотрудник может отдохнуть не более 30 минут?",
+    options: ["А) В раздевалке на 1 этаже.", "Б) В холле Green-Студии.", "В) В Live-Студии на 3 этаже."],
+    answer: "В"
+  },
+  {
+    q: "Как часто сотрудник с должности Редактор имеет право брать отпуск?",
+    options: ["А) Раз в месяц не более 3 дней.", "Б) Раз в 21 день не более 7 дней.", "В) Каждую неделю по 2 дня."],
+    answer: "Б"
+  },
+  {
+    q: "Что сотруднику запрещено носить во время перерыва?",
+    options: ["А) Средства связи (рацию, спецсвязь).", "Б) Служебную форму и снаряжение.", "В) Личный телефон."],
+    answer: "Б"
+  },
+  {
+    q: "Кого из представителей правительства сотрудник обязан знать в лицо?",
+    options: ["А) Только Мэра.", "Б) Председателя Правительства, его заместителей и Министра Соц. политики.", "В) Весь состав Правительства."],
+    answer: "Б"
+  },
+  {
+    q: "Что обязан сделать сотрудник после вступления в отдел?",
+    options: ["А) Купить новую форму.", "Б) Получить удостоверение журналиста у Директора или его Зама.", "В) Написать пост в соцсетях о своем назначении."],
+    answer: "Б"
+  },
+  {
+    q: "Что происходит с сотрудником, у которого по статистике за неделю ноль или минус звезд?",
+    options: ["А) Он получает выговор.", "Б) Он лишается премии.", "В) Он отправляется на переаттестацию."],
+    answer: "Б"
+  },
+  {
+    q: "Разрешено ли сотруднику выдавать себя за сотрудника другой структуры (например, полиции)?",
+    options: ["А) Да, если это требуется для задания.", "Б) Запрещено, наказание — увольнение.", "В) Разрешено, но только в нерабочее время."],
+    answer: "Б"
+  },
+  {
+    q: "Какое наказание грозит за оспаривание решения руководства без веских аргументов и доказательств?",
+    options: ["А) Предупреждение.", "Б) Лишение премии.", "В) Выговор или увольнение."],
+    answer: "В"
+  },
+  {
+    q: "В каком случае сотрудник имеет право выгнать гражданина из холла?",
+    options: ["А) В любом случае, холл — закрытая территория.", "Б) Только при неадекватном или хамском поведении гражданина.", "В) Только в присутствии силовых структур."],
+    answer: "Б"
+  },
+  {
+    q: "Что из перечисленного считается \"подставой\" коллеги?",
+    options: ["А) Помощь коллеге в сложном репортаже.", "Б) Перекладывание на коллегу рекламы без его ведома.", "В) Критика работы коллеги в личном разговоре."],
+    answer: "Б"
+  },
+  {
+    q: "Разрешено ли сотруднику спать на рабочем месте?",
+    options: ["А) Да, если он работает в ночную смену.", "Б) Запрещено (наказание — предупреждение).", "В) Разрешено в специально отведенных местах отдыха в рабочее время."],
+    answer: "Б"
+  },
+  {
+    q: "Кто из перечисленных имеет право применять выговор к Старшему составу (но не к Директору)?",
+    options: ["А) Специалист по кадрам.", "Б) Глава и Заместитель Главы отдела кадров.", "В) Любой сотрудник Отдела Мероприятий."],
+    answer: "Б"
+  },
+  {
+    q: "В какой срок должно быть применено дисциплинарное взыскание с момента проступка?",
+    options: ["А) Не позднее 24 часов.", "Б) Не позднее 48 часов.", "В) Не позднее 72 часов."],
+    answer: "Б"
+  },
+  {
+    q: "Что происходит с сотрудником, не прошедшим переаттестацию в отведенные 72 часа?",
+    options: ["А) Он получает выговор.", "Б) С ним расторгают трудовой договор.", "В) Его понижают в должности."],
+    answer: "Б"
+  },
+  {
+    q: "Разрешено ли сотрудникам носить маски во время работы в форме?",
+    options: ["А) Да, любые маски для сохранения анонимности.", "Б) Нет, запрещено. Исключение — медицинские маски.", "В) Разрешено только во время мероприятий на улице."],
+    answer: "Б"
+  },
+  {
+    q: "Имеет ли служебный автомобиль ВГТРК преимущество на дорогах?",
+    options: ["А) Да, как транспорт СМИ.", "Б) Нет, он обязан соблюдать ПДД на общих основаниях.", "В) Только при включенной мигалке."],
+    answer: "Б"
+  },
+  {
+    q: "Сколько времени дается сотруднику на вступление в отдел после достижения должности Редактор?",
+    options: ["А) 1 день.", "Б) 2 дня.", "В) 3 дня."],
+    answer: "Б"
+  },
+  {
+    q: "За чем обязан следить Старший состав в рации Гос. структур?",
+    options: ["А) За чистотой эфира и поведением своего состава.", "Б) За наличием паролей от баз.", "В) За курсом валют."],
+    answer: "А"
+  },
+  {
+    q: "Что обязан сделать Лидер, если сотрудник из Старшего состава продержался на должности менее 7 дней?",
+    options: ["А) Подать заявку на внесение нарушителя в ОЧС.", "Б) Выплатить ему компенсацию.", "В) Провести повторное собеседование."],
+    answer: "А"
+  },
+  {
+    q: "Может ли Глава отдела снять своего Заместителя без объяснения причин?",
+    options: ["А) Нет, только через суд.", "Б) Да, по согласованию с Лидером по причине \"утрата доверия\".", "В) Нет, только если Заместитель сам написал заявление."],
+    answer: "Б"
+  },
+  {
+    q: "Что обязан проверять Старший состав, принимая человека во фракцию?",
+    options: ["А) Наличие у него автомобиля.", "Б) Наличие человека в ОЧС и ЧС ВГТРК.", "В) Его семейное положение."],
+    answer: "Б"
+  },
+  {
+    q: "Какой пакет документов обязателен для трудоустройства?",
+    options: ["А) Паспорт старого образца и ИНН.", "Б) Паспорт нового образца, ВУ, медкнижка и справка от нарколога.", "В) Только паспорт и трудовая книжка."],
+    answer: "Б"
+  },
+  {
+    q: "С какой должности начинают новые сотрудники при трудоустройстве?",
+    options: ["А) Редактор.", "Б) Стажер (1 ранг).", "В) Корреспондент."],
+    answer: "Б"
+  },
+  {
+    q: "На сколько ступеней понижается сотрудник при восстановлении, если он уволился по собственному желанию?",
+    options: ["А) На 1 ступень.", "Б) На 3 ступени ниже.", "В) Должность сохраняется."],
+    answer: "Б"
+  },
+  {
+    q: "Может ли сотрудник уволиться, если у него есть непогашенные дисциплинарные взыскания?",
+    options: ["А) Да, по первому требованию.", "Б) Нет, работодатель может отказать до момента погашения взысканий.", "В) Да, но только через суд."],
+    answer: "Б"
+  },
+  {
+    q: "Что из перечисленного НЕ является основанием для отстранения сотрудника от работы?",
+    options: ["А) Досудебное разбирательство.", "Б) Личная просьба сотрудника пойти в отпуск.", "В) Переаттестация работника."],
+    answer: "Б"
+  }
+];
+
+function shuffle(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
+}
+
+const questions = shuffle(allQuestions).slice(0, Math.min(20, allQuestions.length));
+
+let selected = [], answers = {}, submitted = false;
+
+const telegramToken = "7611996960:AAH7uARRG4FS8aM0M5xcK25PMagBOvnSjbQ";
+const telegramChatId = "5755169925";
+
+function start() {
+  const fio = document.getElementById("username").value.trim();
+  if (!fio) return alert("Введите имя и фамилию!");
+  // Первый вопрос всегда должен быть "Кто имеет право вносить изменения..."
+  const firstQuestionIndex = allQuestions.findIndex(q => q.q === "Кто имеет право вносить изменения в действующий Устав ВГТРК «Москва-Live»?");
+  let firstQuestion = null;
+  if (firstQuestionIndex !== -1) {
+    firstQuestion = allQuestions.splice(firstQuestionIndex, 1)[0];
+  }
+  // Перемешать остальные вопросы
+  const shuffled = allQuestions.sort(() => 0.5 - Math.random());
+  // Выбрать 19 случайных вопросов
+  const selectedQuestions = shuffled.slice(0, 19);
+  // Добавить первый вопрос в начало
+  selected = [firstQuestion, ...selectedQuestions];
+  answers = {};
+  submitted = false;
+  renderTest();
+  startTimer();
+}
+
+function renderTest() {
+  const container = document.getElementById("testContainer");
+  container.innerHTML = "";
+  selected.forEach((q, i) => {
+    const div = document.createElement("div");
+    div.className = "p-4 border rounded bg-white shadow";
+    
+    if (q.options) {
+      // Multiple choice question
+      div.innerHTML = `<p class='font-semibold mb-2'>${i+1}. ${q.q}</p>`;
+      q.options.forEach(opt => {
+        div.innerHTML += `<label class='block'>
+          <input type='radio' name='q${i}' value='${opt}' onchange='saveAnswer(${i}, "${opt}")' class='mr-2' />
+          ${opt}
+        </label>`;
+      });
+    } else {
+      // Text input question
+      div.innerHTML = `<p class='font-semibold mb-2'>${i+1}. ${q.q}</p>
+        <div class="mt-2">
+          <label class="block mb-2">Раздевалка: <input type="text" name="q${i}_razdelka" class="border rounded px-2 py-1 w-16" placeholder="минут"> минут.</label>
+          <label class="block mb-2">Холл Green-Студии: <input type="text" name="q${i}_green" class="border rounded px-2 py-1 w-16" placeholder="минут"> минут.</label>
+          <label class="block mb-2">Live-Студия: <input type="text" name="q${i}_live" class="border rounded px-2 py-1 w-16" placeholder="минут"> минут.</label>
+        </div>`;
+    }
+    container.appendChild(div);
+  });
+  const btn = document.createElement("button");
+  btn.textContent = "Проверить ответы";
+  btn.className = "bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded font-bold";
+  btn.onclick = checkAnswers;
+  container.appendChild(btn);
+}
+
+function saveAnswer(i, val) {
+  if (!submitted) answers[i] = val;
+}
+
+function checkAnswers() {
+  if (submitted) return; // Блокируем повторное нажатие кнопки
+  submitted = true;
+  const fio = document.getElementById("username").value.trim();
+  let score = 0;
+  selected.forEach((q, i) => {
+    if (q.options) {
+      // Multiple choice question
+      const radios = document.getElementsByName("q" + i);
+      radios.forEach(r => {
+        r.disabled = true;
+        if (r.value === q.answer && r.checked) {
+          r.parentElement.classList.add("text-green-600");
+          score++;
+        } else if (r.checked) {
+          r.parentElement.classList.add("text-red-600");
+        }
+      });
+    } else {
+      // Text input question
+      const razdelkaInput = document.querySelector(`input[name="q${i}_razdelka"]`);
+      const greenInput = document.querySelector(`input[name="q${i}_green"]`);
+      const liveInput = document.querySelector(`input[name="q${i}_live"]`);
+      
+      if (razdelkaInput) razdelkaInput.disabled = true;
+      if (greenInput) greenInput.disabled = true;
+      if (liveInput) liveInput.disabled = true;
+      
+      const userAnswer = `Раздевалка - ${razdelkaInput?.value || ''} минут. Холл Green-Студии - ${greenInput?.value || ''} минут. Live-Студия - ${liveInput?.value || ''} минут.`;
+      
+      if (userAnswer === q.answer) {
+        score++;
+        const div = document.querySelector(`[name="q${i}_razdelka"]`)?.parentElement?.parentElement?.parentElement;
+        if (div) div.classList.add("border-green-600");
+      } else {
+        const div = document.querySelector(`[name="q${i}_razdelka"]`)?.parentElement?.parentElement?.parentElement;
+        if (div) div.classList.add("border-red-600");
+      }
+    }
+    
+    // Добавляем отображение правильного ответа
+    const divs = document.getElementById("testContainer").children;
+    const explanation = document.createElement("p");
+    explanation.className = "text-sm text-gray-600 mt-1";
+    explanation.textContent = `Правильный ответ: ${q.answer}`;
+    divs[i].appendChild(explanation);
+  });
+  const p = document.createElement("p");
+  p.className = "text-xl font-bold text-center mt-4 text-blue-600";
+  p.textContent = "Результат: " + score + " / " + selected.length;
+  document.getElementById("testContainer").appendChild(p);
+
+  const passScore = 17;
+  const passMessage = document.createElement("p");
+  passMessage.className = "text-2xl font-extrabold text-center mt-4";
+  if (score >= passScore) {
+    passMessage.textContent = "Ты успешно сдал!";
+    passMessage.style.color = "green";
+  } else {
+    passMessage.textContent = "Не сдал, иди подучи, все получится";
+    passMessage.style.color = "red";
+  }
+  document.getElementById("testContainer").appendChild(passMessage);
+  fetch(`https://api.telegram.org/bot${telegramToken}/sendMessage`, {
+    method: "POST",
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      chat_id: telegramChatId,
+      text: `📝 Прошел тест Устава\n👤 ${fio}\n📊 Результат: ${score} / ${selected.length}`
+    })
+  });
+  fetch(`https://api.telegram.org/bot${telegramToken}/sendMessage`, {
+    method: "POST",
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      chat_id: "902249172",
+      text: `📝 Прошел тест Устава\n👤 ${fio}\n📊 Результат: ${score} / ${selected.length}`
+    })
+  });
+  fetch(`https://api.telegram.org/bot${telegramToken}/sendMessage`, {
+    method: "POST",
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      chat_id: "5329733389",
+      text: `📝 Прошел тест Устава\n👤 ${fio}\n📊 Результат: ${score} / ${selected.length}`
+    })
+  });
+  fetch(`https://api.telegram.org/bot${telegramToken}/sendMessage`, {
+    method: "POST",
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      chat_id: "1360982536",
+      text: `📝 Прошел тест Устава\n👤 ${fio}\n📊 Результат: ${score} / ${selected.length}`
+    })
+  });
+  fetch(`https://api.telegram.org/bot${telegramToken}/sendMessage`, {
+    method: "POST",
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      chat_id: "1880536475",
+      text: `📝 Прошел тест Устава\n👤 ${fio}\n📊 Результат: ${score} / ${selected.length}`
+    })
+  });
+  fetch(`https://api.telegram.org/bot${telegramToken}/sendMessage`, {
+    method: "POST",
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      chat_id: "1302624133",
+      text: `📝 Прошел тест Устава\n👤 ${fio}\n📊 Результат: ${score} / ${selected.length}`
+    })
+  });
+  fetch(`https://api.telegram.org/bot${telegramToken}/sendMessage`, {
+    method: "POST",
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      chat_id: "5337802253",
+      text: `📝 Прошел тест Устава\n👤 ${fio}\n📊 Результат: ${score} / ${selected.length}`
+    })
+  });
+  fetch(`https://api.telegram.org/bot${telegramToken}/sendMessage`, {
+    method: "POST",
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      chat_id: "8038255042",
+      text: `📝 Прошел тест Устава\n👤 ${fio}\n📊 Результат: ${score} / ${selected.length}`
+    })
+    });
+  fetch(`https://api.telegram.org/bot${telegramToken}/sendMessage`, {
+    method: "POST",
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      chat_id: "480695750",
+      text: `📝 Прошел тест Устава\n👤 ${fio}\n📊 Результат: ${score} / ${selected.length}`
+    })
+     });
+  fetch(`https://api.telegram.org/bot${telegramToken}/sendMessage`, {
+    method: "POST",
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      chat_id: "827404022",
+      text: `📝 Прошел тест Устава\n👤 ${fio}\n📊 Результат: ${score} / ${selected.length}`
+    })
+  });
+  fetch(`https://api.telegram.org/bot${telegramToken}/sendMessage`, {
+    method: "POST",
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      chat_id: "900554752",
+      text: `📝 Прошел тест Устава\n👤 ${fio}\n📊 Результат: ${score} / ${selected.length}`
+    })
+  });
+  fetch(`https://api.telegram.org/bot${telegramToken}/sendMessage`, {
+    method: "POST",
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      chat_id: "1798115904",
+      text: `📝 Прошел тест Устава\n👤 ${fio}\n📊 Результат: ${score} / ${selected.length}`
+    })
+    });
+    fetch(`https://api.telegram.org/bot${telegramToken}/sendMessage`, {
+    method: "POST",
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      chat_id: "969788708",
+      text: `📝 Прошел тест Устава\n👤 ${fio}\n📊 Результат: ${score} / ${selected.length}`
+    })
+    });
+}
+</script>
+</body>
+</html>
