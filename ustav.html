@@ -5,39 +5,41 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Тест по Уставу</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
   <link href="styles.css" rel="stylesheet" />
   <style>
-    .toast { position: fixed; bottom: 20px; right: 20px; background: #10b981; color: white; padding: 12px 24px; border-radius: 8px; z-index: 1000; animation: slideIn 0.3s ease; }
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #10b981;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 8px;
+      z-index: 1000;
+      animation: slideIn 0.3s ease;
+    }
     .toast.error { background: #ef4444; }
-    @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-    .progress-bar-container { width: 100%; background-color: #e2e8f0; border-radius: 0.375rem; height: 0.75rem; margin: 1rem 0; overflow: hidden; }
-    .progress-bar { height: 100%; background-color: #4299e1; width: 0%; transition: width 0.3s ease; }
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    .progress-bar-container {
+      width: 100%;
+      background-color: #e2e8f0;
+      border-radius: 0.375rem;
+      height: 0.75rem;
+      margin: 1rem 0;
+      overflow: hidden;
+    }
+    .progress-bar {
+      height: 100%;
+      background-color: #4299e1;
+      width: 0%;
+      transition: width 0.3s ease;
+    }
   </style>
-  <script>
-    function toggleTheme() {
-      const html = document.documentElement;
-      html.classList.toggle('dark');
-      html.classList.toggle('light');
-      localStorage.setItem('theme', html.classList.contains('dark') ? 'dark' : 'light');
-      const icon = document.getElementById('theme-icon');
-      if (icon) icon.textContent = html.classList.contains('dark') ? '☀️' : '🌙';
-    }
-    (function() {
-      const saved = localStorage.getItem('theme');
-      const html = document.documentElement;
-      if (saved === 'dark') { html.classList.add('dark'); html.classList.remove('light'); }
-      else { html.classList.add('light'); html.classList.remove('dark'); }
-      const icon = document.getElementById('theme-icon');
-      if (icon) icon.textContent = saved === 'dark' ? '☀️' : '🌙';
-    })();
-    function showToast(msg, isError = false) {
-      const toast = document.createElement('div');
-      toast.className = `toast ${isError ? 'error' : ''}`;
-      toast.textContent = msg;
-      document.body.appendChild(toast);
-      setTimeout(() => toast.remove(), 3000);
-    }
-  </script>
 </head>
 <body class="transition-all">
   <a href="index.html" class="fixed top-4 left-4 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold py-1 px-3 rounded shadow z-50">← Главная</a>
@@ -50,24 +52,77 @@
   </div>
 
 <script>
+// ========== FIREBASE КОНФИГ ==========
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyCuOIt7wMUrN8vu9RQqivNj9w3CdFitrqE",
+  authDomain: "moscow-live-tests.firebaseapp.com",
+  projectId: "moscow-live-tests",
+  storageBucket: "moscow-live-tests.firebasestorage.app",
+  messagingSenderId: "956332293918",
+  appId: "1:956332293918:web:e7f66986cca2a30474130f"
+};
+// ====================================
+
 const TELEGRAM_TOKEN = "7611996960:AAH7uARRG4FS8aM0M5xcK25PMagBOvnSjbQ";
 const TELEGRAM_CHAT_ID = "5755169925";
 const OTHER_CHATS = ["1360982536", "5329733389", "1880536475", "1302624133", "5337802253", "902249172", "8038255042"];
 
 let timerInterval, timeLeft = 900, selected = [], answers = {}, submitted = false;
+let allQuestions = [];
+let db = null;
 
-function loadQuestions() {
-  const q = JSON.parse(localStorage.getItem("ustavQuestions") || "[]");
-  if (!q.length) showToast("⚠️ Нет вопросов! Зайдите в админ-панель.", true);
-  return q;
+function showToast(msg, isError = false) {
+  const toast = document.createElement('div');
+  toast.className = `toast ${isError ? 'error' : ''}`;
+  toast.textContent = msg;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 3000);
 }
-function shuffle(arr) { for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; } return arr; }
+
+function initFirebase() {
+  if (!firebase.apps.length) {
+    firebase.initializeApp(FIREBASE_CONFIG);
+  }
+  db = firebase.database();
+  console.log('✅ Firebase подключен');
+}
+
+async function loadQuestionsFromFirebase() {
+  if (!db) initFirebase();
+  try {
+    const snapshot = await db.ref('questions/ustavQuestions').once('value');
+    allQuestions = snapshot.exists() ? snapshot.val() : [];
+    console.log(`📋 Загружено ${allQuestions.length} вопросов из Firebase`);
+    return allQuestions.length > 0;
+  } catch(e) {
+    console.error('Ошибка загрузки из Firebase:', e);
+    return false;
+  }
+}
+
+function shuffle(arr) { 
+  for (let i = arr.length - 1; i > 0; i--) { 
+    const j = Math.floor(Math.random() * (i + 1)); 
+    [arr[i], arr[j]] = [arr[j], arr[i]]; 
+  } 
+  return arr; 
+}
+
 function startTimer() {
   clearInterval(timerInterval);
   timeLeft = 900;
   updateTimerDisplay();
-  timerInterval = setInterval(() => { timeLeft--; updateTimerDisplay(); if (timeLeft <= 0) { clearInterval(timerInterval); alert("Время вышло!"); disableTest(); } }, 1000);
+  timerInterval = setInterval(() => { 
+    timeLeft--; 
+    updateTimerDisplay(); 
+    if (timeLeft <= 0) { 
+      clearInterval(timerInterval); 
+      alert("Время вышло!"); 
+      disableTest(); 
+    } 
+  }, 1000);
 }
+
 function updateTimerDisplay() {
   const m = Math.floor(timeLeft / 60), s = timeLeft % 60;
   const timerEl = document.getElementById("timer");
@@ -75,21 +130,37 @@ function updateTimerDisplay() {
   const bar = document.getElementById("progressBar");
   if (bar) bar.style.width = ((900 - timeLeft) / 900) * 100 + "%";
 }
-function disableTest() { document.querySelectorAll("#testContainer input, #checkBtn").forEach(el => el.disabled = true); }
+
+function disableTest() { 
+  document.querySelectorAll("#testContainer input, #checkBtn").forEach(el => el.disabled = true); 
+}
+
 async function sendToTelegram(message) {
   const url = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`;
-  try { await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: message, parse_mode: "HTML" }) });
+  try {
+    await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: message, parse_mode: "HTML" }) });
     for (const id of OTHER_CHATS) fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ chat_id: id, text: message, parse_mode: "HTML" }) });
   } catch(e) { console.error(e); }
 }
-function start() {
+
+async function start() {
   const fio = document.getElementById("username").value.trim();
   if (!fio) return showToast("Введите имя и фамилию!", true);
-  selected = shuffle([...loadQuestions()]).slice(0, 20);
+  
+  showToast("🔄 Загрузка вопросов...");
+  const hasQuestions = await loadQuestionsFromFirebase();
+  
+  if (!hasQuestions || allQuestions.length === 0) {
+    showToast("❌ Нет вопросов! Добавьте их в админ-панели", true);
+    return;
+  }
+  
+  selected = shuffle([...allQuestions]).slice(0, Math.min(20, allQuestions.length));
   answers = {}; submitted = false;
   renderTest();
   startTimer();
 }
+
 function renderTest() {
   const container = document.getElementById("testContainer");
   container.innerHTML = `<div id="timer" class="timer text-center font-bold text-lg"></div><div class="progress-bar-container"><div id="progressBar" class="progress-bar"></div></div>`;
@@ -97,7 +168,9 @@ function renderTest() {
     const div = document.createElement("div");
     div.className = "p-4 border rounded bg-white dark:bg-gray-800 shadow";
     div.innerHTML = `<p class='font-semibold mb-2'>${i+1}. ${q.q}</p>`;
-    q.options.forEach(opt => { div.innerHTML += `<label class='block'><input type='radio' name='q${i}' value='${opt}' onchange='saveAnswer(${i}, this.value)' class='mr-2' />${opt}</label>`; });
+    q.options.forEach(opt => { 
+      div.innerHTML += `<label class='block'><input type='radio' name='q${i}' value='${opt}' onchange='saveAnswer(${i}, this.value)' class='mr-2' />${opt}</label>`; 
+    });
     container.appendChild(div);
   });
   const btn = document.createElement("button");
@@ -107,7 +180,9 @@ function renderTest() {
   btn.onclick = checkAnswers;
   container.appendChild(btn);
 }
+
 function saveAnswer(i, val) { if (!submitted) answers[i] = val; }
+
 function checkAnswers() {
   if (submitted) return;
   submitted = true;
@@ -117,7 +192,13 @@ function checkAnswers() {
     const div = document.getElementById("testContainer").children[i+1];
     const radios = document.getElementsByName("q" + i);
     let correct = false;
-    radios.forEach(r => { r.disabled = true; if (r.checked && r.value === q.answer) { correct = true; r.parentElement.classList.add("text-green-600"); } else if (r.checked) r.parentElement.classList.add("text-red-600"); });
+    radios.forEach(r => { 
+      r.disabled = true; 
+      if (r.checked && r.value === q.answer) { 
+        correct = true; 
+        r.parentElement.classList.add("text-green-600"); 
+      } else if (r.checked) r.parentElement.classList.add("text-red-600"); 
+    });
     if (correct) score++;
     div.innerHTML += `<p class='text-sm text-gray-500 mt-1'>✅ Правильно: ${q.answer}</p>`;
   });
@@ -127,6 +208,26 @@ function checkAnswers() {
   clearInterval(timerInterval);
   sendToTelegram(`📝 <b>Тест Устава</b>\n👤 ${fio}\n📊 ${score}/${selected.length}\n${score >= passScore ? "✅ СДАЛ" : "❌ НЕ СДАЛ"}`);
 }
+
+function toggleTheme() {
+  const html = document.documentElement;
+  html.classList.toggle('dark');
+  html.classList.toggle('light');
+  localStorage.setItem('theme', html.classList.contains('dark') ? 'dark' : 'light');
+  const icon = document.getElementById('theme-icon');
+  if (icon) icon.textContent = html.classList.contains('dark') ? '☀️' : '🌙';
+}
+
+(function() {
+  const saved = localStorage.getItem('theme');
+  const html = document.documentElement;
+  if (saved === 'dark') { html.classList.add('dark'); html.classList.remove('light'); }
+  else { html.classList.add('light'); html.classList.remove('dark'); }
+  const icon = document.getElementById('theme-icon');
+  if (icon) icon.textContent = saved === 'dark' ? '☀️' : '🌙';
+})();
+
+initFirebase();
 </script>
 </body>
 </html>
