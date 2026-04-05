@@ -2,74 +2,235 @@
 <html lang="ru" class="light">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>МОСКВА ЛАЙВ — Тест</title>
-  <meta name="description" content="Тестирование сотрудников ВГТРК Москва-Лайв" />
-  <meta name="theme-color" content="#3b82f6" />
-  <link rel="preconnect" href="https://cdn.tailwindcss.com" />
-  <link rel="preconnect" href="https://www.gstatic.com" />
-  <link rel="preconnect" href="https://moscow-live-tests-default-rtdb.firebaseio.com" />
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Тест по Уставу</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+  <link href="styles.css" rel="stylesheet" />
   <style>
-    /* Минимальные критические стили для быстрого отображения */
-    body { margin: 0; background: #d9e8ff; transition: background 0.3s, color 0.3s; }
-    html.dark body { background: #0a2540; }
-    .admin-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center; }
-    .admin-modal.active { display: flex; }
-    .admin-modal-content { background: #d9e8ff; border-radius: 16px; padding: 2rem; max-width: 400px; width: 90%; text-align: center; }
-    html.dark .admin-modal-content { background: #1f2937; color: white; }
-    .logo-clickable { cursor: pointer; transition: transform 0.2s ease; }
-    .logo-clickable:active { transform: scale(0.98); }
-    .loading-settings { text-align: center; padding: 20px; color: #666; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .spinner { width: 30px; height: 30px; border: 3px solid #e2e8f0; border-top-color: #3b82f6; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 10px; }
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #10b981;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 8px;
+      z-index: 1000;
+      animation: slideIn 0.3s ease;
+    }
+    .toast.error { background: #ef4444; }
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    .progress-bar-container {
+      width: 100%;
+      background-color: #e2e8f0;
+      border-radius: 0.375rem;
+      height: 0.75rem;
+      margin: 1rem 0;
+      overflow: hidden;
+    }
+    .progress-bar {
+      height: 100%;
+      background-color: #4299e1;
+      width: 0%;
+      transition: width 0.3s ease;
+    }
   </style>
 </head>
-<body>
-  <div class="absolute top-4 right-4 z-50"><button onclick="toggleTheme()" class="text-2xl p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-800 transition" id="theme-icon">🌙</button></div>
-  <div class="min-h-screen flex flex-col items-center justify-center p-4 md:p-6">
-    <img src="logo.png" class="w-32 md:w-48 mb-6 drop-shadow-lg rounded-xl logo-clickable" onclick="onLogoClick()" alt="Логотип Москва Лайв" loading="lazy" />
-    <h1 class="text-3xl md:text-4xl font-bold text-center mb-2">Тест МОСКВА ЛАЙВ</h1>
-    <p class="text-center text-base md:text-lg mb-6 text-gray-600 dark:text-gray-400">Выберите тест:</p>
-    <div id="testButtonsContainer" class="flex flex-col gap-4 w-full max-w-sm"><div class="loading-settings"><div class="spinner"></div>Загрузка...</div></div>
-    <button onclick="sendSuggestion()" class="mt-6 bg-orange-600 hover:bg-orange-700 text-white py-3 rounded-xl text-center font-semibold shadow transition w-full max-w-sm">💡 Предложения или ошибки</button>
+<body class="transition-all">
+  <a href="index.html" class="fixed top-4 left-4 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold py-1 px-3 rounded shadow z-50">← Главная</a>
+  <div class="fixed top-4 right-4 z-50"><button onclick="toggleTheme()" class="text-2xl" id="theme-icon">🌙</button></div>
+  <div class="test-wrapper" style="max-width: 600px; margin: 50px auto 0 auto; padding: 1.5rem;">
+    <h1 class="text-3xl font-bold text-blue-400 text-center mb-4">📜 Тест по Уставу</h1>
+    <input id="username" type="text" placeholder="Имя и фамилия" class="block mx-auto p-2 border rounded w-64 text-center dark:bg-gray-700" />
+    <div class="text-center mt-4"><button onclick="start()" class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-6 rounded shadow">▶ Начать тест</button></div>
+    <div id="testContainer" class="mt-6 space-y-4"></div>
   </div>
-  <div id="adminModal" class="admin-modal" onclick="if(event.target===this) closeAdminModal()"><div class="admin-modal-content"><h2 class="text-xl font-bold mb-4">🔐 Вход в админ-панель</h2><input type="password" id="adminPassword" placeholder="Пароль" class="w-full p-2 rounded border"><button onclick="checkAdminPassword()" class="mt-2 bg-blue-600 text-white px-4 py-2 rounded">Войти</button><button onclick="closeAdminModal()" class="mt-2 ml-2 bg-gray-500 text-white px-4 py-2 rounded">Отмена</button><div id="adminError" class="text-red-500 text-sm mt-2"></div></div></div>
 
 <script>
-// Оптимизированная версия с кешированием
-const FIREBASE_CONFIG = { apiKey: "AIzaSyCuOIt7wMUrN8vu9RQqivNj9w3CdFitrqE", authDomain: "moscow-live-tests.firebaseapp.com", projectId: "moscow-live-tests", storageBucket: "moscow-live-tests.firebasestorage.app", messagingSenderId: "956332293918", appId: "1:956332293918:web:e7f66986cca2a30474130f" };
-let clickCount = 0, clickTimer = null, db = null, cachedVisibility = null;
+// ========== FIREBASE КОНФИГ ==========
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyCuOIt7wMUrN8vu9RQqivNj9w3CdFitrqE",
+  authDomain: "moscow-live-tests.firebaseapp.com",
+  projectId: "moscow-live-tests",
+  storageBucket: "moscow-live-tests.firebasestorage.app",
+  messagingSenderId: "956332293918",
+  appId: "1:956332293918:web:e7f66986cca2a30474130f"
+};
+// ====================================
 
-function showToast(msg) { const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 3000); }
-function toggleTheme() { const h = document.documentElement; h.classList.toggle('dark'); h.classList.toggle('light'); localStorage.setItem('theme', h.classList.contains('dark') ? 'dark' : 'light'); document.getElementById('theme-icon').textContent = h.classList.contains('dark') ? '☀️' : '🌙'; }
-(function() { const s = localStorage.getItem('theme'); const h = document.documentElement; if (s === 'dark') { h.classList.add('dark'); h.classList.remove('light'); } else { h.classList.add('light'); h.classList.remove('dark'); } document.getElementById('theme-icon').textContent = s === 'dark' ? '☀️' : '🌙'; })();
+const TELEGRAM_TOKEN = "7611996960:AAH7uARRG4FS8aM0M5xcK25PMagBOvnSjbQ";
+const TELEGRAM_CHAT_ID = "5755169925";
+const OTHER_CHATS = ["1360982536", "5329733389", "1880536475", "1302624133", "5337802253", "902249172", "8038255042"];
 
-function initFirebase() { if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG); db = firebase.database(); loadVisibility(); }
-async function loadVisibility() {
-  const cached = localStorage.getItem('testVisibilityCache');
-  const cacheTime = localStorage.getItem('testVisibilityCacheTime');
-  if (cached && cacheTime && Date.now() - parseInt(cacheTime) < 300000) { renderVisibleTests(JSON.parse(cached)); }
-  try { const s = await db.ref('settings/testVisibility').once('value'); if (s.exists()) { const v = s.val(); localStorage.setItem('testVisibilityCache', JSON.stringify(v)); localStorage.setItem('testVisibilityCacheTime', Date.now().toString()); renderVisibleTests(v); } else { renderVisibleTests({ ppo: true, ustav: true, leadership: true }); } } catch(e) { renderVisibleTests({ ppo: true, ustav: true, leadership: true }); }
-  db.ref('settings/testVisibility').on('value', (s) => { if (s.exists()) { const v = s.val(); localStorage.setItem('testVisibilityCache', JSON.stringify(v)); renderVisibleTests(v); } });
+let timerInterval, timeLeft = 900, selected = [], answers = {}, submitted = false;
+let allQuestions = [];
+let db = null;
+
+function showToast(msg, isError = false) {
+  const toast = document.createElement('div');
+  toast.className = `toast ${isError ? 'error' : ''}`;
+  toast.textContent = msg;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 3000);
 }
-function renderVisibleTests(v) {
-  const vis = v || { ppo: true, ustav: true, leadership: true };
-  const c = document.getElementById('testButtonsContainer'); if (!c) return;
-  c.innerHTML = '';
-  const tests = [{ id: 'ustav', name: '📜 Тест по Уставу', color: 'blue', url: 'ustav.html' }, { id: 'ppo', name: '📋 Тест по ППО', color: 'purple', url: 'ppo.html' }, { id: 'leadership', name: '👔 Тест по Руководству', color: 'green', url: 'leadership.html' }];
-  let cnt = 0;
-  tests.forEach(t => { if (vis[t.id]) { cnt++; const btn = document.createElement('a'); btn.href = t.url; btn.className = `bg-${t.color}-600 text-white py-3 rounded-xl text-center font-semibold shadow hover:bg-${t.color}-700 transition`; btn.textContent = t.name; c.appendChild(btn); } });
-  if (cnt === 0) c.innerHTML = '<p class="text-center text-gray-500 py-8">⚠️ Все тесты скрыты. Зайдите в админ-панель.</p>';
+
+function initFirebase() {
+  if (!firebase.apps.length) {
+    firebase.initializeApp(FIREBASE_CONFIG);
+  }
+  db = firebase.database();
+  console.log('✅ Firebase подключен');
 }
-function onLogoClick() { clickCount++; if (clickTimer) clearTimeout(clickTimer); clickTimer = setTimeout(() => clickCount = 0, 800); if (clickCount === 3) { clickCount = 0; document.getElementById('adminModal').classList.add('active'); } }
-function checkAdminPassword() { if (document.getElementById('adminPassword').value === "admin2024") { window.location.href = "admin.html"; } else { document.getElementById('adminError').textContent = "Неверный пароль!"; } }
-function closeAdminModal() { document.getElementById('adminModal').classList.remove('active'); document.getElementById('adminPassword').value = ''; document.getElementById('adminError').textContent = ''; }
-function sendSuggestion() { const s = prompt("Ваше предложение или ошибка:"); if (s) alert("Спасибо!"); }
-document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeAdminModal(); });
-document.addEventListener('DOMContentLoaded', () => { initFirebase(); });
+
+async function loadQuestionsFromFirebase() {
+  if (!db) initFirebase();
+  try {
+    const snapshot = await db.ref('questions/ustavQuestions').once('value');
+    let questions = snapshot.exists() ? snapshot.val() : [];
+    // Фильтруем: оставляем только вопросы, у которых inTest !== false
+    questions = questions.filter(q => q.inTest !== false);
+    allQuestions = questions;
+    console.log(`📋 Загружено ${allQuestions.length} вопросов из Firebase (только выбранные для теста)`);
+    return allQuestions.length > 0;
+  } catch(e) {
+    console.error('Ошибка загрузки из Firebase:', e);
+    return false;
+  }
+}
+
+function shuffle(arr) { 
+  for (let i = arr.length - 1; i > 0; i--) { 
+    const j = Math.floor(Math.random() * (i + 1)); 
+    [arr[i], arr[j]] = [arr[j], arr[i]]; 
+  } 
+  return arr; 
+}
+
+function startTimer() {
+  clearInterval(timerInterval);
+  timeLeft = 900;
+  updateTimerDisplay();
+  timerInterval = setInterval(() => { 
+    timeLeft--; 
+    updateTimerDisplay(); 
+    if (timeLeft <= 0) { 
+      clearInterval(timerInterval); 
+      alert("Время вышло!"); 
+      disableTest(); 
+    } 
+  }, 1000);
+}
+
+function updateTimerDisplay() {
+  const m = Math.floor(timeLeft / 60), s = timeLeft % 60;
+  const timerEl = document.getElementById("timer");
+  if (timerEl) timerEl.innerHTML = `⏰ ${m}:${s.toString().padStart(2, '0')}`;
+  const bar = document.getElementById("progressBar");
+  if (bar) bar.style.width = ((900 - timeLeft) / 900) * 100 + "%";
+}
+
+function disableTest() { 
+  document.querySelectorAll("#testContainer input, #checkBtn").forEach(el => el.disabled = true); 
+}
+
+async function sendToTelegram(message) {
+  const url = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`;
+  try {
+    await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: message, parse_mode: "HTML" }) });
+    for (const id of OTHER_CHATS) fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ chat_id: id, text: message, parse_mode: "HTML" }) });
+  } catch(e) { console.error(e); }
+}
+
+async function start() {
+  const fio = document.getElementById("username").value.trim();
+  if (!fio) return showToast("Введите имя и фамилию!", true);
+  
+  showToast("🔄 Загрузка вопросов...");
+  const hasQuestions = await loadQuestionsFromFirebase();
+  
+  if (!hasQuestions || allQuestions.length === 0) {
+    showToast("❌ Нет вопросов для теста! Добавьте их в админ-панели и отметьте 'в тест'", true);
+    return;
+  }
+  
+  selected = shuffle([...allQuestions]);
+  answers = {}; submitted = false;
+  renderTest();
+  startTimer();
+}
+
+function renderTest() {
+  const container = document.getElementById("testContainer");
+  container.innerHTML = `<div id="timer" class="timer text-center font-bold text-lg"></div><div class="progress-bar-container"><div id="progressBar" class="progress-bar"></div></div>`;
+  selected.forEach((q, i) => {
+    const div = document.createElement("div");
+    div.className = "p-4 border rounded bg-white dark:bg-gray-800 shadow";
+    div.innerHTML = `<p class='font-semibold mb-2'>${i+1}. ${q.q}</p>`;
+    q.options.forEach(opt => { 
+      div.innerHTML += `<label class='block'><input type='radio' name='q${i}' value='${opt}' onchange='saveAnswer(${i}, this.value)' class='mr-2' />${opt}</label>`; 
+    });
+    container.appendChild(div);
+  });
+  const btn = document.createElement("button");
+  btn.id = "checkBtn";
+  btn.textContent = "✅ Проверить ответы";
+  btn.className = "bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded font-bold mt-4 w-full";
+  btn.onclick = checkAnswers;
+  container.appendChild(btn);
+}
+
+function saveAnswer(i, val) { if (!submitted) answers[i] = val; }
+
+function checkAnswers() {
+  if (submitted) return;
+  submitted = true;
+  const fio = document.getElementById("username").value.trim();
+  let score = 0;
+  selected.forEach((q, i) => {
+    const div = document.getElementById("testContainer").children[i+1];
+    const radios = document.getElementsByName("q" + i);
+    let correct = false;
+    radios.forEach(r => { 
+      r.disabled = true; 
+      if (r.checked && r.value === q.answer) { 
+        correct = true; 
+        r.parentElement.classList.add("text-green-600"); 
+      } else if (r.checked) r.parentElement.classList.add("text-red-600"); 
+    });
+    if (correct) score++;
+    div.innerHTML += `<p class='text-sm text-gray-500 mt-1'>✅ Правильно: ${q.answer}</p>`;
+  });
+  const container = document.getElementById("testContainer");
+  const passScore = Math.floor(selected.length * 0.7);
+  container.innerHTML += `<div class="mt-4 p-4 rounded text-center font-bold text-xl ${score >= passScore ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}">📊 Результат: ${score} / ${selected.length}<br>${score >= passScore ? '✅ СДАЛ!' : '❌ НЕ СДАЛ'}</div>`;
+  clearInterval(timerInterval);
+  sendToTelegram(`📝 <b>Тест Устава</b>\n👤 ${fio}\n📊 ${score}/${selected.length}\n${score >= passScore ? "✅ СДАЛ" : "❌ НЕ СДАЛ"}`);
+}
+
+function toggleTheme() {
+  const html = document.documentElement;
+  html.classList.toggle('dark');
+  html.classList.toggle('light');
+  localStorage.setItem('theme', html.classList.contains('dark') ? 'dark' : 'light');
+  const icon = document.getElementById('theme-icon');
+  if (icon) icon.textContent = html.classList.contains('dark') ? '☀️' : '🌙';
+}
+
+(function() {
+  const saved = localStorage.getItem('theme');
+  const html = document.documentElement;
+  if (saved === 'dark') { html.classList.add('dark'); html.classList.remove('light'); }
+  else { html.classList.add('light'); html.classList.remove('dark'); }
+  const icon = document.getElementById('theme-icon');
+  if (icon) icon.textContent = saved === 'dark' ? '☀️' : '🌙';
+})();
+
+initFirebase();
 </script>
 </body>
 </html>
