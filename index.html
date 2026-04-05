@@ -37,6 +37,56 @@
     function closeAdminModal() { document.getElementById('adminModal').classList.remove('active'); document.getElementById('adminPassword').value = ''; document.getElementById('adminError').textContent = ''; }
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeAdminModal(); });
     function sendSuggestion() { const s = prompt("Ваше предложение или ошибка:"); if (s) alert("Спасибо!"); }
+    
+    // Загрузка видимости тестов и отображение только видимых
+    function loadVisibleTests() {
+      const saved = localStorage.getItem('testVisibility');
+      if (saved) {
+        return JSON.parse(saved);
+      }
+      return { ppo: true, ustav: true, leadership: true };
+    }
+    
+    function renderVisibleTests() {
+      const visibility = loadVisibleTests();
+      const container = document.getElementById('testButtonsContainer');
+      if (!container) return;
+      
+      container.innerHTML = '';
+      
+      const tests = [
+        { id: 'ustav', name: '📜 Тест по Уставу', color: 'blue', url: 'ustav.html' },
+        { id: 'ppo', name: '📋 Тест по ППО', color: 'purple', url: 'ppo.html' },
+        { id: 'leadership', name: '👔 Тест по Руководству', color: 'green', url: 'leadership.html' }
+      ];
+      
+      tests.forEach(test => {
+        if (visibility[test.id]) {
+          const btn = document.createElement('a');
+          btn.href = test.url;
+          btn.className = `bg-${test.color}-600 text-white py-3 rounded-xl text-center font-semibold shadow hover:bg-${test.color}-700 transition`;
+          btn.textContent = test.name;
+          container.appendChild(btn);
+        }
+      });
+      
+      // Если все тесты скрыты — показываем сообщение
+      if (container.children.length === 0) {
+        const msg = document.createElement('p');
+        msg.className = 'text-center text-gray-500 py-8';
+        msg.textContent = '⚠️ Все тесты скрыты. Зайдите в админ-панель, чтобы включить их.';
+        container.appendChild(msg);
+      }
+    }
+    
+    // Обновляем при загрузке и при изменении localStorage (на случай если админка открыта в другой вкладке)
+    window.addEventListener('storage', (e) => {
+      if (e.key === 'testVisibility') {
+        renderVisibleTests();
+      }
+    });
+    
+    document.addEventListener('DOMContentLoaded', renderVisibleTests);
   </script>
 </head>
 <body>
@@ -45,12 +95,10 @@
     <img src="logo.png" class="w-48 mb-6 drop-shadow-lg rounded-xl logo-clickable" onclick="onLogoClick()" title="Нажмите 3 раза для входа в админ-панель">
     <h1 class="text-4xl font-bold text-center mb-2">Тест МОСКВА ЛАЙВ</h1>
     <p class="text-center text-lg mb-6">Выберите тест:</p>
-    <div class="flex flex-col gap-4 w-full max-w-sm">
-      <a href="ustav.html" class="bg-blue-600 text-white py-3 rounded-xl text-center font-semibold shadow hover:bg-blue-700">📜 Тест по Уставу</a>
-      <a href="ppo.html" class="bg-purple-600 text-white py-3 rounded-xl text-center font-semibold shadow hover:bg-purple-700">📋 Тест по ППО</a>
-      <a href="leadership.html" class="bg-green-600 text-white py-3 rounded-xl text-center font-semibold shadow hover:bg-green-700">👔 Тест по Руководству</a>
-      <button onclick="sendSuggestion()" class="bg-orange-600 text-white py-3 rounded-xl text-center font-semibold shadow hover:bg-orange-700">💡 Предложения или ошибки</button>
+    <div id="testButtonsContainer" class="flex flex-col gap-4 w-full max-w-sm">
+      <!-- Кнопки тестов будут вставлены сюда через JavaScript -->
     </div>
+    <button onclick="sendSuggestion()" class="mt-4 bg-orange-600 text-white py-3 rounded-xl text-center font-semibold shadow hover:bg-orange-700 transition w-full max-w-sm">💡 Предложения или ошибки</button>
   </div>
   <div id="adminModal" class="admin-modal" onclick="if(event.target===this) closeAdminModal()"><div class="admin-modal-content"><h2 class="text-xl font-bold mb-4">🔐 Вход в админ-панель</h2><input type="password" id="adminPassword" placeholder="Пароль"><button onclick="checkAdminPassword()">Войти</button><button onclick="closeAdminModal()" style="background:#6b7280; margin-left:10px;">Отмена</button><div id="adminError" class="text-red-500 text-sm mt-2"></div></div></div>
 </body>
