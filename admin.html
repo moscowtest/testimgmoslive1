@@ -108,15 +108,6 @@
     <aside class="w-52 bg-gray-100 dark:bg-gray-900 rounded-lg p-4 flex flex-col space-y-3">
       <h1 class="text-xl font-bold text-orange-400 text-center mb-2">🔐 Админ-панель</h1>
       
-      <!-- Настройки GitHub -->
-      <div class="border-b border-gray-600 pb-3 mb-2">
-        <p class="text-xs font-semibold mb-2 text-center">🔗 GitHub синхронизация</p>
-        <input type="text" id="githubToken" placeholder="GitHub Token" class="w-full p-1 text-xs bg-gray-200 dark:bg-gray-700 rounded mb-1" />
-        <input type="text" id="githubRepo" placeholder="username/repo" class="w-full p-1 text-xs bg-gray-200 dark:bg-gray-700 rounded" />
-        <button onclick="saveGitHubSettings()" class="w-full mt-2 bg-blue-600 hover:bg-blue-700 text-white text-xs py-1 rounded">💾 Сохранить настройки</button>
-        <div id="syncStatus" class="sync-status text-center text-xs mt-2"></div>
-      </div>
-      
       <!-- Переключатели видимости тестов -->
       <div class="border-t border-b border-gray-600 py-3 my-2">
         <p class="text-sm font-semibold mb-2 text-center">👁️ Видимость тестов</p>
@@ -141,8 +132,9 @@
             <span class="toggle-slider"></span>
           </label>
         </div>
-        <button onclick="syncToGitHub()" class="w-full mt-3 bg-green-600 hover:bg-green-700 text-white text-xs py-1 rounded">☁️ Синхронизировать в облако</button>
+        <button onclick="syncToGitHub()" class="w-full mt-3 bg-green-600 hover:bg-green-700 text-white text-xs py-1 rounded">☁️ Сохранить в облако</button>
         <button onclick="loadFromGitHub()" class="w-full mt-1 bg-gray-600 hover:bg-gray-700 text-white text-xs py-1 rounded">⬇️ Загрузить из облака</button>
+        <div id="syncStatus" class="sync-status text-center text-xs mt-2"></div>
       </div>
       
       <button onclick="switchSet('ppoQuestions')" id="btn-ppoQuestions" class="px-3 py-2 rounded text-white bg-blue-500 hover:bg-blue-600 text-sm">📋 PPO Выбор</button>
@@ -191,25 +183,23 @@ let currentSet = "ppoQuestions";
 let questions = [];
 let editingIndex = -1;
 
-// ========== GitHub настройки ==========
-function getGitHubSettings() {
-  return {
-    token: localStorage.getItem('github_token') || '',
-    repo: localStorage.getItem('github_repo') || ''
-  };
-}
-
-function saveGitHubSettings() {
-  const token = document.getElementById('githubToken').value.trim();
-  const repo = document.getElementById('githubRepo').value.trim();
-  if (token && repo) {
-    localStorage.setItem('github_token', token);
-    localStorage.setItem('github_repo', repo);
-    showToast('✅ Настройки GitHub сохранены');
-    updateSyncStatus('Настройки сохранены', 'success');
-  } else {
-    showToast('❌ Введите token и repo', true);
+// Получаем URL для raw-файла настроек
+function getSettingsUrl() {
+  // Автоматически определяем текущий URL сайта
+  const currentUrl = window.location.href;
+  let baseUrl = currentUrl.replace(/\/[^\/]*$/, ''); // убираем admin.html
+  // Если это локальный файл, используем относительный путь
+  if (baseUrl.startsWith('file://')) {
+    return './site_settings.json';
   }
+  // Для GitHub Pages формируем raw URL
+  if (baseUrl.includes('github.io')) {
+    const parts = baseUrl.split('/');
+    const username = parts[2].split('.')[0];
+    const repo = username; // для GitHub Pages имя репозитория = username
+    return `https://raw.githubusercontent.com/${username}/${repo}/main/site_settings.json`;
+  }
+  return './site_settings.json';
 }
 
 function updateSyncStatus(message, type = 'syncing') {
@@ -225,102 +215,56 @@ function updateSyncStatus(message, type = 'syncing') {
 }
 
 async function syncToGitHub() {
-  const { token, repo } = getGitHubSettings();
-  if (!token || !repo) {
-    showToast('❌ Сначала настройте GitHub Token и репозиторий', true);
-    return;
-  }
+  updateSyncStatus('Сохранение...', 'syncing');
   
-  updateSyncStatus('Синхронизация...', 'syncing');
-  
-  // Собираем все данные
+  // Собираем настройки
   const visibility = loadTestVisibility();
-  const questionsData = {
-    ppoQuestions: JSON.parse(localStorage.getItem('ppoQuestions') || '[]'),
-    ppoWrittenQuestions: JSON.parse(localStorage.getItem('ppoWrittenQuestions') || '[]'),
-    ustavQuestions: JSON.parse(localStorage.getItem('ustavQuestions') || '[]'),
-    testVisibility: visibility
+  const settings = {
+    testVisibility: visibility,
+    lastUpdated: new Date().toISOString()
   };
   
-  const content = btoa(unescape(encodeURIComponent(JSON.stringify(questionsData, null, 2))));
+  const jsonStr = JSON.stringify(settings, null, 2);
   
-  // Пытаемся обновить или создать файл
-  try {
-    // Сначала получаем текущий файл, чтобы получить sha
-    let sha = null;
-    try {
-      const getResponse = await fetch(`https://api.github.com/repos/${repo}/contents/site_settings.json`, {
-        headers: { 'Authorization': `token ${token}` }
-      });
-      if (getResponse.ok) {
-        const data = await getResponse.json();
-        sha = data.sha;
-      }
-    } catch(e) { /* файла нет, создаём новый */ }
-    
-    const response = await fetch(`https://api.github.com/repos/${repo}/contents/site_settings.json`, {
-      method: 'PUT',
-      headers: {
-        'Authorization': `token ${token}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        message: 'Обновление настроек видимости тестов',
-        content: content,
-        sha: sha
-      })
-    });
-    
-    if (response.ok) {
-      updateSyncStatus('✅ Синхронизировано!', 'success');
-      showToast('☁️ Настройки сохранены в облако');
-    } else {
-      const error = await response.json();
-      throw new Error(error.message);
-    }
-  } catch(error) {
-    console.error(error);
-    updateSyncStatus('❌ Ошибка синхронизации', 'error');
-    showToast('❌ Ошибка синхронизации: ' + error.message, true);
-  }
+  // Скачиваем файл для ручного сохранения
+  const blob = new Blob([jsonStr], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'site_settings.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  
+  updateSyncStatus('✅ Файл скачан! Загрузите его в репозиторий', 'success');
+  showToast('📁 Файл settings.json скачан. Загрузите его в корень репозитория на GitHub');
 }
 
 async function loadFromGitHub() {
-  const { token, repo } = getGitHubSettings();
-  if (!token || !repo) {
-    showToast('❌ Сначала настройте GitHub Token и репозиторий', true);
-    return;
-  }
-  
   updateSyncStatus('Загрузка...', 'syncing');
   
+  const settingsUrl = getSettingsUrl();
+  
   try {
-    const response = await fetch(`https://api.github.com/repos/${repo}/contents/site_settings.json`, {
-      headers: { 'Authorization': `token ${token}` }
-    });
+    const response = await fetch(settingsUrl + '?t=' + Date.now()); // добавляем timestamp чтобы не кешировалось
+    if (!response.ok) {
+      throw new Error('Файл настроек не найден');
+    }
+    const settings = await response.json();
     
-    if (!response.ok) throw new Error('Файл не найден');
-    
-    const data = await response.json();
-    const content = JSON.parse(decodeURIComponent(escape(atob(data.content))));
-    
-    // Восстанавливаем вопросы
-    if (content.ppoQuestions) localStorage.setItem('ppoQuestions', JSON.stringify(content.ppoQuestions));
-    if (content.ppoWrittenQuestions) localStorage.setItem('ppoWrittenQuestions', JSON.stringify(content.ppoWrittenQuestions));
-    if (content.ustavQuestions) localStorage.setItem('ustavQuestions', JSON.stringify(content.ustavQuestions));
-    if (content.testVisibility) localStorage.setItem('testVisibility', JSON.stringify(content.testVisibility));
-    
-    // Обновляем интерфейс
-    updateToggleButtons();
-    loadQuestions();
-    updateSyncStatus('✅ Загружено из облака!', 'success');
-    showToast('☁️ Настройки загружены из облака');
-  } catch(error) {
-    updateSyncStatus('❌ Не удалось загрузить', 'error');
-    showToast('❌ Не удалось загрузить настройки из облака', true);
+    if (settings.testVisibility) {
+      localStorage.setItem('testVisibility', JSON.stringify(settings.testVisibility));
+      updateToggleButtons();
+      updateSyncStatus('✅ Настройки загружены из облака!', 'success');
+      showToast('☁️ Настройки видимости обновлены');
+    } else {
+      throw new Error('Неверный формат файла');
+    }
+  } catch (error) {
+    console.error(error);
+    updateSyncStatus('❌ Файл настроек не найден. Сначала сохраните настройки с ПК', 'error');
+    showToast('❌ Файл site_settings.json не найден в репозитории. Сначала сохраните настройки с компьютера', true);
   }
 }
-// ======================================
 
 function loadTestVisibility() {
   const saved = localStorage.getItem('testVisibility');
@@ -385,12 +329,6 @@ function initSets() {
     localStorage.setItem('testVisibility', JSON.stringify({ ppo: true, ustav: true, leadership: true }));
   }
   updateToggleButtons();
-  
-  // Загружаем сохранённые настройки GitHub
-  const savedToken = localStorage.getItem('github_token');
-  const savedRepo = localStorage.getItem('github_repo');
-  if (savedToken) document.getElementById('githubToken').value = savedToken;
-  if (savedRepo) document.getElementById('githubRepo').value = savedRepo;
 }
 
 function loadQuestions() {
