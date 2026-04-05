@@ -65,16 +65,6 @@
     input:checked + .toggle-slider:before {
       transform: translateX(26px);
     }
-    .sync-btn {
-      background: #3b82f6;
-      color: white;
-      padding: 4px 8px;
-      border-radius: 8px;
-      font-size: 11px;
-      margin-top: 5px;
-      text-align: center;
-      cursor: pointer;
-    }
   </style>
 </head>
 <body class="transition-all">
@@ -117,7 +107,6 @@
         <input type="file" id="importFile" accept=".json" style="display:none" onchange="importAllData(this)">
       </label>
       <button onclick="resetToDefault()" class="px-3 py-2 rounded text-white bg-red-600 hover:bg-red-700 text-sm">🔄 Сбросить</button>
-      <div class="sync-btn" onclick="manualSync()">🔄 Принудительная синхронизация</div>
       <input id="pw" type="password" placeholder="Пароль" class="mt-auto p-2 bg-gray-200 dark:bg-gray-700 rounded text-center text-sm" />
       <button onclick="toggleTheme()" class="mt-2 text-2xl self-center" id="theme-icon">🌙</button>
     </aside>
@@ -165,6 +154,7 @@ let currentSet = "ppoQuestions";
 let questions = [];
 let editingIndex = -1;
 let db = null;
+let isSyncingFromFirebase = false; // Чтобы не было циклической синхронизации
 
 const DEFAULTS = {
   ppoQuestions: [
@@ -219,34 +209,39 @@ function initFirebase() {
     db = firebase.database();
     showToast('✅ Firebase подключен');
     
-    // Загружаем данные
+    // Загружаем данные и настраиваем автоматические слушатели
     loadAllFromFirebase();
-    
-    // Настраиваем слушатели для автоматической синхронизации
-    setupListeners();
+    setupAutoSync();
   } catch(e) {
     console.error(e);
     showToast('❌ Ошибка Firebase', true);
   }
 }
 
-function setupListeners() {
+function setupAutoSync() {
   if (!db) return;
   
-  // Слушатель для видимости
+  // Автоматическая синхронизация видимости тестов
   db.ref('settings/testVisibility').on('value', (snapshot) => {
+    if (isSyncingFromFirebase) return;
+    isSyncingFromFirebase = true;
+    
     const data = snapshot.val();
     if (data) {
       localStorage.setItem('testVisibility', JSON.stringify(data));
       updateToggleButtons();
-      showToast('🔄 Настройки видимости синхронизированы');
+      showToast('🔄 Настройки видимости обновлены');
     }
+    isSyncingFromFirebase = false;
   });
   
-  // Слушатели для каждого набора вопросов
+  // Автоматическая синхронизация вопросов для каждого набора
   const sets = ['ppoQuestions', 'ppoWrittenQuestions', 'ustavQuestions'];
   sets.forEach(setName => {
     db.ref(`questions/${setName}`).on('value', (snapshot) => {
+      if (isSyncingFromFirebase) return;
+      isSyncingFromFirebase = true;
+      
       const data = snapshot.val();
       if (data && Array.isArray(data)) {
         // Сохраняем в localStorage
@@ -257,15 +252,17 @@ function setupListeners() {
           questions = data;
           renderList();
           document.getElementById('questionCount').innerText = `${questions.length} вопросов`;
-          showToast(`🔄 Вопросы "${setName}" синхронизированы`);
+          showToast(`🔄 Вопросы "${setName}" обновлены автоматически`);
         }
       }
+      isSyncingFromFirebase = false;
     });
   });
 }
 
 async function loadAllFromFirebase() {
   if (!db) return;
+  isSyncingFromFirebase = true;
   
   try {
     // Загружаем видимость
@@ -274,7 +271,6 @@ async function loadAllFromFirebase() {
       localStorage.setItem('testVisibility', JSON.stringify(visSnapshot.val()));
       updateToggleButtons();
     } else {
-      // Создаём дефолтные настройки в Firebase
       const defaultVis = { ppo: true, ustav: true, leadership: true };
       await db.ref('settings/testVisibility').set(defaultVis);
       localStorage.setItem('testVisibility', JSON.stringify(defaultVis));
@@ -294,7 +290,6 @@ async function loadAllFromFirebase() {
           document.getElementById('questionCount').innerText = `${questions.length} вопросов`;
         }
       } else {
-        // Создаём дефолтные вопросы в Firebase
         await db.ref(`questions/${setName}`).set(DEFAULTS[setName]);
         localStorage.setItem(setName, JSON.stringify(DEFAULTS[setName]));
         if (currentSet === setName) {
@@ -307,29 +302,17 @@ async function loadAllFromFirebase() {
     showToast('☁️ Данные синхронизированы');
   } catch(e) {
     console.error(e);
-    showToast('❌ Ошибка загрузки', true);
+  } finally {
+    isSyncingFromFirebase = false;
   }
 }
 
-async function manualSync() {
-  if (!db) {
-    showToast('❌ Firebase не подключен', true);
-    return;
-  }
-  
-  showToast('🔄 Принудительная синхронизация...', false);
-  
+async function pushToFirebase(setName, data) {
+  if (!db || isSyncingFromFirebase) return;
   try {
-    // Сохраняем текущие вопросы в Firebase
-    await db.ref(`questions/${currentSet}`).set(questions);
-    
-    // Сохраняем видимость
-    await db.ref('settings/testVisibility').set(loadTestVisibility());
-    
-    showToast('✅ Синхронизация выполнена');
+    await db.ref(`questions/${setName}`).set(data);
   } catch(e) {
-    console.error(e);
-    showToast('❌ Ошибка синхронизации', true);
+    console.error('Ошибка отправки в Firebase:', e);
   }
 }
 
@@ -343,7 +326,7 @@ function loadTestVisibility() {
 
 function saveTestVisibility(settings) {
   localStorage.setItem('testVisibility', JSON.stringify(settings));
-  if (db) {
+  if (db && !isSyncingFromFirebase) {
     db.ref('settings/testVisibility').set(settings);
   }
 }
@@ -401,10 +384,8 @@ function saveQuestions() {
   renderList();
   showToast(`✅ Сохранено ${questions.length} вопросов`);
   
-  // Сохраняем в Firebase
-  if (db) {
-    db.ref(`questions/${currentSet}`).set(questions);
-  }
+  // Автоматически отправляем в Firebase
+  pushToFirebase(currentSet, questions);
 }
 
 function addQuestion() {
@@ -485,7 +466,6 @@ function toggleType() {
 
 function switchSet(set) {
   currentSet = set;
-  // Загружаем вопросы из localStorage
   const saved = localStorage.getItem(set);
   if (saved) {
     questions = JSON.parse(saved);
@@ -540,7 +520,10 @@ function importAllData(input) {
       renderList();
       document.getElementById('questionCount').innerText = `${questions.length} вопросов`;
       showToast('📂 Импорт выполнен');
-      if (db) manualSync();
+      // Автоматически отправляем в Firebase
+      if (db && questions.length) {
+        pushToFirebase(currentSet, questions);
+      }
     } catch(err) {
       showToast('Ошибка импорта', true);
     }
@@ -562,7 +545,6 @@ document.getElementById("pw").addEventListener("change", function(e) {
   if (e.target.value === PASSWORD) {
     document.getElementById("panel").classList.remove("hidden");
     
-    // Инициализация localStorage дефолтными значениями
     Object.keys(DEFAULTS).forEach(key => {
       if (!localStorage.getItem(key)) {
         localStorage.setItem(key, JSON.stringify(DEFAULTS[key]));
@@ -575,8 +557,6 @@ document.getElementById("pw").addEventListener("change", function(e) {
     updateToggleButtons();
     switchSet(currentSet);
     showToast('🔓 Добро пожаловать в админ-панель');
-    
-    // Запускаем Firebase
     initFirebase();
   } else {
     showToast('❌ Неверный пароль', true);
