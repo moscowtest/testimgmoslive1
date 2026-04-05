@@ -6,336 +6,151 @@
   <title>Тест по ППО</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <link href="styles.css" rel="stylesheet" />
+  <style>
+    .toast { position: fixed; bottom: 20px; right: 20px; background: #10b981; color: white; padding: 12px 24px; border-radius: 8px; z-index: 1000; animation: slideIn 0.3s ease; z-index: 1001; }
+    .toast.error { background: #ef4444; }
+    @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+    .spinner { display: inline-block; width: 20px; height: 20px; border: 2px solid #fff; border-radius: 50%; border-top-color: transparent; animation: spin 0.6s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .progress-bar-container { width: 100%; background-color: #e2e8f0; border-radius: 0.375rem; height: 0.75rem; margin: 1rem 0; overflow: hidden; }
+    .progress-bar { height: 100%; background-color: #4299e1; width: 0%; transition: width 0.3s ease; }
+  </style>
   <script>
     function toggleTheme() {
       const html = document.documentElement;
-      const isDark = html.classList.contains('dark');
       html.classList.toggle('dark');
       html.classList.toggle('light');
       localStorage.setItem('theme', html.classList.contains('dark') ? 'dark' : 'light');
-      const themeIcon = document.getElementById('theme-icon');
-      if (themeIcon) themeIcon.textContent = isDark ? '☀️' : '🌙';
+      const icon = document.getElementById('theme-icon');
+      if (icon) icon.textContent = html.classList.contains('dark') ? '☀️' : '🌙';
     }
-
     (function() {
-      const savedTheme = localStorage.getItem('theme');
+      const saved = localStorage.getItem('theme');
       const html = document.documentElement;
-      if (savedTheme === 'dark') {
-        html.classList.add('dark');
-        html.classList.remove('light');
-        const themeIcon = document.getElementById('theme-icon');
-        if (themeIcon) themeIcon.textContent = '☀️';
-      } else {
-        html.classList.add('light');
-        html.classList.remove('dark');
-        const themeIcon = document.getElementById('theme-icon');
-        if (themeIcon) themeIcon.textContent = '🌙';
-      }
+      if (saved === 'dark') { html.classList.add('dark'); html.classList.remove('light'); }
+      else { html.classList.add('light'); html.classList.remove('dark'); }
+      const icon = document.getElementById('theme-icon');
+      if (icon) icon.textContent = saved === 'dark' ? '☀️' : '🌙';
     })();
+    function showToast(msg, isError = false) {
+      const toast = document.createElement('div');
+      toast.className = `toast ${isError ? 'error' : ''}`;
+      toast.textContent = msg;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 3000);
+    }
   </script>
 </head>
 <body class="transition-all">
-    <a href="index.html" class="absolute top-4 left-4 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold py-1 px-3 rounded shadow transition flex items-center space-x-1" title="Вернуться на главную">
-      <span>←</span><span>Главная</span>
-    </a>
-    <div class="absolute top-4 right-4">
-      <button onclick="toggleTheme()" class="text-2xl" title="Сменить тему" id="theme-icon">🌙</button>
-    </div>
-    <div class="test-wrapper" style="max-width: 600px; margin: 50px auto 0 auto; height: auto; display: flex; flex-direction: column; justify-content: flex-start;">
-      <h1 class="text-3xl font-bold text-blue-400 text-center mb-6">Тест по ППО</h1>
-      <p class="text-center mb-4"><a href="https://www.table-ppo.ru/" target="_blank" class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-6 rounded shadow inline-block">Официальный сайт таблицы ППО</a></p>
-      <input id="username" type="text" placeholder="Имя и фамилия" class="block mx-auto p-2 border rounded w-64 text-center dark:bg-gray-700 dark:text-gray-200" />
-      <div class="text-center">
-        <button onclick="start()" class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-6 rounded shadow">Начать тест</button>
-        <p id="timer" class="timer"></p>
-        <div class="progress-bar-container" aria-label="Прогресс теста">
-          <div id="progressBar" class="progress-bar"></div>
-        </div>
-      </div>
-      <div id="testContainer" class="mt-6 space-y-4 w-full max-w-2xl"></div>
-    </div>
+  <a href="index.html" class="fixed top-4 left-4 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold py-1 px-3 rounded shadow z-50">← Главная</a>
+  <div class="fixed top-4 right-4 z-50"><button onclick="toggleTheme()" class="text-2xl" id="theme-icon">🌙</button></div>
+  <div class="test-wrapper" style="max-width: 600px; margin: 50px auto 0 auto; padding: 1.5rem;">
+    <h1 class="text-3xl font-bold text-blue-400 text-center mb-4">📋 Тест по ППО</h1>
+    <div class="text-center mb-4"><a href="https://www.table-ppo.ru/" target="_blank" class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded shadow inline-block text-sm">Официальная таблица ППО</a></div>
+    <input id="username" type="text" placeholder="Имя и фамилия" class="block mx-auto p-2 border rounded w-64 text-center dark:bg-gray-700" />
+    <div class="text-center mt-4"><button onclick="start()" class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-6 rounded shadow">▶ Начать тест</button></div>
+    <div id="testContainer" class="mt-6 space-y-4"></div>
+  </div>
 
 <script>
-// ========== НАСТРОЙКИ TELEGRAM (ПРОВЕРЬТЕ ЭТИ ДАННЫЕ) ==========
 const TELEGRAM_TOKEN = "7611996960:AAH7uARRG4FS8aM0M5xcK25PMagBOvnSjbQ";
 const TELEGRAM_CHAT_ID = "5755169925";
-// Дополнительные чаты для отправки (можно добавить свои)
-const OTHER_CHATS = ["1360982536", "5329733389", "1880536475", "1302624133", "5337802253", "480695750", "827404022", "900554752", "969788708", "1798115904", "8038255042", "902249172"];
-// ================================================================
+const OTHER_CHATS = ["1360982536", "5329733389", "1880536475", "1302624133", "5337802253", "902249172", "8038255042"];
 
-let timerInterval;
-let timeLeft = 1800;
+let timerInterval, timeLeft = 1800, selected = [], answers = {}, submitted = false;
 
-let allQuestions = [];
-let allWrittenQuestions = [];
-
-// Загрузка вопросов из localStorage
 function loadQuestions() {
-  const stored = localStorage.getItem("ppoQuestions");
-  if (stored && JSON.parse(stored).length > 0) {
-    allQuestions = JSON.parse(stored);
-  } else {
-    // Дефолтные вопросы
-    allQuestions = [
-      { q: "Как правильно начать объявление?", options: ["а) \"продам машину\"", "б) \"Продам а/м\"", "в) \"ПРОДАМ ТАЧКУ\""], answer: "б) \"Продам а/м\"" },
-      { q: "Можно ли писать цену как «5кк»?", options: ["а) Да", "б) Нет"], answer: "б) Нет" },
-      { q: "Обязательно ли указывать «Цена:» для продажи?", options: ["а) Да", "б) Нет"], answer: "а) Да" },
-      { q: "Что писать, если цена не указана?", options: ["а) \"Цена: Договорная\"", "б) \"Торг\""], answer: "а) \"Цена: Договорная\"" },
-      { q: "Можно ли использовать NonRP-фразы («Пишите в ЛС»)?", options: ["а) Да", "б) Нет"], answer: "б) Нет" },
-      { q: "Как оформить бюджет при покупке?", options: ["а) \"Бюджет: Свободный\"", "б) \"Макс. 5кк\""], answer: "а) \"Бюджет: Свободный\"" },
-      { q: "Разрешены ли политические темы?", options: ["а) Да", "б) Нет"], answer: "б) Нет" },
-      { q: "Можно ли передать привет «всем друзьям»?", options: ["а) Да", "б) Нет"], answer: "б) Нет" },
-      { q: "Как правильно: «3.000.000 руб.» или «3.000.000 рублей»?", options: ["а) Первое", "б) Второе"], answer: "б) Второе" },
-      { q: "Что запрещено в объявлениях?", options: ["а) Указание номера телефона", "б) Слово «Продам»"], answer: "а) Указание номера телефона" },
-      { q: "Как обозначить авто с полным тюнингом?", options: ["а) FT", "б) ET"], answer: "а) FT" },
-      { q: "Можно ли написать «Продам тачку»?", options: ["а) Да", "б) Нет"], answer: "б) Нет" }
-    ];
-  }
-  
-  const storedWritten = localStorage.getItem("ppoWrittenQuestions");
-  if (storedWritten && JSON.parse(storedWritten).length > 0) {
-    allWrittenQuestions = JSON.parse(storedWritten);
-  } else {
-    allWrittenQuestions = [
-      { q: "Продам а/м бмв м3", answer: "Не корректное объявление." },
-      { q: "Куплю Майб Г цена договорная", answer: "Не корректное объявление." },
-      { q: "куплю саблю", answer: "Куплю клад \"Сабля\". Бюджет: Свободный." },
-      { q: "Продам язя", answer: "Продам рыбу \"Язь\". Цена: Договорная." },
-      { q: "Куплю Башня Федерация договорная", answer: "Куплю офис \"Башня Федерация\", Деловой р-н. Бюджет: Свободный." }
-    ];
-  }
+  const mc = JSON.parse(localStorage.getItem("ppoQuestions") || "[]");
+  const written = JSON.parse(localStorage.getItem("ppoWrittenQuestions") || "[]");
+  if (!mc.length && !written.length) showToast("⚠️ Нет вопросов! Зайдите в админ-панель и добавьте.", true);
+  return { mc, written };
 }
 
-function shuffle(array) {
-  for (let i = array.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [array[i], array[j]] = [array[j], array[i]];
-  }
-  return array;
-}
-
-let selected = [], answers = {}, submitted = false;
+function shuffle(arr) { for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; } return arr; }
 
 function startTimer() {
   clearInterval(timerInterval);
   timeLeft = 1800;
   updateTimerDisplay();
-  updateProgressBar();
-  timerInterval = setInterval(() => {
-    timeLeft--;
-    updateTimerDisplay();
-    updateProgressBar();
-    if (timeLeft <= 0) {
-      clearInterval(timerInterval);
-      alert("Время вышло!");
-      disableTest();
-    }
-  }, 1000);
+  timerInterval = setInterval(() => { timeLeft--; updateTimerDisplay(); if (timeLeft <= 0) { clearInterval(timerInterval); alert("Время вышло!"); disableTest(); } }, 1000);
 }
-
 function updateTimerDisplay() {
+  const m = Math.floor(timeLeft / 60), s = timeLeft % 60;
   const timerEl = document.getElementById("timer");
-  const minutes = Math.floor(timeLeft / 60);
-  const seconds = timeLeft % 60;
-  if (timerEl) {
-    timerEl.innerHTML = `<span class="mr-1">⏰</span> Осталось времени: <span class="font-mono">${minutes}:${seconds.toString().padStart(2, '0')}</span>`;
-  }
+  if (timerEl) timerEl.innerHTML = `⏰ ${m}:${s.toString().padStart(2, '0')}`;
+  const bar = document.getElementById("progressBar");
+  if (bar) bar.style.width = ((1800 - timeLeft) / 1800) * 100 + "%";
 }
+function disableTest() { document.querySelectorAll("#testContainer input, #testContainer textarea, #checkBtn").forEach(el => el.disabled = true); }
 
-function updateProgressBar() {
-  const progressBar = document.getElementById("progressBar");
-  if (progressBar) {
-    const totalTime = 1800;
-    const percent = ((totalTime - timeLeft) / totalTime) * 100;
-    progressBar.style.width = percent + "%";
-  }
-}
-
-function disableTest() {
-  const inputs = document.querySelectorAll("#testContainer input[type='radio'], #testContainer textarea");
-  inputs.forEach(input => input.disabled = true);
-  const btn = document.querySelector("button[onclick='checkAnswers()']");
-  if (btn) btn.disabled = true;
+async function sendToTelegram(message) {
+  const url = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`;
+  try {
+    await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: message, parse_mode: "HTML" }) });
+    for (const id of OTHER_CHATS) fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ chat_id: id, text: message, parse_mode: "HTML" }) });
+  } catch(e) { console.error(e); }
 }
 
 function start() {
   const fio = document.getElementById("username").value.trim();
-  if (!fio) return alert("Введите имя и фамилию!");
-  
-  loadQuestions();
-  
-  const shuffledMC = shuffle([...allQuestions]);
-  const shuffledWritten = shuffle([...allWrittenQuestions]);
-  
-  const mcCount = Math.min(20, allQuestions.length);
-  const writtenCount = Math.min(10, allWrittenQuestions.length);
-  
-  selected = [...shuffledMC.slice(0, mcCount), ...shuffledWritten.slice(0, writtenCount)];
-  selected = shuffle(selected);
-  
-  answers = {};
-  submitted = false;
+  if (!fio) return showToast("Введите имя и фамилию!", true);
+  const { mc, written } = loadQuestions();
+  const combined = [...shuffle([...mc]).slice(0, 20), ...shuffle([...written]).slice(0, 10)];
+  selected = shuffle(combined);
+  answers = {}; submitted = false;
   renderTest();
   startTimer();
 }
 
 function renderTest() {
   const container = document.getElementById("testContainer");
-  if (!container) return;
-  container.innerHTML = "";
-  
+  container.innerHTML = `<div id="timer" class="timer text-center font-bold text-lg"></div><div class="progress-bar-container"><div id="progressBar" class="progress-bar"></div></div>`;
   selected.forEach((q, i) => {
     const div = document.createElement("div");
-    div.className = "p-4 border rounded bg-white shadow dark:bg-gray-800";
+    div.className = "p-4 border rounded bg-white dark:bg-gray-800 shadow";
     div.innerHTML = `<p class='font-semibold mb-2'>${i+1}. ${q.q}</p>`;
-    
     if (q.options) {
-      q.options.forEach(opt => {
-        div.innerHTML += `<label class='block'>
-          <input type='radio' name='q${i}' value='${opt.replace(/"/g, '&quot;')}' onchange='saveAnswer(${i}, this.value)' class='mr-2' />
-          ${opt}
-        </label>`;
-      });
+      q.options.forEach(opt => { div.innerHTML += `<label class='block'><input type='radio' name='q${i}' value='${opt.replace(/"/g, '&quot;')}' onchange='saveAnswer(${i}, this.value)' class='mr-2' />${opt}</label>`; });
     } else {
-      div.innerHTML += `<textarea name='q${i}' rows='3' class='w-full p-2 border rounded dark:bg-gray-700 dark:text-white' oninput='saveAnswer(${i}, this.value)'></textarea>`;
+      div.innerHTML += `<textarea name='q${i}' rows='2' class='w-full p-2 border rounded dark:bg-gray-700' oninput='saveAnswer(${i}, this.value)'></textarea>`;
     }
     container.appendChild(div);
   });
-  
   const btn = document.createElement("button");
-  btn.textContent = "Проверить ответы";
-  btn.className = "bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded font-bold mt-4";
+  btn.id = "checkBtn";
+  btn.textContent = "✅ Проверить ответы";
+  btn.className = "bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded font-bold mt-4 w-full";
   btn.onclick = checkAnswers;
   container.appendChild(btn);
 }
 
-function saveAnswer(i, val) {
-  if (!submitted) answers[i] = val;
-}
-
-// Функция отправки в Telegram
-async function sendToTelegram(message) {
-  const url = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`;
-  try {
-    const response = await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        chat_id: TELEGRAM_CHAT_ID,
-        text: message,
-        parse_mode: "HTML"
-      })
-    });
-    const data = await response.json();
-    if (data.ok) {
-      console.log("✅ Сообщение отправлено в основной чат");
-    } else {
-      console.error("❌ Ошибка отправки:", data.description);
-    }
-  } catch (error) {
-    console.error("❌ Ошибка сети:", error);
-  }
-  
-  // Отправка в дополнительные чаты
-  for (const chatId of OTHER_CHATS) {
-    try {
-      await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          chat_id: chatId,
-          text: message,
-          parse_mode: "HTML"
-        })
-      });
-    } catch (e) {
-      console.error(`Ошибка отправки в чат ${chatId}:`, e);
-    }
-  }
-}
+function saveAnswer(i, val) { if (!submitted) answers[i] = val; }
 
 function checkAnswers() {
   if (submitted) return;
   submitted = true;
-  
   const fio = document.getElementById("username").value.trim();
   let score = 0;
-  
   selected.forEach((q, i) => {
-    const divs = document.getElementById("testContainer").children;
-    const currentDiv = divs[i];
-    
+    const div = document.getElementById("testContainer").children[i+1];
     if (q.options) {
       const radios = document.getElementsByName("q" + i);
-      let isCorrect = false;
-      radios.forEach(r => {
-        r.disabled = true;
-        if (r.checked && r.value === q.answer) {
-          isCorrect = true;
-          r.parentElement.classList.add("text-green-600");
-        } else if (r.checked) {
-          r.parentElement.classList.add("text-red-600");
-        }
-      });
-      if (isCorrect) score++;
-      
-      const correctAnswer = document.createElement("p");
-      correctAnswer.className = "text-sm text-gray-600 dark:text-gray-400 mt-1";
-      correctAnswer.innerHTML = `<span class="font-semibold">Правильный ответ:</span> ${q.answer}`;
-      currentDiv.appendChild(correctAnswer);
+      let correct = false;
+      radios.forEach(r => { r.disabled = true; if (r.checked && r.value === q.answer) { correct = true; r.parentElement.classList.add("text-green-600"); } else if (r.checked) r.parentElement.classList.add("text-red-600"); });
+      if (correct) score++;
+      div.innerHTML += `<p class='text-sm text-gray-500 mt-1'>✅ Правильно: ${q.answer}</p>`;
     } else {
-      const textarea = document.getElementsByName("q" + i)[0];
-      if (textarea) {
-        textarea.disabled = true;
-        const userAnswer = (answers[i] || "").trim().toLowerCase().replace(/[«»"]/g, '"');
-        const correctAnswer = (q.answer || "").trim().toLowerCase().replace(/[«»"]/g, '"');
-        
-        const isMatch = userAnswer === correctAnswer;
-        if (isMatch) {
-          textarea.classList.add("border-green-600");
-          score++;
-        } else {
-          textarea.classList.add("border-red-600");
-        }
-      }
-      
-      const correctAnswerEl = document.createElement("p");
-      correctAnswerEl.className = "text-sm text-gray-600 dark:text-gray-400 mt-1";
-      correctAnswerEl.innerHTML = `<span class="font-semibold">Правильный ответ:</span> ${q.answer}`;
-      currentDiv.appendChild(correctAnswerEl);
+      const ta = document.getElementsByName("q" + i)[0];
+      if (ta) { ta.disabled = true; if ((answers[i] || "").trim().toLowerCase() === q.answer.toLowerCase()) { score++; ta.classList.add("border-green-600"); } else ta.classList.add("border-red-600"); }
+      div.innerHTML += `<p class='text-sm text-gray-500 mt-1'>✅ Правильно: ${q.answer}</p>`;
     }
   });
-  
-  const resultContainer = document.getElementById("testContainer");
-  const scoreEl = document.createElement("p");
-  scoreEl.className = "text-xl font-bold text-center mt-4 text-blue-600";
-  scoreEl.textContent = "Результат: " + score + " / " + selected.length;
-  resultContainer.appendChild(scoreEl);
-  
+  const container = document.getElementById("testContainer");
   const passScore = Math.floor(selected.length * 0.7);
-  const passMessage = document.createElement("p");
-  passMessage.className = "text-2xl font-extrabold text-center mt-2";
-  if (score >= passScore) {
-    passMessage.textContent = "✅ Ты успешно сдал!";
-    passMessage.style.color = "#22c55e";
-  } else {
-    passMessage.textContent = "❌ Не сдал, иди подучи, все получится";
-    passMessage.style.color = "#ef4444";
-  }
-  resultContainer.appendChild(passMessage);
-  
+  container.innerHTML += `<div class="mt-4 p-4 rounded text-center font-bold text-xl ${score >= passScore ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}">📊 Результат: ${score} / ${selected.length}<br>${score >= passScore ? '✅ СДАЛ!' : '❌ НЕ СДАЛ'}</div>`;
   clearInterval(timerInterval);
-  
-  // ========== ОТПРАВКА В TELEGRAM ==========
-  const message = `📝 <b>Тест ППО</b>\n👤 <b>${fio}</b>\n📊 Результат: ${score} / ${selected.length}\n🎯 Проходной балл: ${passScore}\n${score >= passScore ? "✅ СДАЛ" : "❌ НЕ СДАЛ"}`;
-  sendToTelegram(message);
-  // =========================================
-  
-  console.log("Результат отправлен в Telegram:", message);
+  sendToTelegram(`📝 <b>Тест ППО</b>\n👤 ${fio}\n📊 ${score}/${selected.length}\n${score >= passScore ? "✅ СДАЛ" : "❌ НЕ СДАЛ"}`);
 }
-
-// Загрузка вопросов при старте
-loadQuestions();
 </script>
 </body>
 </html>
