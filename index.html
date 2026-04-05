@@ -3,12 +3,46 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Админ-панель | Москва ЛАЙВ</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <title>МОСКВА ЛАЙВ — Тест</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
-  <link href="styles.css" rel="stylesheet" />
+  <link href="styles.css" rel="stylesheet">
   <style>
+    .admin-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.7);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+    .admin-modal.active { display: flex; }
+    .admin-modal-content {
+      background: var(--bg-color, #d9e8ff);
+      border-radius: 16px;
+      padding: 2rem;
+      max-width: 400px;
+      width: 90%;
+      text-align: center;
+    }
+    html.dark .admin-modal-content { background: #1f2937; color: white; }
+    .admin-modal-content input {
+      width: 100%;
+      padding: 10px;
+      margin: 15px 0;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+    .logo-clickable {
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+    .logo-clickable:active { transform: scale(0.98); }
     .toast {
       position: fixed;
       bottom: 20px;
@@ -20,120 +54,33 @@
       z-index: 1000;
       animation: slideIn 0.3s ease;
     }
-    .toast.error { background: #ef4444; }
     @keyframes slideIn {
       from { transform: translateX(100%); opacity: 0; }
       to { transform: translateX(0); opacity: 1; }
     }
-    .toggle-switch {
-      position: relative;
-      display: inline-block;
-      width: 50px;
-      height: 24px;
-    }
-    .toggle-switch input {
-      opacity: 0;
-      width: 0;
-      height: 0;
-    }
-    .toggle-slider {
-      position: absolute;
-      cursor: pointer;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background-color: #ccc;
-      transition: 0.3s;
-      border-radius: 24px;
-    }
-    .toggle-slider:before {
-      position: absolute;
-      content: "";
-      height: 18px;
-      width: 18px;
-      left: 3px;
-      bottom: 3px;
-      background-color: white;
-      transition: 0.3s;
-      border-radius: 50%;
-    }
-    input:checked + .toggle-slider {
-      background-color: #22c55e;
-    }
-    input:checked + .toggle-slider:before {
-      transform: translateX(26px);
-    }
   </style>
 </head>
-<body class="transition-all">
-  <div class="flex max-w-6xl mx-auto bg-white dark:bg-gray-800 p-6 rounded-xl shadow space-x-6 text-black dark:text-white min-h-[600px]">
-    <aside class="w-52 bg-gray-100 dark:bg-gray-900 rounded-lg p-4 flex flex-col space-y-3">
-      <h1 class="text-xl font-bold text-orange-400 text-center mb-2">🔐 Админ-панель</h1>
-      
-      <div class="border-t border-b border-gray-600 py-3 my-2">
-        <p class="text-sm font-semibold mb-2 text-center">👁️ Видимость тестов</p>
-        <div class="flex justify-between items-center mb-2">
-          <span class="text-sm">📋 ППО</span>
-          <label class="toggle-switch">
-            <input type="checkbox" id="togglePpo" onchange="toggleTestVisibility('ppo', this.checked)">
-            <span class="toggle-slider"></span>
-          </label>
-        </div>
-        <div class="flex justify-between items-center mb-2">
-          <span class="text-sm">📜 Устав</span>
-          <label class="toggle-switch">
-            <input type="checkbox" id="toggleUstav" onchange="toggleTestVisibility('ustav', this.checked)">
-            <span class="toggle-slider"></span>
-          </label>
-        </div>
-        <div class="flex justify-between items-center">
-          <span class="text-sm">👔 Руководство</span>
-          <label class="toggle-switch">
-            <input type="checkbox" id="toggleLeadership" onchange="toggleTestVisibility('leadership', this.checked)">
-            <span class="toggle-slider"></span>
-          </label>
-        </div>
-      </div>
-      
-      <button onclick="switchSet('ppoQuestions')" id="btn-ppoQuestions" class="px-3 py-2 rounded text-white bg-blue-500 hover:bg-blue-600 text-sm">📋 PPO Выбор</button>
-      <button onclick="switchSet('ppoWrittenQuestions')" id="btn-ppoWrittenQuestions" class="px-3 py-2 rounded text-white bg-green-500 hover:bg-green-600 text-sm">✍️ PPO Письменные</button>
-      <button onclick="switchSet('ustavQuestions')" id="btn-ustavQuestions" class="px-3 py-2 rounded text-white bg-purple-500 hover:bg-purple-600 text-sm">📜 Устав</button>
-      <hr class="my-2 border-gray-600">
-      <button onclick="exportAllData()" class="px-3 py-2 rounded text-white bg-yellow-600 hover:bg-yellow-700 text-sm">💾 Экспорт</button>
-      <label class="px-3 py-2 rounded text-white bg-gray-600 hover:bg-gray-700 text-sm text-center cursor-pointer">
-        📂 Импорт
-        <input type="file" id="importFile" accept=".json" style="display:none" onchange="importAllData(this)">
-      </label>
-      <button onclick="resetToDefault()" class="px-3 py-2 rounded text-white bg-red-600 hover:bg-red-700 text-sm">🔄 Сбросить</button>
-      <input id="pw" type="password" placeholder="Пароль" class="mt-auto p-2 bg-gray-200 dark:bg-gray-700 rounded text-center text-sm" />
-      <button onclick="toggleTheme()" class="mt-2 text-2xl self-center" id="theme-icon">🌙</button>
-    </aside>
-    <main class="flex-1 bg-gray-50 dark:bg-gray-900 rounded-lg p-6 flex flex-col">
-      <div id="panel" class="hidden flex flex-col space-y-4">
-        <div class="flex gap-2">
-          <select id="type" onchange="toggleType()" class="p-2 bg-gray-200 dark:bg-gray-700 rounded flex-1">
-            <option value="multiple">Выбор ответа</option>
-            <option value="written">Письменный ответ</option>
-          </select>
-          <button onclick="clearForm()" class="bg-gray-500 hover:bg-gray-600 text-white px-3 rounded text-sm">🗑 Очистить</button>
-        </div>
-        <textarea id="q" placeholder="Вопрос" rows="2" class="p-2 bg-gray-200 dark:bg-gray-700 rounded"></textarea>
-        <div id="optionFields" class="flex flex-col space-y-2">
-          <input id="a1" placeholder="Вариант 1" class="p-2 bg-gray-200 dark:bg-gray-700 rounded" />
-          <input id="a2" placeholder="Вариант 2" class="p-2 bg-gray-200 dark:bg-gray-700 rounded" />
-          <input id="a3" placeholder="Вариант 3" class="p-2 bg-gray-200 dark:bg-gray-700 rounded" />
-        </div>
-        <input id="correct" placeholder="Правильный ответ" class="p-2 bg-gray-200 dark:bg-gray-700 rounded" />
-        <button id="addBtn" onclick="addQuestion()" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded text-white w-32">➕ Добавить</button>
-        
-        <div class="flex justify-between items-center mt-4">
-          <h2 class="font-bold">Список вопросов</h2>
-          <span id="questionCount" class="text-sm text-gray-500"></span>
-        </div>
-        <div id="list" class="max-h-[400px] overflow-y-auto text-sm space-y-2 pr-1"></div>
-      </div>
-    </main>
+<body>
+  <div class="absolute top-4 right-4 z-50">
+    <button onclick="toggleTheme()" class="text-2xl" id="theme-icon">🌙</button>
+  </div>
+  <div class="min-h-screen flex flex-col items-center justify-center p-6">
+    <img src="logo.png" class="w-48 mb-6 drop-shadow-lg rounded-xl logo-clickable" onclick="onLogoClick()" title="Нажмите 3 раза для входа в админ-панель">
+    <h1 class="text-4xl font-bold text-center mb-2">Тест МОСКВА ЛАЙВ</h1>
+    <p class="text-center text-lg mb-6">Выберите тест:</p>
+    <div id="testButtonsContainer" class="flex flex-col gap-4 w-full max-w-sm">
+      <div class="loading-settings">🔄 Загрузка...</div>
+    </div>
+    <button onclick="sendSuggestion()" class="mt-4 bg-orange-600 text-white py-3 rounded-xl text-center font-semibold shadow hover:bg-orange-700 transition w-full max-w-sm">💡 Предложения или ошибки</button>
+  </div>
+  <div id="adminModal" class="admin-modal" onclick="if(event.target===this) closeAdminModal()">
+    <div class="admin-modal-content">
+      <h2 class="text-xl font-bold mb-4">🔐 Вход в админ-панель</h2>
+      <input type="password" id="adminPassword" placeholder="Пароль">
+      <button onclick="checkAdminPassword()">Войти</button>
+      <button onclick="closeAdminModal()" style="background:#6b7280; margin-left:10px;">Отмена</button>
+      <div id="adminError" class="text-red-500 text-sm mt-2"></div>
+    </div>
   </div>
 
 <script>
@@ -148,32 +95,95 @@ const FIREBASE_CONFIG = {
 };
 // ====================================
 
-const PASSWORD = "admin2024";
-let currentSet = "ppoQuestions";
-let questions = [];
-let editingIndex = -1;
+let clickCount = 0, clickTimer = null;
 let db = null;
 
-const DEFAULTS = {
-  ppoQuestions: [
-    { q: "Как правильно начать объявление?", options: ["а) \"продам машину\"", "б) \"Продам а/м\"", "в) \"ПРОДАМ ТАЧКУ\""], answer: "б) \"Продам а/м\"" },
-    { q: "Можно ли писать цену как «5кк»?", options: ["а) Да", "б) Нет"], answer: "б) Нет" }
-  ],
-  ppoWrittenQuestions: [
-    { q: "Продам а/м бмв м3", answer: "Не корректное объявление." },
-    { q: "Куплю Майб Г цена договорная", answer: "Не корректное объявление." }
-  ],
-  ustavQuestions: [
-    { q: "Кто имеет право вносить изменения в Устав?", options: ["А) Любой сотрудник", "Б) Только Директор"], answer: "Б" }
-  ]
-};
-
-function showToast(msg, isError = false) {
+function showToast(msg) {
   const toast = document.createElement('div');
-  toast.className = `toast ${isError ? 'error' : ''}`;
+  toast.className = 'toast';
   toast.textContent = msg;
   document.body.appendChild(toast);
   setTimeout(() => toast.remove(), 3000);
+}
+
+function initFirebase() {
+  if (!firebase.apps.length) {
+    firebase.initializeApp(FIREBASE_CONFIG);
+  }
+  db = firebase.database();
+  console.log('✅ Firebase подключен');
+  
+  // Загружаем настройки видимости
+  db.ref('settings/testVisibility').once('value').then((snapshot) => {
+    if (snapshot.exists()) {
+      localStorage.setItem('testVisibility', JSON.stringify(snapshot.val()));
+    }
+    renderVisibleTests();
+  }).catch(() => {
+    renderVisibleTests();
+  });
+  
+  // Слушаем изменения видимости в реальном времени
+  db.ref('settings/testVisibility').on('value', (snapshot) => {
+    if (snapshot.exists()) {
+      localStorage.setItem('testVisibility', JSON.stringify(snapshot.val()));
+      renderVisibleTests();
+      showToast('🔄 Настройки тестов обновлены');
+    }
+  });
+  
+  // Фоновое обновление вопросов (для тестов)
+  const sets = ['ppoQuestions', 'ppoWrittenQuestions', 'ustavQuestions'];
+  sets.forEach(setName => {
+    db.ref(`questions/${setName}`).on('value', (snapshot) => {
+      const data = snapshot.val();
+      if (data && Array.isArray(data)) {
+        localStorage.setItem(setName, JSON.stringify(data));
+        console.log(`🔄 Вопросы ${setName} обновлены в фоне`);
+      }
+    });
+  });
+}
+
+function loadTestVisibility() {
+  const saved = localStorage.getItem('testVisibility');
+  if (saved) {
+    return JSON.parse(saved);
+  }
+  return { ppo: true, ustav: true, leadership: true };
+}
+
+function renderVisibleTests() {
+  const visibility = loadTestVisibility();
+  const container = document.getElementById('testButtonsContainer');
+  if (!container) return;
+  
+  container.innerHTML = '';
+  
+  const tests = [
+    { id: 'ustav', name: '📜 Тест по Уставу', color: 'blue', url: 'ustav.html' },
+    { id: 'ppo', name: '📋 Тест по ППО', color: 'purple', url: 'ppo.html' },
+    { id: 'leadership', name: '👔 Тест по Руководству', color: 'green', url: 'leadership.html' }
+  ];
+  
+  let visibleCount = 0;
+  tests.forEach(test => {
+    if (visibility[test.id]) {
+      visibleCount++;
+      const btn = document.createElement('a');
+      btn.href = test.url;
+      btn.className = `bg-${test.color}-600 text-white py-3 rounded-xl text-center font-semibold shadow hover:bg-${test.color}-700 transition`;
+      btn.textContent = test.name;
+      container.appendChild(btn);
+    }
+  });
+  
+  if (visibleCount === 0) {
+    const msg = document.createElement('p');
+    msg.className = 'text-center text-gray-500 py-8';
+    msg.textContent = '⚠️ Все тесты скрыты. Зайдите в админ-панель, чтобы включить их.';
+    container.appendChild(msg);
+  }
 }
 
 function toggleTheme() {
@@ -194,354 +204,42 @@ function toggleTheme() {
   if (icon) icon.textContent = saved === 'dark' ? '☀️' : '🌙';
 })();
 
-// ========== FIREBASE ==========
-function initFirebase() {
-  try {
-    if (!firebase.apps.length) {
-      firebase.initializeApp(FIREBASE_CONFIG);
-    }
-    db = firebase.database();
-    showToast('✅ Firebase подключен');
-    
-    loadAllFromFirebase();
-    setupRealTimeSync();
-  } catch(e) {
-    console.error(e);
-    showToast('❌ Ошибка Firebase', true);
-  }
+function onLogoClick() { 
+  clickCount++; 
+  if (clickTimer) clearTimeout(clickTimer); 
+  clickTimer = setTimeout(() => clickCount = 0, 800); 
+  if (clickCount === 3) { 
+    clickCount = 0; 
+    document.getElementById('adminModal').classList.add('active'); 
+  } 
 }
 
-function setupRealTimeSync() {
-  if (!db) return;
-  
-  // Слушатель для видимости
-  db.ref('settings/testVisibility').on('value', (snapshot) => {
-    const data = snapshot.val();
-    if (data) {
-      localStorage.setItem('testVisibility', JSON.stringify(data));
-      updateToggleButtons();
-      showToast('🔄 Настройки видимости обновлены');
-    }
-  });
-  
-  // Слушатели для каждого набора вопросов
-  const sets = ['ppoQuestions', 'ppoWrittenQuestions', 'ustavQuestions'];
-  sets.forEach(setName => {
-    db.ref(`questions/${setName}`).on('value', (snapshot) => {
-      const data = snapshot.val();
-      if (data && Array.isArray(data)) {
-        // Сохраняем в localStorage
-        localStorage.setItem(setName, JSON.stringify(data));
-        
-        // Если это текущий набор, обновляем отображение
-        if (currentSet === setName) {
-          questions = data;
-          renderList();
-          document.getElementById('questionCount').innerText = `${questions.length} вопросов`;
-          showToast(`🔄 Вопросы "${setName}" обновлены в реальном времени`);
-        }
-      }
-    });
-  });
+function checkAdminPassword() { 
+  const password = document.getElementById('adminPassword').value;
+  if (password === "admin2024") {
+    // Перенаправляем на админ-панель ТОЛЬКО при правильном пароле
+    window.location.href = "admin.html";
+  } else { 
+    document.getElementById('adminError').textContent = "Неверный пароль!"; 
+  } 
 }
 
-async function loadAllFromFirebase() {
-  if (!db) return;
-  
-  try {
-    // Загружаем видимость
-    const visSnapshot = await db.ref('settings/testVisibility').once('value');
-    if (visSnapshot.exists()) {
-      localStorage.setItem('testVisibility', JSON.stringify(visSnapshot.val()));
-      updateToggleButtons();
-    } else {
-      const defaultVis = { ppo: true, ustav: true, leadership: true };
-      await db.ref('settings/testVisibility').set(defaultVis);
-      localStorage.setItem('testVisibility', JSON.stringify(defaultVis));
-      updateToggleButtons();
-    }
-    
-    // Загружаем вопросы
-    const sets = ['ppoQuestions', 'ppoWrittenQuestions', 'ustavQuestions'];
-    for (const setName of sets) {
-      const snapshot = await db.ref(`questions/${setName}`).once('value');
-      if (snapshot.exists()) {
-        const data = snapshot.val();
-        localStorage.setItem(setName, JSON.stringify(data));
-        if (currentSet === setName) {
-          questions = data;
-          renderList();
-          document.getElementById('questionCount').innerText = `${questions.length} вопросов`;
-        }
-      } else {
-        await db.ref(`questions/${setName}`).set(DEFAULTS[setName]);
-        localStorage.setItem(setName, JSON.stringify(DEFAULTS[setName]));
-        if (currentSet === setName) {
-          questions = DEFAULTS[setName];
-          renderList();
-          document.getElementById('questionCount').innerText = `${questions.length} вопросов`;
-        }
-      }
-    }
-    showToast('☁️ Данные синхронизированы');
-  } catch(e) {
-    console.error(e);
-  }
+function closeAdminModal() { 
+  document.getElementById('adminModal').classList.remove('active'); 
+  document.getElementById('adminPassword').value = ''; 
+  document.getElementById('adminError').textContent = ''; 
 }
 
-async function pushToFirebase(setName, data) {
-  if (!db) return;
-  try {
-    await db.ref(`questions/${setName}`).set(data);
-    console.log(`✅ Отправлено в Firebase: ${setName}`);
-  } catch(e) {
-    console.error('Ошибка отправки в Firebase:', e);
-  }
+function sendSuggestion() { 
+  const s = prompt("Ваше предложение или ошибка:"); 
+  if (s) alert("Спасибо!"); 
 }
 
-// ========== УПРАВЛЕНИЕ ==========
-function loadTestVisibility() {
-  const saved = localStorage.getItem('testVisibility');
-  const defaults = { ppo: true, ustav: true, leadership: true };
-  if (saved) return { ...defaults, ...JSON.parse(saved) };
-  return defaults;
-}
-
-function saveTestVisibility(settings) {
-  localStorage.setItem('testVisibility', JSON.stringify(settings));
-  if (db) {
-    db.ref('settings/testVisibility').set(settings);
-  }
-}
-
-function toggleTestVisibility(test, isVisible) {
-  const settings = loadTestVisibility();
-  settings[test] = isVisible;
-  saveTestVisibility(settings);
-  const names = { ppo: 'Тест ППО', ustav: 'Тест Устава', leadership: 'Тест Руководства' };
-  showToast(`${names[test]} ${isVisible ? 'показан' : 'скрыт'}`);
-}
-
-function updateToggleButtons() {
-  const settings = loadTestVisibility();
-  const ppo = document.getElementById('togglePpo');
-  const ustav = document.getElementById('toggleUstav');
-  const leadership = document.getElementById('toggleLeadership');
-  if (ppo) ppo.checked = settings.ppo;
-  if (ustav) ustav.checked = settings.ustav;
-  if (leadership) leadership.checked = settings.leadership;
-}
-
-function renderList() {
-  const list = document.getElementById('list');
-  if (!list) return;
-  list.innerHTML = '';
-  if (!questions || !questions.length) {
-    list.innerHTML = '<div class="text-center text-gray-500 p-4">Нет вопросов. Добавьте первый!</div>';
-    return;
-  }
-  questions.forEach((item, i) => {
-    const el = document.createElement('div');
-    el.className = 'bg-gray-100 dark:bg-gray-800 p-2 rounded mb-2';
-    const preview = item.q.length > 60 ? item.q.substring(0, 60) + '...' : item.q;
-    el.innerHTML = `
-      <div class="flex justify-between items-start">
-        <div class="flex-1">
-          <b>${i+1}.</b> ${preview}
-          <div class="text-xs text-gray-500">${item.options ? '📌 Выбор ответа' : '✍️ Письменный'}</div>
-        </div>
-        <div class="flex gap-1">
-          <button onclick="editQuestion(${i})" class="text-blue-500 text-sm px-2">✏️</button>
-          <button onclick="del(${i})" class="text-red-500 text-sm px-2">🗑️</button>
-        </div>
-      </div>
-    `;
-    list.appendChild(el);
-  });
-}
-
-function saveQuestions() {
-  localStorage.setItem(currentSet, JSON.stringify(questions));
-  document.getElementById('questionCount').innerText = `${questions.length} вопросов`;
-  renderList();
-  showToast(`✅ Сохранено ${questions.length} вопросов`);
-  
-  // Отправляем в Firebase
-  pushToFirebase(currentSet, questions);
-}
-
-function addQuestion() {
-  const type = document.getElementById('type').value;
-  const q = document.getElementById('q').value.trim();
-  const correct = document.getElementById('correct').value.trim();
-  if (!q) { showToast('Введите вопрос!', true); return; }
-  if (!correct) { showToast('Введите ответ!', true); return; }
-  
-  let questionObj;
-  if (type === 'multiple') {
-    const a1 = document.getElementById('a1').value.trim();
-    const a2 = document.getElementById('a2').value.trim();
-    const a3 = document.getElementById('a3').value.trim();
-    if (!a1 || !a2 || !a3) { showToast('Заполните варианты!', true); return; }
-    questionObj = { q, options: [a1, a2, a3], answer: correct };
-  } else {
-    questionObj = { q, answer: correct };
-  }
-  
-  if (editingIndex >= 0) {
-    questions[editingIndex] = questionObj;
-    editingIndex = -1;
-    document.getElementById('addBtn').textContent = '➕ Добавить';
-    showToast('✅ Вопрос обновлён');
-  } else {
-    questions.push(questionObj);
-    showToast('✅ Вопрос добавлен');
-  }
-  saveQuestions();
-  clearForm();
-}
-
-function clearForm() {
-  document.getElementById('q').value = '';
-  document.getElementById('a1').value = '';
-  document.getElementById('a2').value = '';
-  document.getElementById('a3').value = '';
-  document.getElementById('correct').value = '';
-  document.getElementById('type').value = 'multiple';
-  toggleType();
-  editingIndex = -1;
-  document.getElementById('addBtn').textContent = '➕ Добавить';
-}
-
-function editQuestion(i) {
-  const q = questions[i];
-  document.getElementById('q').value = q.q;
-  document.getElementById('correct').value = q.answer;
-  if (q.options) {
-    document.getElementById('type').value = 'multiple';
-    toggleType();
-    document.getElementById('a1').value = q.options[0] || '';
-    document.getElementById('a2').value = q.options[1] || '';
-    document.getElementById('a3').value = q.options[2] || '';
-  } else {
-    document.getElementById('type').value = 'written';
-    toggleType();
-  }
-  editingIndex = i;
-  document.getElementById('addBtn').textContent = '📝 Обновить';
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-function del(i) {
-  if (confirm('Удалить вопрос?')) {
-    questions.splice(i, 1);
-    saveQuestions();
-    showToast('🗑️ Вопрос удалён');
-  }
-}
-
-function toggleType() {
-  const type = document.getElementById('type').value;
-  const optionFields = document.getElementById('optionFields');
-  if (optionFields) optionFields.style.display = type === 'multiple' ? 'flex' : 'none';
-}
-
-function switchSet(set) {
-  currentSet = set;
-  const saved = localStorage.getItem(set);
-  if (saved) {
-    questions = JSON.parse(saved);
-  } else {
-    questions = DEFAULTS[set] || [];
-  }
-  document.getElementById('questionCount').innerText = `${questions.length} вопросов`;
-  renderList();
-  clearForm();
-  
-  ['ppoQuestions', 'ppoWrittenQuestions', 'ustavQuestions'].forEach(id => {
-    const btn = document.getElementById(`btn-${id}`);
-    if (btn) {
-      if (id === set) btn.classList.add('ring', 'ring-offset-2', 'ring-orange-400');
-      else btn.classList.remove('ring', 'ring-offset-2', 'ring-orange-400');
-    }
-  });
-}
-
-function exportAllData() {
-  const data = {
-    ppoQuestions: JSON.parse(localStorage.getItem('ppoQuestions') || '[]'),
-    ppoWrittenQuestions: JSON.parse(localStorage.getItem('ppoWrittenQuestions') || '[]'),
-    ustavQuestions: JSON.parse(localStorage.getItem('ustavQuestions') || '[]'),
-    testVisibility: loadTestVisibility()
-  };
-  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `moscow_live_backup_${new Date().toISOString().slice(0,19)}.json`;
-  a.click();
-  URL.revokeObjectURL(url);
-  showToast('💾 Бэкап скачан');
-}
-
-function importAllData(input) {
-  const file = input.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    try {
-      const data = JSON.parse(e.target.result);
-      if (data.ppoQuestions) localStorage.setItem('ppoQuestions', JSON.stringify(data.ppoQuestions));
-      if (data.ppoWrittenQuestions) localStorage.setItem('ppoWrittenQuestions', JSON.stringify(data.ppoWrittenQuestions));
-      if (data.ustavQuestions) localStorage.setItem('ustavQuestions', JSON.stringify(data.ustavQuestions));
-      if (data.testVisibility) localStorage.setItem('testVisibility', JSON.stringify(data.testVisibility));
-      updateToggleButtons();
-      if (currentSet === 'ppoQuestions') questions = data.ppoQuestions || [];
-      if (currentSet === 'ppoWrittenQuestions') questions = data.ppoWrittenQuestions || [];
-      if (currentSet === 'ustavQuestions') questions = data.ustavQuestions || [];
-      renderList();
-      document.getElementById('questionCount').innerText = `${questions.length} вопросов`;
-      showToast('📂 Импорт выполнен');
-      if (db && questions.length) {
-        pushToFirebase(currentSet, questions);
-      }
-    } catch(err) {
-      showToast('Ошибка импорта', true);
-    }
-  };
-  reader.readAsText(file);
-  input.value = '';
-}
-
-function resetToDefault() {
-  if (confirm(`Сбросить все вопросы "${currentSet}" к стандартным?`)) {
-    questions = [...DEFAULTS[currentSet]];
-    saveQuestions();
-    showToast('🔄 Вопросы сброшены');
-  }
-}
-
-document.getElementById("pw").addEventListener("change", function(e) {
-  if (e.target.value === PASSWORD) {
-    document.getElementById("panel").classList.remove("hidden");
-    
-    Object.keys(DEFAULTS).forEach(key => {
-      if (!localStorage.getItem(key)) {
-        localStorage.setItem(key, JSON.stringify(DEFAULTS[key]));
-      }
-    });
-    if (!localStorage.getItem('testVisibility')) {
-      localStorage.setItem('testVisibility', JSON.stringify({ ppo: true, ustav: true, leadership: true }));
-    }
-    
-    updateToggleButtons();
-    switchSet(currentSet);
-    showToast('🔓 Добро пожаловать в админ-панель');
-    initFirebase();
-  } else {
-    showToast('❌ Неверный пароль', true);
-  }
+document.addEventListener('keydown', (e) => { 
+  if (e.key === 'Escape') closeAdminModal(); 
 });
+
+document.addEventListener('DOMContentLoaded', initFirebase);
 </script>
 </body>
 </html>
