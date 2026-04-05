@@ -23,6 +23,8 @@
     html.dark .question-card { background: #1e293b; border-color: #334155; }
     .question-card:hover { transform: translateX(4px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
     .question-card:active { cursor: grabbing; }
+    .question-card.selected { border-left: 4px solid #22c55e; background: #f0fdf4; }
+    html.dark .question-card.selected { background: #1a3a2a; border-left-color: #22c55e; }
     .tag { display: inline-flex; align-items: center; background: #e0e7ff; color: #1e40af; font-size: 10px; padding: 2px 8px; border-radius: 20px; margin-right: 6px; margin-bottom: 4px; font-weight: 500; }
     html.dark .tag { background: #1e3a5f; color: #93c5fd; }
     .preview-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 2000; align-items: center; justify-content: center; }
@@ -42,11 +44,14 @@
     .btn-primary:hover { background: #2563eb; transform: translateY(-1px); }
     .btn-success { background: #10b981; color: white; }
     .btn-success:hover { background: #059669; transform: translateY(-1px); }
+    .btn-warning { background: #f59e0b; color: white; }
+    .btn-warning:hover { background: #d97706; }
     .btn-outline { background: transparent; border: 1px solid #cbd5e1; }
     html.dark .btn-outline { border-color: #475569; color: white; }
     input, textarea, select { transition: all 0.2s; background: white; }
     html.dark input, html.dark textarea, html.dark select { background: #1e293b; color: white; border-color: #475569; }
     input:focus, textarea:focus, select:focus { outline: none; ring: 2px solid #3b82f6; }
+    .checkbox-test { width: 20px; height: 20px; cursor: pointer; accent-color: #22c55e; }
   </style>
 </head>
 <body class="transition-all bg-gray-100 dark:bg-gray-950">
@@ -104,10 +109,30 @@
 
       <main class="flex-1 bg-white dark:bg-gray-900 rounded-2xl shadow-sm p-6">
         <div id="panel" class="hidden">
-          <div class="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6">
-            <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-3 text-white"><p class="text-xs opacity-80">Всего вопросов</p><p class="text-2xl font-bold" id="statTotal">0</p></div>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+            <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-3 text-white"><p class="text-xs opacity-80">Всего</p><p class="text-2xl font-bold" id="statTotal">0</p></div>
             <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-3 text-white"><p class="text-xs opacity-80">Выбор ответа</p><p class="text-2xl font-bold" id="statMultiple">0</p></div>
             <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-xl p-3 text-white"><p class="text-xs opacity-80">Письменные</p><p class="text-2xl font-bold" id="statWritten">0</p></div>
+            <div class="bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl p-3 text-white"><p class="text-xs opacity-80">В тесте</p><p class="text-2xl font-bold" id="statSelected">0</p></div>
+          </div>
+
+          <!-- Панель выбора вопросов для теста -->
+          <div class="bg-gradient-to-r from-indigo-500 to-purple-500 rounded-xl p-4 mb-6 text-white">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <i class="fas fa-check-double mr-2"></i>
+                <span class="font-semibold">Отбор вопросов для теста</span>
+                <p class="text-xs opacity-80 mt-1">Выберите, какие вопросы будут попадать в тест</p>
+              </div>
+              <div class="flex flex-wrap gap-2">
+                <button onclick="selectAll()" class="bg-white text-indigo-600 px-3 py-1 rounded-lg text-sm font-semibold hover:bg-gray-100"><i class="fas fa-check-circle mr-1"></i>Выбрать все</button>
+                <button onclick="selectNone()" class="bg-white text-indigo-600 px-3 py-1 rounded-lg text-sm font-semibold hover:bg-gray-100"><i class="fas fa-times-circle mr-1"></i>Снять все</button>
+                <div class="flex gap-1 bg-white/20 rounded-lg p-1">
+                  <input id="randomCount" type="number" value="20" min="1" class="w-16 px-2 py-1 rounded text-black text-sm" />
+                  <button onclick="selectRandom()" class="bg-white text-indigo-600 px-3 py-1 rounded-lg text-sm font-semibold hover:bg-gray-100"><i class="fas fa-random mr-1"></i>Рандом</button>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div class="form-card mb-6">
@@ -117,7 +142,7 @@
               <textarea id="q" placeholder="Вопрос..." rows="2" class="w-full p-2 bg-gray-100 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700"></textarea>
               <div id="optionFields"><input id="a1" placeholder="Вариант 1" class="w-full p-2 bg-gray-100 dark:bg-gray-800 rounded-lg mb-2 border border-gray-200 dark:border-gray-700" /><input id="a2" placeholder="Вариант 2" class="w-full p-2 bg-gray-100 dark:bg-gray-800 rounded-lg mb-2 border border-gray-200 dark:border-gray-700" /><input id="a3" placeholder="Вариант 3" class="w-full p-2 bg-gray-100 dark:bg-gray-800 rounded-lg mb-2 border border-gray-200 dark:border-gray-700" /></div>
               <input id="correct" placeholder="Правильный ответ" class="w-full p-2 bg-gray-100 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700" />
-              <input id="tags" placeholder="Теги (через запятую, например: транспорт, правила)" class="w-full p-2 bg-gray-100 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 text-sm" />
+              <input id="tags" placeholder="Теги (через запятую)" class="w-full p-2 bg-gray-100 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 text-sm" />
               <div class="flex gap-2"><button id="addBtn" onclick="addQuestion()" class="btn btn-success flex-1"><i class="fas fa-plus mr-1"></i> Добавить</button><button onclick="showPreview()" class="btn btn-outline flex-1"><i class="fas fa-eye mr-1"></i> Предпросмотр</button></div>
             </div>
           </div>
@@ -136,7 +161,7 @@
     </div>
   </div>
 
-  <div id="previewModal" class="preview-modal" onclick="if(event.target===this) closePreview()"><div class="preview-content"><h3 class="font-bold mb-3 flex items-center gap-2"><i class="fas fa-eye text-blue-500"></i>Предпросмотр вопроса</h3><div id="previewContent"></div><button onclick="closePreview()" class="btn btn-outline w-full mt-4">Закрыть</button></div></div>
+  <div id="previewModal" class="preview-modal" onclick="if(event.target===this) closePreview()"><div class="preview-content"><h3 class="font-bold mb-3 flex items-center gap-2"><i class="fas fa-eye text-blue-500"></i>Предпросмотр</h3><div id="previewContent"></div><button onclick="closePreview()" class="btn btn-outline w-full mt-4">Закрыть</button></div></div>
 
 <script>
 const FIREBASE_CONFIG = {
@@ -196,9 +221,11 @@ function toggleForm() {
 function updateStats() {
   const multipleCount = questions.filter(q => q.options).length;
   const writtenCount = questions.filter(q => !q.options).length;
+  const selectedCount = questions.filter(q => q.inTest !== false).length;
   document.getElementById('statTotal').innerText = questions.length;
   document.getElementById('statMultiple').innerText = multipleCount;
   document.getElementById('statWritten').innerText = writtenCount;
+  document.getElementById('statSelected').innerText = selectedCount;
 }
 
 function initFirebase() {
@@ -222,9 +249,10 @@ async function loadFromFirebase() {
     const snapshot = await db.ref(`questions/${currentSet}`).once('value');
     if (snapshot.exists()) {
       questions = snapshot.val();
+      // Убедимся, что у каждого вопроса есть поле inTest (по умолчанию true)
+      questions = questions.map(q => ({ ...q, inTest: q.inTest !== undefined ? q.inTest : true }));
     } else {
       questions = [];
-      await db.ref(`questions/${currentSet}`).set([]);
     }
     filteredQuestions = [...questions];
     renderList();
@@ -237,10 +265,63 @@ async function syncToFirebase() {
   if (!db) return;
   try {
     await db.ref(`questions/${currentSet}`).set(questions);
-    console.log('💾 Сохранено в Firebase');
   } catch(e) { console.error(e); }
 }
 
+// ========== УПРАВЛЕНИЕ ВЫБОРОМ ВОПРОСОВ ДЛЯ ТЕСТА ==========
+function toggleQuestionInTest(index) {
+  questions[index].inTest = !questions[index].inTest;
+  syncToFirebase();
+  renderList();
+  updateStats();
+  showToast(questions[index].inTest ? '✅ Вопрос добавлен в тест' : '❌ Вопрос исключён из теста');
+}
+
+function selectAll() {
+  questions.forEach(q => q.inTest = true);
+  syncToFirebase();
+  renderList();
+  updateStats();
+  showToast('✅ Все вопросы добавлены в тест');
+}
+
+function selectNone() {
+  questions.forEach(q => q.inTest = false);
+  syncToFirebase();
+  renderList();
+  updateStats();
+  showToast('❌ Все вопросы исключены из теста');
+}
+
+function selectRandom() {
+  const count = parseInt(document.getElementById('randomCount').value);
+  if (isNaN(count) || count < 1) {
+    showToast('Введите корректное число', true);
+    return;
+  }
+  if (count > questions.length) {
+    showToast(`Максимум ${questions.length} вопросов`, true);
+    return;
+  }
+  // Сначала снимаем все
+  questions.forEach(q => q.inTest = false);
+  // Создаём массив индексов и перемешиваем
+  const indices = [...Array(questions.length).keys()];
+  for (let i = indices.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [indices[i], indices[j]] = [indices[j], indices[i]];
+  }
+  // Выбираем первые count
+  for (let i = 0; i < count; i++) {
+    questions[indices[i]].inTest = true;
+  }
+  syncToFirebase();
+  renderList();
+  updateStats();
+  showToast(`🎲 Случайно выбрано ${count} вопросов из ${questions.length}`);
+}
+
+// ========== СОРТИРОВКА ПЕРЕТАСКИВАНИЕМ ==========
 let dragStartIndex = null;
 function onDragStart(e, index) { dragStartIndex = index; e.dataTransfer.effectAllowed = 'move'; e.target.classList.add('opacity-50'); }
 function onDragOver(e, index) { e.preventDefault(); const target = e.target.closest('.question-card'); if (target && dragStartIndex !== null && dragStartIndex !== index) target.classList.add('drag-over'); }
@@ -324,8 +405,9 @@ function renderList() {
   pageQuestions.forEach((item, idx) => {
     const globalIndex = questions.findIndex(q => q.q === item.q && q.answer === item.answer);
     const actualIndex = globalIndex !== -1 ? globalIndex : start + idx;
+    const isSelected = item.inTest !== false;
     const el = document.createElement('div');
-    el.className = 'question-card';
+    el.className = `question-card ${isSelected ? 'selected' : ''}`;
     el.draggable = true;
     el.setAttribute('data-index', actualIndex);
     el.ondragstart = (e) => onDragStart(e, actualIndex);
@@ -338,7 +420,7 @@ function renderList() {
     if (item.tags && item.tags.length) tagsHtml = `<div class="flex flex-wrap mt-2">${item.tags.map(tag => `<span class="tag"><i class="fas fa-tag mr-1 text-xs"></i>${escapeHtml(tag)}</span>`).join('')}</div>`;
     const typeIcon = item.options ? '<i class="fas fa-list-ul text-purple-500 mr-1"></i>' : '<i class="fas fa-pen text-green-500 mr-1"></i>';
     const typeText = item.options ? 'Выбор ответа' : 'Письменный';
-    el.innerHTML = `<div class="flex justify-between items-start"><div class="flex-1"><div class="flex items-center gap-2"><i class="fas fa-grip-vertical text-gray-400 cursor-grab"></i><span class="font-bold text-gray-500 text-sm">#${start + idx + 1}</span><span class="text-xs text-gray-400">${typeIcon} ${typeText}</span></div><div class="mt-1 font-medium text-gray-800 dark:text-gray-200">${escapeHtml(preview)}</div>${tagsHtml}</div><div class="flex gap-1 ml-3"><button onclick="editQuestion(${actualIndex})" class="text-blue-500 hover:text-blue-700 p-1 rounded" title="Редактировать"><i class="fas fa-edit"></i></button><button onclick="copyQuestion(${actualIndex})" class="text-green-500 hover:text-green-700 p-1 rounded" title="Копировать"><i class="fas fa-copy"></i></button><button onclick="del(${actualIndex})" class="text-red-500 hover:text-red-700 p-1 rounded" title="Удалить"><i class="fas fa-trash"></i></button></div></div>`;
+    el.innerHTML = `<div class="flex justify-between items-start"><div class="flex-1"><div class="flex items-center gap-2"><i class="fas fa-grip-vertical text-gray-400 cursor-grab"></i><span class="font-bold text-gray-500 text-sm">#${start + idx + 1}</span><span class="text-xs text-gray-400">${typeIcon} ${typeText}</span><label class="flex items-center gap-1 ml-2 cursor-pointer" onclick="event.stopPropagation()"><input type="checkbox" class="checkbox-test" ${isSelected ? 'checked' : ''} onchange="toggleQuestionInTest(${actualIndex})"><span class="text-xs">в тест</span></label></div><div class="mt-1 font-medium text-gray-800 dark:text-gray-200">${escapeHtml(preview)}</div>${tagsHtml}</div><div class="flex gap-1 ml-3"><button onclick="editQuestion(${actualIndex})" class="text-blue-500 hover:text-blue-700 p-1 rounded" title="Редактировать"><i class="fas fa-edit"></i></button><button onclick="copyQuestion(${actualIndex})" class="text-green-500 hover:text-green-700 p-1 rounded" title="Копировать"><i class="fas fa-copy"></i></button><button onclick="del(${actualIndex})" class="text-red-500 hover:text-red-700 p-1 rounded" title="Удалить"><i class="fas fa-trash"></i></button></div></div>`;
     list.appendChild(el);
   });
   renderPagination();
@@ -359,9 +441,9 @@ function addQuestion() {
     const a2 = document.getElementById('a2').value.trim();
     const a3 = document.getElementById('a3').value.trim();
     if (!a1 || !a2 || !a3) { showToast('Заполните варианты!', true); return; }
-    questionObj = { q, options: [a1, a2, a3], answer: correct, tags };
+    questionObj = { q, options: [a1, a2, a3], answer: correct, tags, inTest: true };
   } else {
-    questionObj = { q, answer: correct, tags };
+    questionObj = { q, answer: correct, tags, inTest: true };
   }
   if (editingIndex >= 0) {
     questions[editingIndex] = questionObj;
