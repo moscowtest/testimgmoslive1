@@ -23,7 +23,7 @@
   <div class="test-wrapper" style="max-width: 600px; margin: 50px auto 0 auto; padding: 1.5rem;">
     <h1 class="text-3xl font-bold text-blue-400 text-center mb-4">📜 Тест по Уставу</h1>
     <input id="username" type="text" placeholder="Имя и фамилия" class="block mx-auto p-2 border rounded w-64 text-center dark:bg-gray-700" />
-    <div class="text-center mt-4"><button onclick="start()" class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-6 rounded shadow">▶ Начать тест</button></div>
+    <div class="text-center mt-4"><button id="startBtn" class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-6 rounded shadow">▶ Начать тест</button></div>
     <div id="testContainer" class="mt-6 space-y-4"></div>
   </div>
 
@@ -45,33 +45,70 @@ let timerInterval, timeLeft = 900, selected = [], answers = {}, submitted = fals
 let allQuestions = [];
 let db = null;
 
-function showToast(msg, isError) { const t = document.createElement('div'); t.className = `toast ${isError ? 'error' : ''}`; t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 3000); }
-function initFirebase() { if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG); db = firebase.database(); }
-async function loadQuestionsFromFirebase() {
+function showToast(msg, isError) { 
+  const t = document.createElement('div'); 
+  t.className = `toast ${isError ? 'error' : ''}`; 
+  t.textContent = msg; 
+  document.body.appendChild(t); 
+  setTimeout(() => t.remove(), 3000); 
+}
+
+function initFirebase() { 
+  if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG); 
+  db = firebase.database(); 
+  console.log('Firebase ready');
+}
+
+async function loadQuestions() {
   if (!db) initFirebase();
   try {
     const snap = await db.ref('questions/ustavQuestions').once('value');
     let q = snap.exists() ? snap.val() : [];
-    q = q.filter(qq => qq.inTest !== false);
-    allQuestions = q;
-    return allQuestions.length > 0;
-  } catch(e) { return false; }
+    // Берём все вопросы, у которых inTest не false
+    allQuestions = q.filter(qq => qq.inTest !== false);
+    console.log('Загружено вопросов:', allQuestions.length);
+    return allQuestions.length;
+  } catch(e) {
+    console.error(e);
+    return 0;
+  }
 }
-function shuffle(arr) { for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; } return arr; }
+
+function shuffle(arr) { 
+  for (let i = arr.length - 1; i > 0; i--) { 
+    const j = Math.floor(Math.random() * (i + 1)); 
+    [arr[i], arr[j]] = [arr[j], arr[i]]; 
+  } 
+  return arr; 
+}
+
 function startTimer() {
   clearInterval(timerInterval);
   timeLeft = 900;
   updateTimerDisplay();
-  timerInterval = setInterval(() => { timeLeft--; updateTimerDisplay(); if (timeLeft <= 0) { clearInterval(timerInterval); alert("Время вышло!"); disableTest(); } }, 1000);
+  timerInterval = setInterval(() => { 
+    timeLeft--; 
+    updateTimerDisplay(); 
+    if (timeLeft <= 0) { 
+      clearInterval(timerInterval); 
+      alert("Время вышло!"); 
+      disableTest(); 
+    } 
+  }, 1000);
 }
+
 function updateTimerDisplay() {
   const m = Math.floor(timeLeft / 60), s = timeLeft % 60;
-  const timerEl = document.getElementById("timer");
-  if (timerEl) timerEl.innerHTML = `⏰ ${m}:${s.toString().padStart(2, '0')}`;
-  const bar = document.getElementById("progressBar");
+  const timerEl = document.getElementById("timerDisplay");
+  if (timerEl) timerEl.textContent = `${m}:${s.toString().padStart(2, '0')}`;
+  const bar = document.getElementById("progressBarFill");
   if (bar) bar.style.width = ((900 - timeLeft) / 900) * 100 + "%";
 }
-function disableTest() { document.querySelectorAll("#testContainer input, #testContainer textarea, #checkBtn").forEach(el => el.disabled = true); }
+
+function disableTest() { 
+  document.querySelectorAll("#testContainer input, #checkAnswersBtn").forEach(el => el.disabled = true); 
+}
+
 async function sendToTelegram(message) {
   const url = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`;
   try {
@@ -79,64 +116,113 @@ async function sendToTelegram(message) {
     for (const id of OTHER_CHATS) fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ chat_id: id, text: message, parse_mode: "HTML" }) });
   } catch(e) {}
 }
-async function start() {
+
+async function startTest() {
   const fio = document.getElementById("username").value.trim();
-  if (!fio) return showToast("Введите имя и фамилию!", true);
-  const ok = await loadQuestionsFromFirebase();
-  if (!ok || allQuestions.length === 0) return showToast("❌ Нет вопросов для теста!", true);
+  if (!fio) {
+    showToast("Введите имя и фамилию!", true);
+    return;
+  }
+  
+  showToast("Загрузка вопросов...");
+  const count = await loadQuestions();
+  if (count === 0) {
+    showToast("Нет вопросов для теста! Добавьте вопросы в админ-панели.", true);
+    return;
+  }
+  
   selected = shuffle([...allQuestions]);
-  answers = {}; submitted = false;
+  answers = {};
+  submitted = false;
+  
   const container = document.getElementById("testContainer");
-  container.innerHTML = `<div id="timer" class="timer"></div><div class="progress-bar-container"><div id="progressBar" class="progress-bar"></div></div>`;
-  selected.forEach((q, i) => {
+  container.innerHTML = `
+    <div class="timer flex justify-center items-center gap-2 text-lg font-semibold text-blue-400">
+      ⏰ <span id="timerDisplay">15:00</span>
+    </div>
+    <div class="progress-bar-container">
+      <div id="progressBarFill" class="progress-bar" style="width:0%"></div>
+    </div>
+    <div id="questionsArea" class="space-y-4 mt-4"></div>
+    <button id="checkAnswersBtn" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded font-bold mt-4 w-full">✅ Проверить ответы</button>
+  `;
+  
+  const questionsArea = document.getElementById("questionsArea");
+  for (let i = 0; i < selected.length; i++) {
+    const q = selected[i];
     const div = document.createElement("div");
     div.className = "p-4 border rounded bg-white dark:bg-gray-800 shadow";
-    div.innerHTML = `<p class='font-semibold mb-2'>${i+1}. ${q.q}</p>`;
-    q.options.forEach(opt => { div.innerHTML += `<label class='block'><input type='radio' name='q${i}' value='${opt}' class='mr-2' />${opt}</label>`; });
-    container.appendChild(div);
-  });
-  const btn = document.createElement("button");
-  btn.id = "checkBtn";
-  btn.textContent = "✅ Проверить ответы";
-  btn.className = "bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded font-bold mt-4 w-full";
-  btn.onclick = () => checkAnswers(fio);
-  container.appendChild(btn);
+    div.id = `q-${i}`;
+    div.innerHTML = `<p class='font-semibold mb-2'>${i+1}. ${escapeHtml(q.q)}</p>`;
+    q.options.forEach(opt => {
+      div.innerHTML += `<label class='block'><input type='radio' name='q${i}' value='${escapeHtml(opt)}' class='mr-2' />${escapeHtml(opt)}</label>`;
+    });
+    questionsArea.appendChild(div);
+  }
+  
+  document.getElementById("checkAnswersBtn").onclick = () => checkAnswers(fio);
   startTimer();
 }
+
 function checkAnswers(fio) {
   if (submitted) return;
   submitted = true;
+  
+  // Собираем ответы
   for (let i = 0; i < selected.length; i++) {
     const radios = document.getElementsByName(`q${i}`);
-    for (let r of radios) if (r.checked) answers[i] = r.value;
+    for (let r of radios) {
+      if (r.checked) {
+        answers[i] = r.value;
+        break;
+      }
+    }
   }
+  
+  // Подсчёт баллов
   let score = 0;
   for (let i = 0; i < selected.length; i++) {
     const q = selected[i];
-    const user = answers[i] || "";
-    const isCorrect = (user === q.answer);
+    const userAnswer = answers[i] || "";
+    const isCorrect = (userAnswer === q.answer);
     if (isCorrect) score++;
-    const div = document.querySelector(`#testContainer .p-4:nth-child(${i+2})`);
-    if (div) {
-      const ansDiv = document.createElement("div");
-      ansDiv.className = `text-sm mt-2 pt-2 border-t ${isCorrect ? 'text-green-600' : 'text-red-600'}`;
-      ansDiv.innerHTML = `${isCorrect ? '✅' : '❌'} Правильный ответ: ${q.answer}`;
-      div.appendChild(ansDiv);
+    
+    // Показываем правильный ответ
+    const questionDiv = document.getElementById(`q-${i}`);
+    if (questionDiv) {
+      const resultSpan = document.createElement("div");
+      resultSpan.className = `text-sm mt-2 pt-2 border-t ${isCorrect ? 'text-green-600' : 'text-red-600'}`;
+      resultSpan.innerHTML = `${isCorrect ? '✅' : '❌'} Правильный ответ: ${escapeHtml(q.answer)}`;
+      questionDiv.appendChild(resultSpan);
     }
   }
+  
+  // Блокируем все радио-кнопки
   for (let i = 0; i < selected.length; i++) {
     const radios = document.getElementsByName(`q${i}`);
     radios.forEach(r => r.disabled = true);
   }
-  const pass = Math.floor(selected.length * 0.7);
-  const container = document.getElementById("testContainer");
-  const res = document.createElement("div");
-  res.className = `mt-4 p-4 rounded text-center font-bold text-xl ${score >= pass ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`;
-  res.innerHTML = `📊 Результат: ${score} / ${selected.length}<br>${score >= pass ? '✅ СДАЛ!' : '❌ НЕ СДАЛ'}`;
-  container.appendChild(res);
+  
+  const passScore = Math.floor(selected.length * 0.7);
+  const resultDiv = document.createElement("div");
+  resultDiv.className = `mt-4 p-4 rounded text-center font-bold text-xl ${score >= passScore ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`;
+  resultDiv.innerHTML = `📊 Результат: ${score} / ${selected.length}<br>${score >= passScore ? '✅ СДАЛ!' : '❌ НЕ СДАЛ'}`;
+  document.getElementById("testContainer").appendChild(resultDiv);
+  
   clearInterval(timerInterval);
-  sendToTelegram(`📝 <b>Тест Устава</b>\n👤 ${fio}\n📊 ${score}/${selected.length}\n${score >= pass ? "✅ СДАЛ" : "❌ НЕ СДАЛ"}`);
+  sendToTelegram(`📝 <b>Тест Устава</b>\n👤 ${fio}\n📊 ${score}/${selected.length}\n${score >= passScore ? "✅ СДАЛ" : "❌ НЕ СДАЛ"}`);
 }
+
+function escapeHtml(text) {
+  if (!text) return '';
+  return text.replace(/[&<>]/g, function(m) {
+    if (m === '&') return '&amp;';
+    if (m === '<') return '&lt;';
+    if (m === '>') return '&gt;';
+    return m;
+  });
+}
+
 function toggleTheme() {
   const html = document.documentElement;
   html.classList.toggle('dark');
@@ -145,6 +231,7 @@ function toggleTheme() {
   const icon = document.getElementById('theme-icon');
   if (icon) icon.textContent = html.classList.contains('dark') ? '☀️' : '🌙';
 }
+
 (function() {
   const s = localStorage.getItem('theme');
   const h = document.documentElement;
@@ -153,6 +240,10 @@ function toggleTheme() {
   const icon = document.getElementById('theme-icon');
   if (icon) icon.textContent = s === 'dark' ? '☀️' : '🌙';
 })();
+
+// Привязываем кнопку старта
+document.getElementById("startBtn").onclick = startTest;
+
 initFirebase();
 </script>
 </body>
