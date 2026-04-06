@@ -9,36 +9,12 @@
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
   <link href="styles.css" rel="stylesheet" />
   <style>
-    .toast {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background: #10b981;
-      color: white;
-      padding: 12px 24px;
-      border-radius: 8px;
-      z-index: 1000;
-      animation: slideIn 0.3s ease;
-    }
+    .toast { position: fixed; bottom: 20px; right: 20px; background: #10b981; color: white; padding: 12px 24px; border-radius: 8px; z-index: 1000; animation: slideIn 0.3s ease; }
     .toast.error { background: #ef4444; }
-    @keyframes slideIn {
-      from { transform: translateX(100%); opacity: 0; }
-      to { transform: translateX(0); opacity: 1; }
-    }
-    .progress-bar-container {
-      width: 100%;
-      background-color: #e2e8f0;
-      border-radius: 0.375rem;
-      height: 0.75rem;
-      margin: 1rem 0;
-      overflow: hidden;
-    }
-    .progress-bar {
-      height: 100%;
-      background-color: #4299e1;
-      width: 0%;
-      transition: width 0.3s ease;
-    }
+    @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+    .progress-bar-container { width: 100%; background-color: #e2e8f0; border-radius: 0.375rem; height: 0.75rem; margin: 1rem 0; overflow: hidden; }
+    .progress-bar { height: 100%; background-color: #4299e1; width: 0%; transition: width 0.3s ease; }
+    .timer { font-weight: 600; color: #60a5fa; font-size: 1.1rem; margin-top: 0.5rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem; }
   </style>
 </head>
 <body class="transition-all">
@@ -70,67 +46,28 @@ let timerInterval, timeLeft = 1800, selected = [], answers = {}, submitted = fal
 let allQuestions = [];
 let db = null;
 
-function showToast(msg, isError = false) {
-  const toast = document.createElement('div');
-  toast.className = `toast ${isError ? 'error' : ''}`;
-  toast.textContent = msg;
-  document.body.appendChild(toast);
-  setTimeout(() => toast.remove(), 3000);
-}
-
-function initFirebase() {
-  if (!firebase.apps.length) {
-    firebase.initializeApp(FIREBASE_CONFIG);
-  }
-  db = firebase.database();
-  console.log('✅ Firebase подключен');
-}
-
+function showToast(msg, isError) { const t = document.createElement('div'); t.className = `toast ${isError ? 'error' : ''}`; t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 3000); }
+function initFirebase() { if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG); db = firebase.database(); }
 async function loadQuestionsFromFirebase() {
   if (!db) initFirebase();
   try {
-    const mcSnapshot = await db.ref('questions/ppoQuestions').once('value');
-    const writtenSnapshot = await db.ref('questions/ppoWrittenQuestions').once('value');
-    
-    let mcQuestions = mcSnapshot.exists() ? mcSnapshot.val() : [];
-    let writtenQuestions = writtenSnapshot.exists() ? writtenSnapshot.val() : [];
-    
-    // Фильтруем только вопросы, отмеченные для теста
-    mcQuestions = mcQuestions.filter(q => q.inTest !== false);
-    writtenQuestions = writtenQuestions.filter(q => q.inTest !== false);
-    
-    allQuestions = [...mcQuestions, ...writtenQuestions];
-    console.log(`📋 Загружено ${allQuestions.length} вопросов из Firebase`);
+    const mc = await db.ref('questions/ppoQuestions').once('value');
+    const wr = await db.ref('questions/ppoWrittenQuestions').once('value');
+    let mcQ = mc.exists() ? mc.val() : [];
+    let wrQ = wr.exists() ? wr.val() : [];
+    mcQ = mcQ.filter(q => q.inTest !== false);
+    wrQ = wrQ.filter(q => q.inTest !== false);
+    allQuestions = [...mcQ, ...wrQ];
     return allQuestions.length > 0;
-  } catch(e) {
-    console.error('Ошибка загрузки из Firebase:', e);
-    return false;
-  }
+  } catch(e) { return false; }
 }
-
-function shuffle(arr) { 
-  for (let i = arr.length - 1; i > 0; i--) { 
-    const j = Math.floor(Math.random() * (i + 1)); 
-    [arr[i], arr[j]] = [arr[j], arr[i]]; 
-  } 
-  return arr; 
-}
-
+function shuffle(arr) { for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; } return arr; }
 function startTimer() {
   clearInterval(timerInterval);
   timeLeft = 1800;
   updateTimerDisplay();
-  timerInterval = setInterval(() => { 
-    timeLeft--; 
-    updateTimerDisplay(); 
-    if (timeLeft <= 0) { 
-      clearInterval(timerInterval); 
-      alert("Время вышло!"); 
-      disableTest(); 
-    } 
-  }, 1000);
+  timerInterval = setInterval(() => { timeLeft--; updateTimerDisplay(); if (timeLeft <= 0) { clearInterval(timerInterval); alert("Время вышло!"); disableTest(); } }, 1000);
 }
-
 function updateTimerDisplay() {
   const m = Math.floor(timeLeft / 60), s = timeLeft % 60;
   const timerEl = document.getElementById("timer");
@@ -138,136 +75,82 @@ function updateTimerDisplay() {
   const bar = document.getElementById("progressBar");
   if (bar) bar.style.width = ((1800 - timeLeft) / 1800) * 100 + "%";
 }
-
-function disableTest() { 
-  document.querySelectorAll("#testContainer input, #testContainer textarea, #checkBtn").forEach(el => el.disabled = true); 
-}
-
+function disableTest() { document.querySelectorAll("#testContainer input, #testContainer textarea, #checkBtn").forEach(el => el.disabled = true); }
 async function sendToTelegram(message) {
   const url = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`;
   try {
     await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: message, parse_mode: "HTML" }) });
     for (const id of OTHER_CHATS) fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ chat_id: id, text: message, parse_mode: "HTML" }) });
-  } catch(e) { console.error(e); }
+  } catch(e) {}
 }
-
 async function start() {
   const fio = document.getElementById("username").value.trim();
   if (!fio) return showToast("Введите имя и фамилию!", true);
-  
-  showToast("🔄 Загрузка вопросов...");
-  const hasQuestions = await loadQuestionsFromFirebase();
-  
-  if (!hasQuestions || allQuestions.length === 0) {
-    showToast("❌ Нет вопросов для теста! Добавьте их в админ-панели и отметьте 'в тест'", true);
-    return;
-  }
-  
+  const ok = await loadQuestionsFromFirebase();
+  if (!ok || allQuestions.length === 0) return showToast("❌ Нет вопросов для теста!", true);
   selected = shuffle([...allQuestions]);
   answers = {}; submitted = false;
-  renderTest();
-  startTimer();
-}
-
-function renderTest() {
   const container = document.getElementById("testContainer");
-  container.innerHTML = `<div id="timer" class="timer text-center font-bold text-lg"></div><div class="progress-bar-container"><div id="progressBar" class="progress-bar"></div></div>`;
-  
+  container.innerHTML = `<div id="timer" class="timer"></div><div class="progress-bar-container"><div id="progressBar" class="progress-bar"></div></div>`;
   selected.forEach((q, i) => {
     const div = document.createElement("div");
     div.className = "p-4 border rounded bg-white dark:bg-gray-800 shadow";
-    div.id = `q-${i}`;
-    div.innerHTML = `<p class='font-semibold mb-2'>${i+1}. ${escapeHtml(q.q)}</p>`;
-    
+    div.innerHTML = `<p class='font-semibold mb-2'>${i+1}. ${q.q}</p>`;
     if (q.options) {
-      q.options.forEach(opt => { 
-        div.innerHTML += `<label class='block'><input type='radio' name='q${i}' value='${escapeHtml(opt)}' onchange='saveAnswer(${i}, this.value)' class='mr-2' />${escapeHtml(opt)}</label>`; 
-      });
+      q.options.forEach(opt => { div.innerHTML += `<label class='block'><input type='radio' name='q${i}' value='${opt}' class='mr-2' />${opt}</label>`; });
     } else {
-      div.innerHTML += `<textarea name='q${i}' rows='2' class='w-full p-2 border rounded dark:bg-gray-700' oninput='saveAnswer(${i}, this.value)' placeholder="Введите ответ..."></textarea>`;
+      div.innerHTML += `<textarea name='q${i}' rows='2' class='w-full p-2 border rounded dark:bg-gray-700' placeholder="Введите ответ..."></textarea>`;
     }
     container.appendChild(div);
   });
-  
   const btn = document.createElement("button");
   btn.id = "checkBtn";
   btn.textContent = "✅ Проверить ответы";
   btn.className = "bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded font-bold mt-4 w-full";
-  btn.onclick = checkAnswers;
+  btn.onclick = () => checkAnswers(fio);
   container.appendChild(btn);
+  startTimer();
 }
-
-function saveAnswer(i, val) { 
-  if (!submitted) answers[i] = val; 
-}
-
-function checkAnswers() {
+function checkAnswers(fio) {
   if (submitted) return;
   submitted = true;
-  
-  const fio = document.getElementById("username").value.trim();
+  for (let i = 0; i < selected.length; i++) {
+    const radios = document.getElementsByName(`q${i}`);
+    const textarea = document.querySelector(`textarea[name='q${i}']`);
+    if (radios.length) { for (let r of radios) if (r.checked) answers[i] = r.value; }
+    else if (textarea) answers[i] = textarea.value;
+  }
   let score = 0;
-  
   for (let i = 0; i < selected.length; i++) {
     const q = selected[i];
-    const userAnswer = answers[i] || "";
+    const user = answers[i] || "";
     let isCorrect = false;
-    
-    if (q.options) {
-      // Для вопросов с вариантами ответа
-      isCorrect = (userAnswer === q.answer);
-    } else {
-      // Для письменных вопросов
-      isCorrect = normalizeAnswer(userAnswer) === normalizeAnswer(q.answer);
-    }
-    
+    if (q.options) isCorrect = (user === q.answer);
+    else isCorrect = user.trim().toLowerCase() === q.answer.trim().toLowerCase();
     if (isCorrect) score++;
-    
-    // Показываем правильный ответ
-    const questionDiv = document.getElementById(`q-${i}`);
-    if (questionDiv) {
-      const answerDiv = document.createElement("div");
-      answerDiv.className = `text-sm mt-2 pt-2 border-t ${isCorrect ? 'text-green-600' : 'text-red-600'}`;
-      answerDiv.innerHTML = `<i class="fas ${isCorrect ? 'fa-check-circle' : 'fa-times-circle'} mr-1"></i> Правильный ответ: ${escapeHtml(q.answer)}`;
-      questionDiv.appendChild(answerDiv);
+    const div = document.querySelector(`#testContainer .p-4:nth-child(${i+2})`);
+    if (div) {
+      const ansDiv = document.createElement("div");
+      ansDiv.className = `text-sm mt-2 pt-2 border-t ${isCorrect ? 'text-green-600' : 'text-red-600'}`;
+      ansDiv.innerHTML = `${isCorrect ? '✅' : '❌'} Правильный ответ: ${q.answer}`;
+      div.appendChild(ansDiv);
     }
   }
-  
-  // Блокируем все инпуты
   for (let i = 0; i < selected.length; i++) {
     const radios = document.getElementsByName(`q${i}`);
     radios.forEach(r => r.disabled = true);
-    const textarea = document.querySelector(`textarea[name='q${i}']`);
-    if (textarea) textarea.disabled = true;
+    const ta = document.querySelector(`textarea[name='q${i}']`);
+    if (ta) ta.disabled = true;
   }
-  
+  const pass = Math.floor(selected.length * 0.7);
   const container = document.getElementById("testContainer");
-  const passScore = Math.floor(selected.length * 0.7);
-  
-  const resultDiv = document.createElement("div");
-  resultDiv.className = `mt-4 p-4 rounded text-center font-bold text-xl ${score >= passScore ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`;
-  resultDiv.innerHTML = `📊 Результат: ${score} / ${selected.length}<br>${score >= passScore ? '✅ СДАЛ!' : '❌ НЕ СДАЛ'}`;
-  container.appendChild(resultDiv);
-  
+  const res = document.createElement("div");
+  res.className = `mt-4 p-4 rounded text-center font-bold text-xl ${score >= pass ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`;
+  res.innerHTML = `📊 Результат: ${score} / ${selected.length}<br>${score >= pass ? '✅ СДАЛ!' : '❌ НЕ СДАЛ'}`;
+  container.appendChild(res);
   clearInterval(timerInterval);
-  sendToTelegram(`📝 <b>Тест ППО</b>\n👤 ${fio}\n📊 ${score}/${selected.length}\n${score >= passScore ? "✅ СДАЛ" : "❌ НЕ СДАЛ"}`);
+  sendToTelegram(`📝 <b>Тест ППО</b>\n👤 ${fio}\n📊 ${score}/${selected.length}\n${score >= pass ? "✅ СДАЛ" : "❌ НЕ СДАЛ"}`);
 }
-
-function normalizeAnswer(str) {
-  if (!str) return "";
-  return str.trim().toLowerCase().replace(/[«»"„“]/g, '"').replace(/\s+/g, ' ');
-}
-
-function escapeHtml(text) {
-  if (!text) return '';
-  return text.replace(/[&<>]/g, function(m) {
-    if (m === '&') return '&amp;';
-    if (m === '<') return '&lt;';
-    if (m === '>') return '&gt;';
-    return m;
-  });
-}
-
 function toggleTheme() {
   const html = document.documentElement;
   html.classList.toggle('dark');
@@ -276,16 +159,14 @@ function toggleTheme() {
   const icon = document.getElementById('theme-icon');
   if (icon) icon.textContent = html.classList.contains('dark') ? '☀️' : '🌙';
 }
-
 (function() {
-  const saved = localStorage.getItem('theme');
-  const html = document.documentElement;
-  if (saved === 'dark') { html.classList.add('dark'); html.classList.remove('light'); }
-  else { html.classList.add('light'); html.classList.remove('dark'); }
+  const s = localStorage.getItem('theme');
+  const h = document.documentElement;
+  if (s === 'dark') { h.classList.add('dark'); h.classList.remove('light'); }
+  else { h.classList.add('light'); h.classList.remove('dark'); }
   const icon = document.getElementById('theme-icon');
-  if (icon) icon.textContent = saved === 'dark' ? '☀️' : '🌙';
+  if (icon) icon.textContent = s === 'dark' ? '☀️' : '🌙';
 })();
-
 initFirebase();
 </script>
 </body>
