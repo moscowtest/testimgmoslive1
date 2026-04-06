@@ -19,578 +19,153 @@
     .toggle-slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: 0.3s; border-radius: 50%; }
     input:checked + .toggle-slider { background-color: #22c55e; }
     input:checked + .toggle-slider:before { transform: translateX(24px); }
-    .question-card { background: white; border-radius: 12px; padding: 12px 16px; margin-bottom: 8px; cursor: grab; transition: all 0.2s; border: 1px solid #e2e8f0; }
+    .question-card { background: white; border-radius: 12px; padding: 12px 16px; margin-bottom: 8px; cursor: grab; border: 1px solid #e2e8f0; }
     html.dark .question-card { background: #1e293b; border-color: #334155; }
     .question-card:hover { transform: translateX(4px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-    .question-card:active { cursor: grabbing; }
     .question-card.selected { border-left: 4px solid #22c55e; background: #f0fdf4; }
-    html.dark .question-card.selected { background: #1a3a2a; border-left-color: #22c55e; }
-    .tag { display: inline-flex; align-items: center; background: #e0e7ff; color: #1e40af; font-size: 10px; padding: 2px 8px; border-radius: 20px; margin-right: 6px; margin-bottom: 4px; font-weight: 500; }
+    html.dark .question-card.selected { background: #1a3a2a; }
+    .tag { display: inline-flex; background: #e0e7ff; color: #1e40af; font-size: 10px; padding: 2px 8px; border-radius: 20px; margin-right: 6px; margin-bottom: 4px; }
     html.dark .tag { background: #1e3a5f; color: #93c5fd; }
     .preview-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 2000; align-items: center; justify-content: center; }
     .preview-modal.active { display: flex; }
-    .preview-content { background: white; border-radius: 20px; padding: 24px; max-width: 500px; width: 90%; max-height: 80vh; overflow-y: auto; }
+    .preview-content { background: white; border-radius: 20px; padding: 24px; max-width: 500px; width: 90%; max-height: 80vh; overflow: auto; }
     html.dark .preview-content { background: #1e293b; color: white; }
     .pagination-btn { padding: 6px 12px; margin: 0 3px; border-radius: 8px; background: #f1f5f9; cursor: pointer; font-weight: 500; }
     html.dark .pagination-btn { background: #334155; color: white; }
     .pagination-btn.active { background: #3b82f6; color: white; }
-    .form-card { background: #f8fafc; border-radius: 16px; padding: 16px; margin-bottom: 20px; }
-    html.dark .form-card { background: #0f172a; }
-    .sidebar-item { padding: 8px 12px; border-radius: 10px; cursor: pointer; transition: all 0.2s; }
+    .sidebar-item { padding: 8px 12px; border-radius: 10px; cursor: pointer; }
     .sidebar-item:hover { background: #334155; }
     .sidebar-item.active { background: #3b82f6; color: white; }
-    .btn { padding: 8px 16px; border-radius: 10px; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+    .btn { padding: 8px 16px; border-radius: 10px; font-weight: 500; cursor: pointer; }
     .btn-primary { background: #3b82f6; color: white; }
     .btn-primary:hover { background: #2563eb; transform: translateY(-1px); }
     .btn-success { background: #10b981; color: white; }
     .btn-success:hover { background: #059669; transform: translateY(-1px); }
-    .btn-warning { background: #f59e0b; color: white; }
-    .btn-warning:hover { background: #d97706; }
     .btn-outline { background: transparent; border: 1px solid #cbd5e1; }
     html.dark .btn-outline { border-color: #475569; color: white; }
-    input, textarea, select { transition: all 0.2s; background: white; }
+    input, textarea, select { background: white; }
     html.dark input, html.dark textarea, html.dark select { background: #1e293b; color: white; border-color: #475569; }
-    input:focus, textarea:focus, select:focus { outline: none; ring: 2px solid #3b82f6; }
-    .checkbox-test { width: 20px; height: 20px; cursor: pointer; accent-color: #22c55e; }
+    .checkbox-test { width: 20px; height: 20px; accent-color: #22c55e; }
   </style>
 </head>
-<body class="transition-all bg-gray-100 dark:bg-gray-950">
-  <div class="max-w-7xl mx-auto p-4 md:p-6">
-    <div class="flex justify-between items-center mb-6">
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
-          <i class="fas fa-crown text-white text-lg"></i>
-        </div>
-        <div>
-          <h1 class="text-2xl font-bold text-gray-800 dark:text-white">Админ-панель</h1>
-          <p class="text-sm text-gray-500 dark:text-gray-400">Управление вопросами и тестами</p>
-        </div>
-      </div>
-      <button onclick="toggleTheme()" class="text-2xl p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-800" id="theme-icon">🌙</button>
+<body class="bg-gray-100 dark:bg-gray-950">
+<div class="max-w-7xl mx-auto p-4 md:p-6">
+  <div class="flex justify-between items-center mb-6">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl flex items-center justify-center"><i class="fas fa-crown text-white text-lg"></i></div>
+      <div><h1 class="text-2xl font-bold text-gray-800 dark:text-white">Админ-панель</h1><p class="text-sm text-gray-500 dark:text-gray-400">Управление вопросами и тестами</p></div>
     </div>
-
-    <div class="flex flex-col lg:flex-row gap-6">
-      <aside class="lg:w-64 bg-white dark:bg-gray-900 rounded-2xl shadow-sm p-4">
-        <div class="space-y-4">
-          <div>
-            <p class="text-sm font-semibold mb-3 text-gray-600 dark:text-gray-400"><i class="fas fa-eye mr-2"></i>Видимость тестов</p>
-            <div class="space-y-3">
-              <div class="flex justify-between items-center"><span class="text-sm"><i class="fas fa-list mr-2 text-purple-500"></i>ППО</span><label class="toggle-switch"><input type="checkbox" id="togglePpo" onchange="toggleTestVisibility('ppo', this.checked)"><span class="toggle-slider"></span></label></div>
-              <div class="flex justify-between items-center"><span class="text-sm"><i class="fas fa-book mr-2 text-blue-500"></i>Устав</span><label class="toggle-switch"><input type="checkbox" id="toggleUstav" onchange="toggleTestVisibility('ustav', this.checked)"><span class="toggle-slider"></span></label></div>
-              <div class="flex justify-between items-center"><span class="text-sm"><i class="fas fa-users mr-2 text-green-500"></i>Руководство</span><label class="toggle-switch"><input type="checkbox" id="toggleLeadership" onchange="toggleTestVisibility('leadership', this.checked)"><span class="toggle-slider"></span></label></div>
-            </div>
-          </div>
-          <hr class="border-gray-200 dark:border-gray-700">
-          <div>
-            <p class="text-sm font-semibold mb-3 text-gray-600 dark:text-gray-400"><i class="fas fa-database mr-2"></i>Наборы вопросов</p>
-            <div class="space-y-2">
-              <div onclick="switchSet('ppoQuestions')" id="btn-ppoQuestions" class="sidebar-item flex items-center gap-3 p-2 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800"><i class="fas fa-check-circle text-purple-500 w-5"></i><span class="text-sm">PPO Выбор ответа</span></div>
-              <div onclick="switchSet('ppoWrittenQuestions')" id="btn-ppoWrittenQuestions" class="sidebar-item flex items-center gap-3 p-2 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800"><i class="fas fa-pen text-green-500 w-5"></i><span class="text-sm">PPO Письменные</span></div>
-              <div onclick="switchSet('ustavQuestions')" id="btn-ustavQuestions" class="sidebar-item flex items-center gap-3 p-2 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800"><i class="fas fa-gavel text-blue-500 w-5"></i><span class="text-sm">Устав</span></div>
-            </div>
-          </div>
-          <hr class="border-gray-200 dark:border-gray-700">
-          <div>
-            <p class="text-sm font-semibold mb-3 text-gray-600 dark:text-gray-400"><i class="fas fa-tools mr-2"></i>Действия</p>
-            <div class="space-y-2">
-              <button onclick="exportAllData()" class="w-full btn btn-outline text-sm flex items-center justify-center gap-2"><i class="fas fa-download"></i> Экспорт</button>
-              <label class="w-full btn btn-outline text-sm flex items-center justify-center gap-2 cursor-pointer"><i class="fas fa-upload"></i> Импорт<input type="file" id="importFile" accept=".json" style="display:none" onchange="importAllData(this)"></label>
-              <button onclick="clearAllData()" class="w-full btn btn-outline text-sm flex items-center justify-center gap-2 text-red-600"><i class="fas fa-trash"></i> Очистить всё</button>
-            </div>
-          </div>
-          <div class="mt-4 p-3 bg-gray-100 dark:bg-gray-800 rounded-lg">
-            <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2"><i class="fas fa-keyboard mr-1"></i> Горячие клавиши</p>
-            <p class="text-xs text-gray-500 dark:text-gray-400"><kbd class="px-1 bg-gray-300 dark:bg-gray-700 rounded">Ctrl+S</kbd> — сохранить</p>
-            <p class="text-xs text-gray-500 dark:text-gray-400"><kbd class="px-1 bg-gray-300 dark:bg-gray-700 rounded">Ctrl+Enter</kbd> — добавить</p>
-          </div>
-          <div class="mt-auto pt-4"><input id="pw" type="password" placeholder="Пароль" class="w-full p-2 bg-gray-100 dark:bg-gray-800 rounded-lg text-center text-sm" /></div>
-        </div>
-      </aside>
-
-      <main class="flex-1 bg-white dark:bg-gray-900 rounded-2xl shadow-sm p-6">
-        <div id="panel" class="hidden">
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-            <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-3 text-white"><p class="text-xs opacity-80">Всего</p><p class="text-2xl font-bold" id="statTotal">0</p></div>
-            <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-3 text-white"><p class="text-xs opacity-80">Выбор ответа</p><p class="text-2xl font-bold" id="statMultiple">0</p></div>
-            <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-xl p-3 text-white"><p class="text-xs opacity-80">Письменные</p><p class="text-2xl font-bold" id="statWritten">0</p></div>
-            <div class="bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl p-3 text-white"><p class="text-xs opacity-80">В тесте</p><p class="text-2xl font-bold" id="statSelected">0</p></div>
-          </div>
-
-          <!-- Панель выбора вопросов для теста -->
-          <div class="bg-gradient-to-r from-indigo-500 to-purple-500 rounded-xl p-4 mb-6 text-white">
-            <div class="flex flex-wrap items-center justify-between gap-3">
-              <div>
-                <i class="fas fa-check-double mr-2"></i>
-                <span class="font-semibold">Отбор вопросов для теста</span>
-                <p class="text-xs opacity-80 mt-1">Выберите, какие вопросы будут попадать в тест</p>
-              </div>
-              <div class="flex flex-wrap gap-2">
-                <button onclick="selectAll()" class="bg-white text-indigo-600 px-3 py-1 rounded-lg text-sm font-semibold hover:bg-gray-100"><i class="fas fa-check-circle mr-1"></i>Выбрать все</button>
-                <button onclick="selectNone()" class="bg-white text-indigo-600 px-3 py-1 rounded-lg text-sm font-semibold hover:bg-gray-100"><i class="fas fa-times-circle mr-1"></i>Снять все</button>
-                <div class="flex gap-1 bg-white/20 rounded-lg p-1">
-                  <input id="randomCount" type="number" value="20" min="1" class="w-16 px-2 py-1 rounded text-black text-sm" />
-                  <button onclick="selectRandom()" class="bg-white text-indigo-600 px-3 py-1 rounded-lg text-sm font-semibold hover:bg-gray-100"><i class="fas fa-random mr-1"></i>Рандом</button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="form-card mb-6">
-            <div class="flex justify-between items-center cursor-pointer" onclick="toggleForm()"><h2 class="font-semibold text-gray-700 dark:text-gray-300"><i class="fas fa-plus-circle text-green-500 mr-2"></i>Добавить вопрос</h2><i id="formToggleIcon" class="fas fa-chevron-up text-gray-400"></i></div>
-            <div id="formContent" class="mt-4 space-y-3">
-              <div class="flex gap-2"><select id="type" onchange="toggleType()" class="flex-1 p-2 bg-gray-100 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700"><option value="multiple">📌 Выбор ответа</option><option value="written">✍️ Письменный ответ</option></select><button onclick="clearForm()" class="btn btn-outline text-sm">Очистить</button></div>
-              <textarea id="q" placeholder="Вопрос..." rows="2" class="w-full p-2 bg-gray-100 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700"></textarea>
-              <div id="optionFields"><input id="a1" placeholder="Вариант 1" class="w-full p-2 bg-gray-100 dark:bg-gray-800 rounded-lg mb-2 border border-gray-200 dark:border-gray-700" /><input id="a2" placeholder="Вариант 2" class="w-full p-2 bg-gray-100 dark:bg-gray-800 rounded-lg mb-2 border border-gray-200 dark:border-gray-700" /><input id="a3" placeholder="Вариант 3" class="w-full p-2 bg-gray-100 dark:bg-gray-800 rounded-lg mb-2 border border-gray-200 dark:border-gray-700" /></div>
-              <input id="correct" placeholder="Правильный ответ" class="w-full p-2 bg-gray-100 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700" />
-              <input id="tags" placeholder="Теги (через запятую)" class="w-full p-2 bg-gray-100 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 text-sm" />
-              <div class="flex gap-2"><button id="addBtn" onclick="addQuestion()" class="btn btn-success flex-1"><i class="fas fa-plus mr-1"></i> Добавить</button><button onclick="showPreview()" class="btn btn-outline flex-1"><i class="fas fa-eye mr-1"></i> Предпросмотр</button></div>
-            </div>
-          </div>
-
-          <div class="flex flex-col sm:flex-row gap-3 mb-4">
-            <div class="flex-1 relative"><i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i><input id="searchInput" type="text" placeholder="Поиск..." oninput="filterQuestions()" class="w-full p-2 pl-9 bg-gray-100 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700" /></div>
-            <div class="flex gap-2 items-center"><span class="text-sm text-gray-500">Показать:</span><select id="perPage" onchange="changePerPage()" class="p-2 bg-gray-100 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 text-sm"><option value="5">5</option><option value="10" selected>10</option><option value="20">20</option><option value="50">50</option></select></div>
-          </div>
-
-          <div class="flex justify-between items-center mb-3"><h2 class="font-semibold text-gray-700 dark:text-gray-300"><i class="fas fa-list-ul mr-2 text-blue-500"></i>Список вопросов</h2><span id="questionCount" class="text-sm text-gray-500"></span></div>
-          <div id="list" class="space-y-2 max-h-[500px] overflow-y-auto pr-1"></div>
-          <div id="pagination" class="flex justify-center gap-1 mt-4"></div>
-          <div class="text-center text-xs text-gray-400 mt-4"><i class="fas fa-arrows-alt mr-1"></i> Перетаскивайте вопросы за значок <i class="fas fa-grip-vertical mx-1"></i> для изменения порядка</div>
-        </div>
-      </main>
-    </div>
+    <button onclick="toggleTheme()" class="text-2xl p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-800" id="theme-icon">🌙</button>
   </div>
-
-  <div id="previewModal" class="preview-modal" onclick="if(event.target===this) closePreview()"><div class="preview-content"><h3 class="font-bold mb-3 flex items-center gap-2"><i class="fas fa-eye text-blue-500"></i>Предпросмотр</h3><div id="previewContent"></div><button onclick="closePreview()" class="btn btn-outline w-full mt-4">Закрыть</button></div></div>
+  <div class="flex flex-col lg:flex-row gap-6">
+    <aside class="lg:w-72 bg-white dark:bg-gray-900 rounded-2xl shadow-sm p-4">
+      <div class="space-y-4">
+        <!-- Видимость тестов -->
+        <div><p class="text-sm font-semibold mb-3"><i class="fas fa-eye mr-2"></i>Видимость тестов</p>
+          <div class="space-y-2">
+            <div class="flex justify-between items-center"><span><i class="fas fa-list mr-2 text-purple-500"></i>ППО</span><label class="toggle-switch"><input type="checkbox" id="togglePpo" onchange="toggleTestVisibility('ppo', this.checked)"><span class="toggle-slider"></span></label></div>
+            <div class="flex justify-between items-center"><span><i class="fas fa-book mr-2 text-blue-500"></i>Устав</span><label class="toggle-switch"><input type="checkbox" id="toggleUstav" onchange="toggleTestVisibility('ustav', this.checked)"><span class="toggle-slider"></span></label></div>
+            <div class="flex justify-between items-center"><span><i class="fas fa-users mr-2 text-green-500"></i>Руководство</span><label class="toggle-switch"><input type="checkbox" id="toggleLeadership" onchange="toggleTestVisibility('leadership', this.checked)"><span class="toggle-slider"></span></label></div>
+          </div>
+        </div>
+        <hr class="border-gray-200 dark:border-gray-700">
+        <!-- Настройка времени тестов -->
+        <div><p class="text-sm font-semibold mb-3"><i class="fas fa-clock mr-2"></i>Время тестов (минут)</p>
+          <div class="space-y-2">
+            <div class="flex justify-between items-center"><span>📋 ППО</span><input type="number" id="timePpo" class="w-20 p-1 rounded bg-gray-100 dark:bg-gray-800 text-center" value="30" min="1" max="120" onchange="saveTestTime('ppo', this.value)"></div>
+            <div class="flex justify-between items-center"><span>📜 Устав</span><input type="number" id="timeUstav" class="w-20 p-1 rounded bg-gray-100 dark:bg-gray-800 text-center" value="15" min="1" max="120" onchange="saveTestTime('ustav', this.value)"></div>
+            <div class="flex justify-between items-center"><span>👔 Руководство</span><input type="number" id="timeLeadership" class="w-20 p-1 rounded bg-gray-100 dark:bg-gray-800 text-center" value="15" min="1" max="120" onchange="saveTestTime('leadership', this.value)"></div>
+          </div>
+        </div>
+        <hr class="border-gray-200 dark:border-gray-700">
+        <!-- Наборы вопросов -->
+        <div><p class="text-sm font-semibold mb-3"><i class="fas fa-database mr-2"></i>Наборы вопросов</p>
+          <div class="space-y-1">
+            <div onclick="switchSet('ppoQuestions')" id="btn-ppoQuestions" class="sidebar-item flex items-center gap-3 p-2 rounded-lg"><i class="fas fa-check-circle text-purple-500 w-5"></i><span>PPO Выбор ответа</span></div>
+            <div onclick="switchSet('ppoWrittenQuestions')" id="btn-ppoWrittenQuestions" class="sidebar-item flex items-center gap-3 p-2 rounded-lg"><i class="fas fa-pen text-green-500 w-5"></i><span>PPO Письменные</span></div>
+            <div onclick="switchSet('ustavQuestions')" id="btn-ustavQuestions" class="sidebar-item flex items-center gap-3 p-2 rounded-lg"><i class="fas fa-gavel text-blue-500 w-5"></i><span>Устав</span></div>
+          </div>
+        </div>
+        <hr class="border-gray-200 dark:border-gray-700">
+        <!-- Действия -->
+        <div><p class="text-sm font-semibold mb-3"><i class="fas fa-tools mr-2"></i>Действия</p>
+          <div class="space-y-2">
+            <button onclick="exportAllData()" class="w-full btn btn-outline text-sm"><i class="fas fa-download"></i> Экспорт</button>
+            <label class="w-full btn btn-outline text-sm cursor-pointer"><i class="fas fa-upload"></i> Импорт<input type="file" id="importFile" accept=".json" style="display:none" onchange="importAllData(this)"></label>
+            <button onclick="clearAllData()" class="w-full btn btn-outline text-sm text-red-600"><i class="fas fa-trash"></i> Очистить всё</button>
+          </div>
+        </div>
+        <div class="mt-4 p-3 bg-gray-100 dark:bg-gray-800 rounded-lg"><p class="text-xs text-center"><i class="fas fa-keyboard"></i> Ctrl+S — сохранить, Ctrl+Enter — добавить</p></div>
+        <div class="mt-auto pt-4"><input id="pw" type="password" placeholder="Пароль" class="w-full p-2 bg-gray-100 dark:bg-gray-800 rounded-lg text-center text-sm"></div>
+      </div>
+    </aside>
+    <main class="flex-1 bg-white dark:bg-gray-900 rounded-2xl shadow-sm p-6">
+      <div id="panel" class="hidden">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+          <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-3 text-white"><p class="text-xs opacity-80">Всего</p><p class="text-2xl font-bold" id="statTotal">0</p></div>
+          <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-3 text-white"><p class="text-xs opacity-80">Выбор</p><p class="text-2xl font-bold" id="statMultiple">0</p></div>
+          <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-xl p-3 text-white"><p class="text-xs opacity-80">Письменные</p><p class="text-2xl font-bold" id="statWritten">0</p></div>
+          <div class="bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl p-3 text-white"><p class="text-xs opacity-80">В тесте</p><p class="text-2xl font-bold" id="statSelected">0</p></div>
+        </div>
+        <div class="bg-gradient-to-r from-indigo-500 to-purple-500 rounded-xl p-4 mb-6 text-white"><div class="flex flex-wrap justify-between gap-3"><div><i class="fas fa-check-double"></i> Отбор вопросов для теста</div><div class="flex flex-wrap gap-2"><button onclick="selectAll()" class="bg-white text-indigo-600 px-3 py-1 rounded-lg text-sm font-semibold">Выбрать все</button><button onclick="selectNone()" class="bg-white text-indigo-600 px-3 py-1 rounded-lg text-sm font-semibold">Снять все</button><div class="flex gap-1 bg-white/20 rounded-lg p-1"><input id="randomCount" type="number" value="20" min="1" class="w-16 px-2 py-1 rounded text-black text-sm"><button onclick="selectRandom()" class="bg-white text-indigo-600 px-3 py-1 rounded-lg text-sm font-semibold">Рандом</button></div></div></div></div>
+        <div class="bg-gray-100 dark:bg-gray-800 rounded-xl p-4 mb-6"><div class="flex justify-between cursor-pointer" onclick="toggleForm()"><h2 class="font-semibold"><i class="fas fa-plus-circle text-green-500"></i> Добавить вопрос</h2><i id="formToggleIcon" class="fas fa-chevron-up"></i></div><div id="formContent" class="mt-4 space-y-3"><div class="flex gap-2"><select id="type" onchange="toggleType()" class="flex-1 p-2 rounded-lg border"><option value="multiple">Выбор ответа</option><option value="written">Письменный</option></select><button onclick="clearForm()" class="btn btn-outline text-sm">Очистить</button></div><textarea id="q" placeholder="Вопрос..." rows="2" class="w-full p-2 rounded-lg border"></textarea><div id="optionFields"><input id="a1" placeholder="Вариант 1" class="w-full p-2 rounded-lg mb-2 border"><input id="a2" placeholder="Вариант 2" class="w-full p-2 rounded-lg mb-2 border"><input id="a3" placeholder="Вариант 3" class="w-full p-2 rounded-lg mb-2 border"></div><input id="correct" placeholder="Правильный ответ" class="w-full p-2 rounded-lg border"><input id="tags" placeholder="Теги" class="w-full p-2 rounded-lg border"><div class="flex gap-2"><button id="addBtn" onclick="addQuestion()" class="btn btn-success flex-1"><i class="fas fa-plus"></i> Добавить</button><button onclick="showPreview()" class="btn btn-outline flex-1"><i class="fas fa-eye"></i> Предпросмотр</button></div></div></div>
+        <div class="flex flex-wrap gap-3 mb-4"><div class="flex-1 relative"><i class="fas fa-search absolute left-3 top-3 text-gray-400"></i><input id="searchInput" type="text" placeholder="Поиск..." oninput="filterQuestions()" class="w-full p-2 pl-9 rounded-lg border"></div><select id="perPage" onchange="changePerPage()" class="p-2 rounded-lg border text-sm"><option value="5">5</option><option value="10" selected>10</option><option value="20">20</option><option value="50">50</option></select></div>
+        <div id="list" class="space-y-2 max-h-[500px] overflow-auto"></div><div id="pagination" class="flex justify-center gap-1 mt-4"></div>
+        <div class="text-center text-xs text-gray-400 mt-4"><i class="fas fa-arrows-alt"></i> Перетаскивайте вопросы за значок для изменения порядка</div>
+      </div>
+    </main>
+  </div>
+</div>
+<div id="previewModal" class="preview-modal" onclick="if(event.target===this) closePreview()"><div class="preview-content"><h3 class="font-bold mb-3"><i class="fas fa-eye text-blue-500"></i> Предпросмотр</h3><div id="previewContent"></div><button onclick="closePreview()" class="btn btn-outline w-full mt-4">Закрыть</button></div></div>
 
 <script>
-const FIREBASE_CONFIG = {
-  apiKey: "AIzaSyCuOIt7wMUrN8vu9RQqivNj9w3CdFitrqE",
-  authDomain: "moscow-live-tests.firebaseapp.com",
-  projectId: "moscow-live-tests",
-  storageBucket: "moscow-live-tests.firebasestorage.app",
-  messagingSenderId: "956332293918",
-  appId: "1:956332293918:web:e7f66986cca2a30474130f"
-};
+const FIREBASE_CONFIG = { apiKey: "AIzaSyCuOIt7wMUrN8vu9RQqivNj9w3CdFitrqE", authDomain: "moscow-live-tests.firebaseapp.com", projectId: "moscow-live-tests", storageBucket: "moscow-live-tests.firebasestorage.app", messagingSenderId: "956332293918", appId: "1:956332293918:web:e7f66986cca2a30474130f" };
+const PASSWORD = "admin2024";
+let currentSet = "ppoQuestions", questions = [], editingIndex = -1, db = null, filteredQuestions = [], currentPage = 1, perPage = 10, autoSaveTimer = null, formExpanded = true;
 
-const PASSWORD = "000";
-let currentSet = "ppoQuestions";
-let questions = [];
-let editingIndex = -1;
-let db = null;
-let filteredQuestions = [];
-let currentPage = 1;
-let perPage = 10;
-let autoSaveTimer = null;
-let formExpanded = true;
-
-function showToast(msg, isError = false) {
-  const toast = document.createElement('div');
-  toast.className = `toast ${isError ? 'error' : ''}`;
-  toast.innerHTML = `<i class="fas ${isError ? 'fa-exclamation-triangle' : 'fa-check-circle'} mr-2"></i>${msg}`;
-  document.body.appendChild(toast);
-  setTimeout(() => toast.remove(), 3000);
-}
-
-function toggleTheme() {
-  const html = document.documentElement;
-  html.classList.toggle('dark');
-  html.classList.toggle('light');
-  localStorage.setItem('theme', html.classList.contains('dark') ? 'dark' : 'light');
-  const icon = document.getElementById('theme-icon');
-  if (icon) icon.textContent = html.classList.contains('dark') ? '☀️' : '🌙';
-}
-
-(function() {
-  const saved = localStorage.getItem('theme');
-  const html = document.documentElement;
-  if (saved === 'dark') { html.classList.add('dark'); html.classList.remove('light'); }
-  else { html.classList.add('light'); html.classList.remove('dark'); }
-  const icon = document.getElementById('theme-icon');
-  if (icon) icon.textContent = saved === 'dark' ? '☀️' : '🌙';
-})();
-
-function toggleForm() {
-  formExpanded = !formExpanded;
-  const content = document.getElementById('formContent');
-  const icon = document.getElementById('formToggleIcon');
-  if (formExpanded) { content.style.display = 'block'; icon.className = 'fas fa-chevron-up'; }
-  else { content.style.display = 'none'; icon.className = 'fas fa-chevron-down'; }
-}
-
-function updateStats() {
-  const multipleCount = questions.filter(q => q.options).length;
-  const writtenCount = questions.filter(q => !q.options).length;
-  const selectedCount = questions.filter(q => q.inTest !== false).length;
-  document.getElementById('statTotal').innerText = questions.length;
-  document.getElementById('statMultiple').innerText = multipleCount;
-  document.getElementById('statWritten').innerText = writtenCount;
-  document.getElementById('statSelected').innerText = selectedCount;
-}
-
-function initFirebase() {
-  try {
-    if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
-    db = firebase.database();
-    showToast('✅ Firebase подключен');
-    loadFromFirebase();
-    startAutoSave();
-  } catch(e) { console.error(e); showToast('❌ Ошибка Firebase', true); }
-}
-
-function startAutoSave() {
-  if (autoSaveTimer) clearInterval(autoSaveTimer);
-  autoSaveTimer = setInterval(() => { if (db) syncToFirebase(); }, 30000);
-}
-
-async function loadFromFirebase() {
-  if (!db) return;
-  try {
-    const snapshot = await db.ref(`questions/${currentSet}`).once('value');
-    if (snapshot.exists()) {
-      questions = snapshot.val();
-      // Убедимся, что у каждого вопроса есть поле inTest (по умолчанию true)
-      questions = questions.map(q => ({ ...q, inTest: q.inTest !== undefined ? q.inTest : true }));
-    } else {
-      questions = [];
-    }
-    filteredQuestions = [...questions];
-    renderList();
-    updateStats();
-    showToast('☁️ Данные загружены');
-  } catch(e) { console.error(e); }
-}
-
-async function syncToFirebase() {
-  if (!db) return;
-  try {
-    await db.ref(`questions/${currentSet}`).set(questions);
-  } catch(e) { console.error(e); }
-}
-
-// ========== УПРАВЛЕНИЕ ВЫБОРОМ ВОПРОСОВ ДЛЯ ТЕСТА ==========
-function toggleQuestionInTest(index) {
-  questions[index].inTest = !questions[index].inTest;
-  syncToFirebase();
-  renderList();
-  updateStats();
-  showToast(questions[index].inTest ? '✅ Вопрос добавлен в тест' : '❌ Вопрос исключён из теста');
-}
-
-function selectAll() {
-  questions.forEach(q => q.inTest = true);
-  syncToFirebase();
-  renderList();
-  updateStats();
-  showToast('✅ Все вопросы добавлены в тест');
-}
-
-function selectNone() {
-  questions.forEach(q => q.inTest = false);
-  syncToFirebase();
-  renderList();
-  updateStats();
-  showToast('❌ Все вопросы исключены из теста');
-}
-
-function selectRandom() {
-  const count = parseInt(document.getElementById('randomCount').value);
-  if (isNaN(count) || count < 1) {
-    showToast('Введите корректное число', true);
-    return;
-  }
-  if (count > questions.length) {
-    showToast(`Максимум ${questions.length} вопросов`, true);
-    return;
-  }
-  // Сначала снимаем все
-  questions.forEach(q => q.inTest = false);
-  // Создаём массив индексов и перемешиваем
-  const indices = [...Array(questions.length).keys()];
-  for (let i = indices.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [indices[i], indices[j]] = [indices[j], indices[i]];
-  }
-  // Выбираем первые count
-  for (let i = 0; i < count; i++) {
-    questions[indices[i]].inTest = true;
-  }
-  syncToFirebase();
-  renderList();
-  updateStats();
-  showToast(`🎲 Случайно выбрано ${count} вопросов из ${questions.length}`);
-}
-
-// ========== СОРТИРОВКА ПЕРЕТАСКИВАНИЕМ ==========
-let dragStartIndex = null;
-function onDragStart(e, index) { dragStartIndex = index; e.dataTransfer.effectAllowed = 'move'; e.target.classList.add('opacity-50'); }
-function onDragOver(e, index) { e.preventDefault(); const target = e.target.closest('.question-card'); if (target && dragStartIndex !== null && dragStartIndex !== index) target.classList.add('drag-over'); }
-function onDragLeave(e) { const target = e.target.closest('.question-card'); if (target) target.classList.remove('drag-over'); }
-function onDrop(e, dropIndex) {
-  e.preventDefault();
-  const target = e.target.closest('.question-card');
-  if (target) target.classList.remove('drag-over');
-  if (dragStartIndex !== null && dragStartIndex !== dropIndex) {
-    const item = questions[dragStartIndex];
-    questions.splice(dragStartIndex, 1);
-    questions.splice(dropIndex, 0, item);
-    filteredQuestions = [...questions];
-    renderList();
-    syncToFirebase();
-    showToast('📌 Порядок изменён');
-  }
-  dragStartIndex = null;
-}
-function onDragEnd(e) { e.target.classList.remove('opacity-50'); dragStartIndex = null; }
-
-function filterQuestions() {
-  const term = document.getElementById('searchInput').value.toLowerCase();
-  if (!term) filteredQuestions = [...questions];
-  else filteredQuestions = questions.filter(q => q.q.toLowerCase().includes(term) || (q.answer && q.answer.toLowerCase().includes(term)));
-  currentPage = 1;
-  renderList();
-}
-
-function changePerPage() { perPage = parseInt(document.getElementById('perPage').value); currentPage = 1; renderList(); }
-
-function renderPagination() {
-  const total = Math.ceil(filteredQuestions.length / perPage);
-  const div = document.getElementById('pagination');
-  if (!div) return;
-  if (total <= 1) { div.innerHTML = ''; return; }
-  let html = '';
-  for (let i = 1; i <= Math.min(total, 10); i++) html += `<span class="pagination-btn ${i === currentPage ? 'active' : ''}" onclick="goToPage(${i})">${i}</span>`;
-  div.innerHTML = html;
-}
-function goToPage(page) { currentPage = page; renderList(); }
-
-function showPreview() {
-  const type = document.getElementById('type').value;
-  const q = document.getElementById('q').value.trim();
-  const correct = document.getElementById('correct').value.trim();
-  if (!q) { showToast('Сначала введите вопрос!', true); return; }
-  let html = `<p class="font-semibold mb-3">${escapeHtml(q)}</p>`;
-  if (type === 'multiple') {
-    const a1 = document.getElementById('a1').value.trim();
-    const a2 = document.getElementById('a2').value.trim();
-    const a3 = document.getElementById('a3').value.trim();
-    html += `<div class="space-y-2"><label class="flex items-center gap-2 p-2 bg-gray-100 dark:bg-gray-800 rounded-lg"><input type="radio" disabled>${escapeHtml(a1 || 'Вариант 1')}</label><label class="flex items-center gap-2 p-2 bg-gray-100 dark:bg-gray-800 rounded-lg"><input type="radio" disabled>${escapeHtml(a2 || 'Вариант 2')}</label><label class="flex items-center gap-2 p-2 bg-gray-100 dark:bg-gray-800 rounded-lg"><input type="radio" disabled>${escapeHtml(a3 || 'Вариант 3')}</label></div><p class="mt-3 text-green-600"><i class="fas fa-check-circle mr-1"></i>Ответ: ${escapeHtml(correct)}</p>`;
-  } else {
-    html += `<textarea rows="3" class="w-full p-2 border rounded-lg mt-2" placeholder="Введите ответ..."></textarea><p class="mt-3 text-green-600"><i class="fas fa-check-circle mr-1"></i>Ответ: ${escapeHtml(correct)}</p>`;
-  }
-  document.getElementById('previewContent').innerHTML = html;
-  document.getElementById('previewModal').classList.add('active');
-}
-function closePreview() { document.getElementById('previewModal').classList.remove('active'); }
-function escapeHtml(text) { if (!text) return ''; return text.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m])); }
-
-function copyQuestion(index) {
-  const copy = JSON.parse(JSON.stringify(questions[index]));
-  copy.q = copy.q + " (копия)";
-  questions.push(copy);
-  filteredQuestions = [...questions];
-  syncToFirebase();
-  renderList();
-  updateStats();
-  showToast('📋 Вопрос скопирован');
-}
-
-function renderList() {
-  const list = document.getElementById('list');
-  if (!list) return;
-  const start = (currentPage - 1) * perPage;
-  const pageQuestions = filteredQuestions.slice(start, start + perPage);
-  list.innerHTML = '';
-  if (!pageQuestions.length) { list.innerHTML = '<div class="text-center text-gray-500 p-8"><i class="fas fa-inbox text-4xl mb-2 opacity-50"></i><p>Нет вопросов. Добавьте первый!</p></div>'; renderPagination(); return; }
-  pageQuestions.forEach((item, idx) => {
-    const globalIndex = questions.findIndex(q => q.q === item.q && q.answer === item.answer);
-    const actualIndex = globalIndex !== -1 ? globalIndex : start + idx;
-    const isSelected = item.inTest !== false;
-    const el = document.createElement('div');
-    el.className = `question-card ${isSelected ? 'selected' : ''}`;
-    el.draggable = true;
-    el.setAttribute('data-index', actualIndex);
-    el.ondragstart = (e) => onDragStart(e, actualIndex);
-    el.ondragover = (e) => onDragOver(e, actualIndex);
-    el.ondragleave = onDragLeave;
-    el.ondrop = (e) => onDrop(e, actualIndex);
-    el.ondragend = onDragEnd;
-    const preview = item.q.length > 100 ? item.q.substring(0, 100) + '...' : item.q;
-    let tagsHtml = '';
-    if (item.tags && item.tags.length) tagsHtml = `<div class="flex flex-wrap mt-2">${item.tags.map(tag => `<span class="tag"><i class="fas fa-tag mr-1 text-xs"></i>${escapeHtml(tag)}</span>`).join('')}</div>`;
-    const typeIcon = item.options ? '<i class="fas fa-list-ul text-purple-500 mr-1"></i>' : '<i class="fas fa-pen text-green-500 mr-1"></i>';
-    const typeText = item.options ? 'Выбор ответа' : 'Письменный';
-    el.innerHTML = `<div class="flex justify-between items-start"><div class="flex-1"><div class="flex items-center gap-2"><i class="fas fa-grip-vertical text-gray-400 cursor-grab"></i><span class="font-bold text-gray-500 text-sm">#${start + idx + 1}</span><span class="text-xs text-gray-400">${typeIcon} ${typeText}</span><label class="flex items-center gap-1 ml-2 cursor-pointer" onclick="event.stopPropagation()"><input type="checkbox" class="checkbox-test" ${isSelected ? 'checked' : ''} onchange="toggleQuestionInTest(${actualIndex})"><span class="text-xs">в тест</span></label></div><div class="mt-1 font-medium text-gray-800 dark:text-gray-200">${escapeHtml(preview)}</div>${tagsHtml}</div><div class="flex gap-1 ml-3"><button onclick="editQuestion(${actualIndex})" class="text-blue-500 hover:text-blue-700 p-1 rounded" title="Редактировать"><i class="fas fa-edit"></i></button><button onclick="copyQuestion(${actualIndex})" class="text-green-500 hover:text-green-700 p-1 rounded" title="Копировать"><i class="fas fa-copy"></i></button><button onclick="del(${actualIndex})" class="text-red-500 hover:text-red-700 p-1 rounded" title="Удалить"><i class="fas fa-trash"></i></button></div></div>`;
-    list.appendChild(el);
-  });
-  renderPagination();
-  document.getElementById('questionCount').innerHTML = `<i class="fas fa-database mr-1"></i>${questions.length} вопросов (показано ${filteredQuestions.length})`;
-}
-
-function addQuestion() {
-  const type = document.getElementById('type').value;
-  const q = document.getElementById('q').value.trim();
-  const correct = document.getElementById('correct').value.trim();
-  const tagsText = document.getElementById('tags').value.trim();
-  const tags = tagsText ? tagsText.split(',').map(t => t.trim()).filter(t => t) : [];
-  if (!q) { showToast('Введите вопрос!', true); return; }
-  if (!correct) { showToast('Введите ответ!', true); return; }
-  let questionObj;
-  if (type === 'multiple') {
-    const a1 = document.getElementById('a1').value.trim();
-    const a2 = document.getElementById('a2').value.trim();
-    const a3 = document.getElementById('a3').value.trim();
-    if (!a1 || !a2 || !a3) { showToast('Заполните варианты!', true); return; }
-    questionObj = { q, options: [a1, a2, a3], answer: correct, tags, inTest: true };
-  } else {
-    questionObj = { q, answer: correct, tags, inTest: true };
-  }
-  if (editingIndex >= 0) {
-    questions[editingIndex] = questionObj;
-    editingIndex = -1;
-    document.getElementById('addBtn').innerHTML = '<i class="fas fa-plus mr-1"></i> Добавить';
-    showToast('✅ Вопрос обновлён');
-  } else {
-    questions.push(questionObj);
-    showToast('✅ Вопрос добавлен');
-  }
-  filteredQuestions = [...questions];
-  syncToFirebase();
-  renderList();
-  updateStats();
-  clearForm();
-}
-
-function clearForm() {
-  document.getElementById('q').value = '';
-  document.getElementById('a1').value = '';
-  document.getElementById('a2').value = '';
-  document.getElementById('a3').value = '';
-  document.getElementById('correct').value = '';
-  document.getElementById('tags').value = '';
-  document.getElementById('type').value = 'multiple';
-  toggleType();
-  editingIndex = -1;
-  document.getElementById('addBtn').innerHTML = '<i class="fas fa-plus mr-1"></i> Добавить';
-}
-
-function editQuestion(i) {
-  const q = questions[i];
-  document.getElementById('q').value = q.q;
-  document.getElementById('correct').value = q.answer;
-  document.getElementById('tags').value = q.tags ? q.tags.join(', ') : '';
-  if (q.options) {
-    document.getElementById('type').value = 'multiple';
-    toggleType();
-    document.getElementById('a1').value = q.options[0] || '';
-    document.getElementById('a2').value = q.options[1] || '';
-    document.getElementById('a3').value = q.options[2] || '';
-  } else {
-    document.getElementById('type').value = 'written';
-    toggleType();
-  }
-  editingIndex = i;
-  document.getElementById('addBtn').innerHTML = '<i class="fas fa-save mr-1"></i> Обновить';
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-  if (!formExpanded) toggleForm();
-}
-
-function del(i) {
-  if (confirm('Удалить вопрос?')) {
-    questions.splice(i, 1);
-    filteredQuestions = [...questions];
-    syncToFirebase();
-    renderList();
-    updateStats();
-    showToast('🗑️ Вопрос удалён');
-  }
-}
-
-function toggleType() {
-  const type = document.getElementById('type').value;
-  document.getElementById('optionFields').style.display = type === 'multiple' ? 'block' : 'none';
-}
-
-function switchSet(set) {
-  currentSet = set;
-  loadFromFirebase();
-  clearForm();
-  document.getElementById('searchInput').value = '';
-  currentPage = 1;
-  ['ppoQuestions', 'ppoWrittenQuestions', 'ustavQuestions'].forEach(id => {
-    const btn = document.getElementById(`btn-${id}`);
-    if (btn) { if (id === set) btn.classList.add('active'); else btn.classList.remove('active'); }
-  });
-}
-
-function exportAllData() {
-  const data = { [currentSet]: questions };
-  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `questions_${currentSet}_${new Date().toISOString().slice(0,19)}.json`;
-  a.click();
-  URL.revokeObjectURL(url);
-  showToast('💾 Экспорт выполнен');
-}
-
-function importAllData(input) {
-  const file = input.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = async (e) => {
-    try {
-      const data = JSON.parse(e.target.result);
-      if (data[currentSet]) {
-        questions = data[currentSet];
-        filteredQuestions = [...questions];
-        await syncToFirebase();
-        renderList();
-        updateStats();
-        showToast('📂 Импорт выполнен');
-      }
-    } catch(err) { showToast('Ошибка импорта', true); }
-  };
-  reader.readAsText(file);
-  input.value = '';
-}
-
-async function clearAllData() {
-  if (confirm('ВНИМАНИЕ! Это удалит ВСЕ вопросы. Продолжить?')) {
-    questions = [];
-    filteredQuestions = [];
-    await syncToFirebase();
-    renderList();
-    updateStats();
-    showToast('🗑️ Все вопросы удалены');
-  }
-}
-
-function loadTestVisibility() {
-  const saved = localStorage.getItem('testVisibility');
-  const defaults = { ppo: true, ustav: true, leadership: true };
-  if (saved) return { ...defaults, ...JSON.parse(saved) };
-  return defaults;
-}
-function saveTestVisibility(settings) { localStorage.setItem('testVisibility', JSON.stringify(settings)); if (db) db.ref('settings/testVisibility').set(settings); }
-function toggleTestVisibility(test, isVisible) { const settings = loadTestVisibility(); settings[test] = isVisible; saveTestVisibility(settings); const names = { ppo: 'Тест ППО', ustav: 'Тест Устава', leadership: 'Тест Руководства' }; showToast(`${names[test]} ${isVisible ? 'показан' : 'скрыт'}`); }
-function updateToggleButtons() { const settings = loadTestVisibility(); document.getElementById('togglePpo').checked = settings.ppo; document.getElementById('toggleUstav').checked = settings.ustav; document.getElementById('toggleLeadership').checked = settings.leadership; }
-
-document.addEventListener('keydown', function(e) {
-  if (e.ctrlKey && e.key === 's') { e.preventDefault(); if (editingIndex >= 0 || document.getElementById('q').value.trim()) addQuestion(); else { syncToFirebase(); showToast('💾 Сохранено'); } }
-  if (e.ctrlKey && e.key === 'Enter') { e.preventDefault(); addQuestion(); }
-});
-
-document.getElementById("pw").addEventListener("change", function(e) {
-  if (e.target.value === PASSWORD) {
-    document.getElementById("panel").classList.remove("hidden");
-    if (!localStorage.getItem('testVisibility')) localStorage.setItem('testVisibility', JSON.stringify({ ppo: true, ustav: true, leadership: true }));
-    updateToggleButtons();
-    initFirebase();
-    showToast('🔓 Добро пожаловать');
-  } else { showToast('❌ Неверный пароль', true); }
-});
+function showToast(m,e){let t=document.createElement("div");t.className=`toast ${e?"error":""}`,t.innerHTML=`<i class="fas ${e?"fa-exclamation-triangle":"fa-check-circle"} mr-2"></i>${m}`,document.body.appendChild(t),setTimeout(()=>t.remove(),3e3)}
+function toggleTheme(){let e=document.documentElement;e.classList.toggle("dark"),e.classList.toggle("light"),localStorage.setItem("theme",e.classList.contains("dark")?"dark":"light"),document.getElementById("theme-icon").textContent=e.classList.contains("dark")?"☀️":"🌙"}
+!function(){let e=localStorage.getItem("theme"),t=document.documentElement;"dark"===e?(t.classList.add("dark"),t.classList.remove("light")):(t.classList.add("light"),t.classList.remove("dark")),document.getElementById("theme-icon").textContent="dark"===e?"☀️":"🌙"}();
+function toggleForm(){formExpanded=!formExpanded;let e=document.getElementById("formContent"),t=document.getElementById("formToggleIcon");formExpanded?(e.style.display="block",t.className="fas fa-chevron-up"):(e.style.display="none",t.className="fas fa-chevron-down")}
+function updateStats(){let e=questions.filter(q=>q.options).length,t=questions.filter(q=>!q.options).length,n=questions.filter(q=>q.inTest===!0).length;document.getElementById("statTotal").innerText=questions.length,document.getElementById("statMultiple").innerText=e,document.getElementById("statWritten").innerText=t,document.getElementById("statSelected").innerText=n}
+function initFirebase(){try{firebase.apps.length||firebase.initializeApp(FIREBASE_CONFIG),db=firebase.database(),showToast("✅ Firebase подключен"),loadFromFirebase(),autoSaveTimer&&clearInterval(autoSaveTimer),autoSaveTimer=setInterval(()=>{db&&syncToFirebase()},3e4)}catch(e){showToast("❌ Ошибка Firebase",!0)}}
+async function loadFromFirebase(){if(!db)return;try{let e=await db.ref(`questions/${currentSet}`).once("value");e.exists()?questions=e.val().map(q=>({...q,inTest:void 0!==q.inTest?q.inTest:!0})):questions=[],filteredQuestions=[...questions],renderList(),updateStats(),showToast("☁️ Данные загружены")}catch(e){}}
+async function syncToFirebase(){if(!db)return;try{await db.ref(`questions/${currentSet}`).set(questions)}catch(e){}}
+function toggleQuestionInTest(e){questions[e].inTest=!questions[e].inTest,syncToFirebase(),renderList(),updateStats(),showToast(questions[e].inTest?"✅ Вопрос добавлен в тест":"❌ Вопрос исключён из теста")}
+function selectAll(){questions.forEach(q=>q.inTest=!0),syncToFirebase(),renderList(),updateStats(),showToast("✅ Все вопросы добавлены в тест")}
+function selectNone(){questions.forEach(q=>q.inTest=!1),syncToFirebase(),renderList(),updateStats(),showToast("❌ Все вопросы исключены из теста")}
+function selectRandom(){let e=parseInt(document.getElementById("randomCount").value);if(isNaN(e)||e<1)return showToast("Введите корректное число",!0);if(e>questions.length)return showToast(`Максимум ${questions.length} вопросов`,!0);questions.forEach(q=>q.inTest=!1);let t=[...Array(questions.length).keys()];for(let i=t.length-1;i>0;i--){let r=Math.floor(Math.random()*(i+1));[t[i],t[r]]=[t[r],t[i]]}for(let i=0;i<e;i++)questions[t[i]].inTest=!0;syncToFirebase(),renderList(),updateStats(),showToast(`🎲 Случайно выбрано ${e} вопросов из ${questions.length}`)}
+let dragStartIndex=null;
+function onDragStart(e,t){dragStartIndex=t,e.dataTransfer.effectAllowed="move",e.target.classList.add("opacity-50")}
+function onDragOver(e,t){e.preventDefault();let n=e.target.closest(".question-card");n&&null!==dragStartIndex&&dragStartIndex!==t&&n.classList.add("drag-over")}
+function onDragLeave(e){let t=e.target.closest(".question-card");t&&t.classList.remove("drag-over")}
+function onDrop(e,t){e.preventDefault();let n=e.target.closest(".question-card");n&&n.classList.remove("drag-over"),null!==dragStartIndex&&dragStartIndex!==t&&(questions.splice(dragStartIndex,1),questions.splice(t,0,questions[dragStartIndex]),filteredQuestions=[...questions],renderList(),syncToFirebase(),showToast("📌 Порядок изменён")),dragStartIndex=null}
+function onDragEnd(e){e.target.classList.remove("opacity-50"),dragStartIndex=null}
+function filterQuestions(){let e=document.getElementById("searchInput").value.toLowerCase();filteredQuestions=e?questions.filter(q=>q.q.toLowerCase().includes(e)||q.answer&&q.answer.toLowerCase().includes(e)):[...questions],currentPage=1,renderList()}
+function changePerPage(){perPage=parseInt(document.getElementById("perPage").value),currentPage=1,renderList()}
+function renderPagination(){let e=Math.ceil(filteredQuestions.length/perPage),t=document.getElementById("pagination");if(!t)return;if(e<=1){t.innerHTML="";return}let n="";for(let i=1;i<=Math.min(e,10);i++)n+=`<span class="pagination-btn ${i===currentPage?"active":""}" onclick="goToPage(${i})">${i}</span>`;t.innerHTML=n}
+function goToPage(e){currentPage=e,renderList()}
+function showPreview(){let e=document.getElementById("type").value,t=document.getElementById("q").value.trim(),n=document.getElementById("correct").value.trim();if(!t)return showToast("Сначала введите вопрос!",!0);let r=`<p class="font-semibold mb-3">${escapeHtml(t)}</p>`;if("multiple"===e){let e=document.getElementById("a1").value.trim(),t=document.getElementById("a2").value.trim(),i=document.getElementById("a3").value.trim();r+=`<div class="space-y-2"><label class="flex items-center gap-2 p-2 bg-gray-100 dark:bg-gray-800 rounded-lg"><input type="radio" disabled>${escapeHtml(e||"Вариант 1")}</label><label class="flex items-center gap-2 p-2 bg-gray-100 dark:bg-gray-800 rounded-lg"><input type="radio" disabled>${escapeHtml(t||"Вариант 2")}</label><label class="flex items-center gap-2 p-2 bg-gray-100 dark:bg-gray-800 rounded-lg"><input type="radio" disabled>${escapeHtml(i||"Вариант 3")}</label></div><p class="mt-3 text-green-600"><i class="fas fa-check-circle"></i> Ответ: ${escapeHtml(n)}</p>`}else r+=`<textarea rows="3" class="w-full p-2 border rounded-lg mt-2" placeholder="Введите ответ..."></textarea><p class="mt-3 text-green-600"><i class="fas fa-check-circle"></i> Ответ: ${escapeHtml(n)}</p>`;document.getElementById("previewContent").innerHTML=r,document.getElementById("previewModal").classList.add("active")}
+function closePreview(){document.getElementById("previewModal").classList.remove("active")}
+function escapeHtml(e){return e?e.replace(/[&<>]/g,e=>"&"===e?"&amp;":"<"===e?"&lt;":">"===e?"&gt;":e):""}
+function copyQuestion(e){let t=JSON.parse(JSON.stringify(questions[e]));t.q=t.q+" (копия)",questions.push(t),filteredQuestions=[...questions],syncToFirebase(),renderList(),updateStats(),showToast("📋 Вопрос скопирован")}
+function renderList(){let e=document.getElementById("list");if(!e)return;let t=(currentPage-1)*perPage,n=filteredQuestions.slice(t,t+perPage);if(e.innerHTML="",!n.length){e.innerHTML='<div class="text-center text-gray-500 p-8"><i class="fas fa-inbox text-4xl mb-2 opacity-50"></i><p>Нет вопросов. Добавьте первый!</p></div>',renderPagination();return}n.forEach((n,r)=>{let o=questions.findIndex(q=>q.q===n.q&&q.answer===n.answer),i=-1!==o?o:t+r,c=!0===n.inTest,l=document.createElement("div");l.className=`question-card ${c?"selected":""}`,l.draggable=!0,l.setAttribute("data-index",i),l.ondragstart=e=>onDragStart(e,i),l.ondragover=e=>onDragOver(e,i),l.ondragleave=onDragLeave,l.ondrop=e=>onDrop(e,i),l.ondragend=onDragEnd;let a=n.q.length>100?n.q.substring(0,100)+"...":n.q,d="";n.tags&&n.tags.length&&(d=`<div class="flex flex-wrap mt-2">${n.tags.map(e=>`<span class="tag"><i class="fas fa-tag mr-1 text-xs"></i>${escapeHtml(e)}</span>`).join("")}</div>`);let u=n.options?'<i class="fas fa-list-ul text-purple-500 mr-1"></i>':'<i class="fas fa-pen text-green-500 mr-1"></i>',p=n.options?"Выбор ответа":"Письменный";l.innerHTML=`<div class="flex justify-between items-start"><div class="flex-1"><div class="flex items-center gap-2"><i class="fas fa-grip-vertical text-gray-400 cursor-grab"></i><span class="font-bold text-gray-500 text-sm">#${t+r+1}</span><span class="text-xs text-gray-400">${u} ${p}</span><label class="flex items-center gap-1 ml-2 cursor-pointer" onclick="event.stopPropagation()"><input type="checkbox" class="checkbox-test" ${c?"checked":""} onchange="toggleQuestionInTest(${i})"><span class="text-xs">в тест</span></label></div><div class="mt-1 font-medium">${escapeHtml(a)}</div>${d}</div><div class="flex gap-1 ml-3"><button onclick="editQuestion(${i})" class="text-blue-500 p-1 rounded"><i class="fas fa-edit"></i></button><button onclick="copyQuestion(${i})" class="text-green-500 p-1 rounded"><i class="fas fa-copy"></i></button><button onclick="del(${i})" class="text-red-500 p-1 rounded"><i class="fas fa-trash"></i></button></div></div>`,e.appendChild(l)}),renderPagination(),document.getElementById("questionCount").innerHTML=`<i class="fas fa-database mr-1"></i>${questions.length} вопросов (показано ${filteredQuestions.length})`}
+function addQuestion(){let e=document.getElementById("type").value,t=document.getElementById("q").value.trim(),n=document.getElementById("correct").value.trim(),r=document.getElementById("tags").value.trim(),o=r?r.split(",").map(e=>e.trim()).filter(e=>e):[];if(!t)return showToast("Введите вопрос!",!0);if(!n)return showToast("Введите ответ!",!0);let i;if("multiple"===e){let e=document.getElementById("a1").value.trim(),t=document.getElementById("a2").value.trim(),r=document.getElementById("a3").value.trim();if(!e||!t||!r)return showToast("Заполните варианты!",!0);i={q:t,options:[e,t,r],answer:n,tags:o,inTest:!0}}else i={q:t,answer:n,tags:o,inTest:!0};editingIndex>=0?(questions[editingIndex]=i,editingIndex=-1,document.getElementById("addBtn").innerHTML='<i class="fas fa-plus mr-1"></i> Добавить',showToast("✅ Вопрос обновлён")):(questions.push(i),showToast("✅ Вопрос добавлен")),filteredQuestions=[...questions],syncToFirebase(),renderList(),updateStats(),clearForm()}
+function clearForm(){document.getElementById("q").value="",document.getElementById("a1").value="",document.getElementById("a2").value="",document.getElementById("a3").value="",document.getElementById("correct").value="",document.getElementById("tags").value="",document.getElementById("type").value="multiple",toggleType(),editingIndex=-1,document.getElementById("addBtn").innerHTML='<i class="fas fa-plus mr-1"></i> Добавить'}
+function editQuestion(e){let t=questions[e];document.getElementById("q").value=t.q,document.getElementById("correct").value=t.answer,document.getElementById("tags").value=t.tags?t.tags.join(", "):"",t.options?(document.getElementById("type").value="multiple",toggleType(),document.getElementById("a1").value=t.options[0]||"",document.getElementById("a2").value=t.options[1]||"",document.getElementById("a3").value=t.options[2]||""):(document.getElementById("type").value="written",toggleType()),editingIndex=e,document.getElementById("addBtn").innerHTML='<i class="fas fa-save mr-1"></i> Обновить',window.scrollTo({top:0}),formExpanded||toggleForm()}
+function del(e){confirm("Удалить вопрос?")&&(questions.splice(e,1),filteredQuestions=[...questions],syncToFirebase(),renderList(),updateStats(),showToast("🗑️ Вопрос удалён"))}
+function toggleType(){let e=document.getElementById("type").value;document.getElementById("optionFields").style.display="multiple"===e?"block":"none"}
+function switchSet(e){currentSet=e,loadFromFirebase(),clearForm(),document.getElementById("searchInput").value="",currentPage=1,["ppoQuestions","ppoWrittenQuestions","ustavQuestions"].forEach(t=>{let n=document.getElementById(`btn-${t}`);n&&(t===e?n.classList.add("active"):n.classList.remove("active"))})}
+function exportAllData(){let e={[currentSet]:questions},t=new Blob([JSON.stringify(e,null,2)],{type:"application/json"}),n=URL.createObjectURL(t),r=document.createElement("a");r.href=n,r.download=`questions_${currentSet}_${new Date().toISOString().slice(0,19)}.json`,r.click(),URL.revokeObjectURL(n),showToast("💾 Экспорт выполнен")}
+function importAllData(e){let t=e.files[0];if(!t)return;let n=new FileReader;n.onload=async e=>{try{let t=JSON.parse(e.target.result);t[currentSet]&&(questions=t[currentSet],filteredQuestions=[...questions],await syncToFirebase(),renderList(),updateStats(),showToast("📂 Импорт выполнен"))}catch(e){showToast("Ошибка импорта",!0)}},n.readAsText(t),e.value=""}
+async function clearAllData(){confirm("ВНИМАНИЕ! Это удалит ВСЕ вопросы. Продолжить?")&&(questions=[],filteredQuestions=[],await syncToFirebase(),renderList(),updateStats(),showToast("🗑️ Все вопросы удалены"))}
+function loadTestVisibility(){let e=localStorage.getItem("testVisibility");return e?{ppo:!0,ustav:!0,leadership:!0,...JSON.parse(e)}:{ppo:!0,ustav:!0,leadership:!0}}
+function saveTestVisibility(e){localStorage.setItem("testVisibility",JSON.stringify(e)),db&&db.ref("settings/testVisibility").set(e)}
+function toggleTestVisibility(e,t){let n=loadTestVisibility();n[e]=t,saveTestVisibility(n),showToast({ppo:"Тест ППО",ustav:"Тест Устава",leadership:"Тест Руководства"}[e]+" "+(t?"показан":"скрыт"))}
+function updateToggleButtons(){let e=loadTestVisibility();document.getElementById("togglePpo").checked=e.ppo,document.getElementById("toggleUstav").checked=e.ustav,document.getElementById("toggleLeadership").checked=e.leadership}
+function saveTestTime(test, minutes){localStorage.setItem(`time_${test}`, minutes),db&&db.ref(`settings/time_${test}`).set(parseInt(minutes))}
+function loadTestTimes(){let times={ppo:30,ustav:15,leadership:15};times.ppo=localStorage.getItem("time_ppo")||30,times.ustav=localStorage.getItem("time_ustav")||15,times.leadership=localStorage.getItem("time_leadership")||15;document.getElementById("timePpo").value=times.ppo,document.getElementById("timeUstav").value=times.ustav,document.getElementById("timeLeadership").value=times.leadership}
+document.addEventListener("keydown",function(e){e.ctrlKey&&"s"===e.key&&(e.preventDefault(),editingIndex>=0||document.getElementById("q").value.trim()?addQuestion():(syncToFirebase(),showToast("💾 Сохранено"))),e.ctrlKey&&"Enter"===e.key&&(e.preventDefault(),addQuestion())}),document.getElementById("pw").addEventListener("change",function(e){e.target.value===PASSWORD?(document.getElementById("panel").classList.remove("hidden"),localStorage.getItem("testVisibility")||localStorage.setItem("testVisibility",JSON.stringify({ppo:!0,ustav:!0,leadership:!0})),updateToggleButtons(),loadTestTimes(),initFirebase(),showToast("🔓 Добро пожаловать")):showToast("❌ Неверный пароль",!0)});
 </script>
 </body>
 </html>
