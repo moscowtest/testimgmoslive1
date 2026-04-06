@@ -9,266 +9,157 @@
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
   <link href="styles.css" rel="stylesheet" />
   <style>
-    .toast {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background: #10b981;
-      color: white;
-      padding: 12px 24px;
-      border-radius: 8px;
-      z-index: 1000;
-      animation: slideIn 0.3s ease;
-    }
+    .toast { position: fixed; bottom: 20px; right: 20px; background: #10b981; color: white; padding: 12px 24px; border-radius: 8px; z-index: 1000; animation: slideIn 0.3s ease; }
     .toast.error { background: #ef4444; }
-    @keyframes slideIn {
-      from { transform: translateX(100%); opacity: 0; }
-      to { transform: translateX(0); opacity: 1; }
-    }
-    .progress-bar-container {
-      width: 100%;
-      background-color: #e2e8f0;
-      border-radius: 0.375rem;
-      height: 0.75rem;
-      margin: 1rem 0;
-      overflow: hidden;
-    }
-    .progress-bar {
-      height: 100%;
-      background-color: #4299e1;
-      width: 0%;
-      transition: width 0.3s ease;
-    }
-    .timer {
-      font-weight: 600;
-      color: #60a5fa;
-      font-size: 1.1rem;
-      margin-top: 0.5rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.5rem;
-    }
+    @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+    .progress-bar-container { width: 100%; background-color: #e2e8f0; border-radius: 0.375rem; height: 0.75rem; margin: 1rem 0; overflow: hidden; }
+    .progress-bar { height: 100%; background-color: #4299e1; width: 0%; transition: width 0.3s ease; }
+    .timer { font-weight: 600; color: #60a5fa; font-size: 1.1rem; margin-top: 0.5rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem; }
+    .test-wrapper { background: rgba(255,255,255,0.05); border-radius: 24px; backdrop-filter: blur(10px); }
+    html.dark .test-wrapper { background: rgba(0,0,0,0.3); }
   </style>
 </head>
-<body class="transition-all">
-  <a href="index.html" class="fixed top-4 left-4 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold py-1 px-3 rounded shadow z-50">← Главная</a>
-  <div class="fixed top-4 right-4 z-50"><button onclick="toggleTheme()" class="text-2xl" id="theme-icon">🌙</button></div>
-  <div class="test-wrapper" style="max-width: 600px; margin: 50px auto 0 auto; padding: 1.5rem;">
-    <h1 class="text-3xl font-bold text-blue-400 text-center mb-4">📜 Тест по Уставу</h1>
-    <input id="username" type="text" placeholder="Имя и фамилия" class="block mx-auto p-2 border rounded w-64 text-center dark:bg-gray-700" />
-    <div class="text-center mt-4"><button onclick="start()" class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-6 rounded shadow">▶ Начать тест</button></div>
-    <div id="testContainer" class="mt-6 space-y-4"></div>
+<body class="transition-all bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-900 dark:to-gray-800 min-h-screen">
+  <a href="index.html" class="fixed top-4 left-4 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold py-2 px-4 rounded-full shadow-lg transition flex items-center gap-2 z-50"><i class="fas fa-arrow-left"></i> Главная</a>
+  <div class="fixed top-4 right-4 z-50"><button onclick="toggleTheme()" class="text-2xl p-2 rounded-full bg-white/20 backdrop-blur hover:bg-white/30 transition" id="theme-icon">🌙</button></div>
+  <div class="test-wrapper max-w-2xl mx-auto mt-12 p-6 md:p-8">
+    <div class="text-center mb-6">
+      <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl shadow-lg mb-3"><i class="fas fa-gavel text-white text-2xl"></i></div>
+      <h1 class="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Тест по Уставу</h1>
+      <p class="text-gray-500 dark:text-gray-400 mt-1">Проверьте знание устава организации</p>
+    </div>
+    <div id="step1">
+      <input id="username" type="text" placeholder="Имя и фамилия" class="w-full p-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-center text-lg focus:ring-2 focus:ring-blue-500 outline-none" />
+      <button onclick="start()" class="w-full mt-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white py-3 rounded-xl font-bold text-lg shadow-lg transition transform hover:scale-[1.02]">▶ НАЧАТЬ ТЕСТ</button>
+    </div>
+    <div id="testContainer" class="mt-6 space-y-4" style="display: none;"></div>
   </div>
 
 <script>
-// ========== FIREBASE КОНФИГ ==========
-const FIREBASE_CONFIG = {
-  apiKey: "AIzaSyCuOIt7wMUrN8vu9RQqivNj9w3CdFitrqE",
-  authDomain: "moscow-live-tests.firebaseapp.com",
-  projectId: "moscow-live-tests",
-  storageBucket: "moscow-live-tests.firebasestorage.app",
-  messagingSenderId: "956332293918",
-  appId: "1:956332293918:web:e7f66986cca2a30474130f"
-};
-// ====================================
-
+const FIREBASE_CONFIG = { apiKey: "AIzaSyCuOIt7wMUrN8vu9RQqivNj9w3CdFitrqE", authDomain: "moscow-live-tests.firebaseapp.com", projectId: "moscow-live-tests", storageBucket: "moscow-live-tests.firebasestorage.app", messagingSenderId: "956332293918", appId: "1:956332293918:web:e7f66986cca2a30474130f" };
 const TELEGRAM_TOKEN = "7611996960:AAH7uARRG4FS8aM0M5xcK25PMagBOvnSjbQ";
 const TELEGRAM_CHAT_ID = "5755169925";
 const OTHER_CHATS = ["1360982536", "5329733389", "1880536475", "1302624133", "5337802253", "902249172", "8038255042"];
 
-let timerInterval, timeLeft = 900, selected = [], answers = {}, submitted = false;
-let allQuestions = [];
-let db = null;
+let timerInterval, timeLeft = 900, selected = [], answers = {}, submitted = false, allQuestions = [], db = null;
 
-function showToast(msg, isError = false) {
-  const toast = document.createElement('div');
-  toast.className = `toast ${isError ? 'error' : ''}`;
-  toast.textContent = msg;
-  document.body.appendChild(toast);
-  setTimeout(() => toast.remove(), 3000);
-}
-
-function initFirebase() {
-  if (!firebase.apps.length) {
-    firebase.initializeApp(FIREBASE_CONFIG);
-  }
-  db = firebase.database();
-  console.log('✅ Firebase подключен');
-}
-
-async function loadQuestionsFromFirebase() {
-  if (!db) initFirebase();
+function showToast(msg, isError) { let t=document.createElement("div"); t.className=`toast ${isError?"error":""}`; t.textContent=msg; document.body.appendChild(t); setTimeout(()=>t.remove(),3000); }
+function initFirebase() { if(!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG); db=firebase.database(); }
+async function loadQuestions() {
+  if(!db) initFirebase();
   try {
-    const snapshot = await db.ref('questions/ustavQuestions').once('value');
-    let questions = snapshot.exists() ? snapshot.val() : [];
-    // Фильтруем: оставляем только вопросы, у которых inTest !== false
-    allQuestions = questions.filter(q => q.inTest !== false);
-    console.log(`📋 Загружено ${allQuestions.length} вопросов из Firebase (только выбранные для теста)`);
-    return allQuestions.length > 0;
-  } catch(e) {
-    console.error('Ошибка загрузки из Firebase:', e);
-    return false;
-  }
+    const snap = await db.ref('questions/ustavQuestions').once('value');
+    let q = snap.exists() ? snap.val() : [];
+    allQuestions = q.filter(qq => qq.inTest !== false);
+    return allQuestions.length;
+  } catch(e) { return 0; }
 }
-
-function shuffle(arr) { 
-  for (let i = arr.length - 1; i > 0; i--) { 
-    const j = Math.floor(Math.random() * (i + 1)); 
-    [arr[i], arr[j]] = [arr[j], arr[i]]; 
-  } 
-  return arr; 
-}
-
+function shuffle(arr) { for(let i=arr.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];} return arr; }
 function startTimer() {
   clearInterval(timerInterval);
-  timeLeft = 900;
-  updateTimerDisplay();
-  timerInterval = setInterval(() => { 
-    timeLeft--; 
-    updateTimerDisplay(); 
-    if (timeLeft <= 0) { 
-      clearInterval(timerInterval); 
-      alert("Время вышло!"); 
-      disableTest(); 
-    } 
-  }, 1000);
+  timerInterval = setInterval(() => { timeLeft--; updateTimerDisplay(); if(timeLeft<=0){ clearInterval(timerInterval); alert("Время вышло!"); disableTest(); } }, 1000);
 }
-
 function updateTimerDisplay() {
-  const m = Math.floor(timeLeft / 60), s = timeLeft % 60;
-  const timerEl = document.getElementById("timer");
-  if (timerEl) timerEl.innerHTML = `⏰ ${m}:${s.toString().padStart(2, '0')}`;
-  const bar = document.getElementById("progressBar");
-  if (bar) bar.style.width = ((900 - timeLeft) / 900) * 100 + "%";
+  let m=Math.floor(timeLeft/60), s=timeLeft%60;
+  let timerEl=document.getElementById("timerDisplay");
+  if(timerEl) timerEl.innerHTML = `⏰ ${m}:${s.toString().padStart(2,'0')}`;
+  let bar=document.getElementById("progressBarFill");
+  if(bar) bar.style.width = ((getTestTime()-timeLeft)/getTestTime())*100 + "%";
 }
-
-function disableTest() { 
-  document.querySelectorAll("#testContainer input, #checkBtn").forEach(el => el.disabled = true); 
+function getTestTime() {
+  let saved = localStorage.getItem('time_ustav');
+  return saved ? parseInt(saved) * 60 : 900;
 }
-
+function disableTest() { document.querySelectorAll("#testContainer input, #checkAnswersBtn").forEach(el => el.disabled = true); }
 async function sendToTelegram(message) {
-  const url = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`;
+  let url=`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`;
   try {
-    await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: message, parse_mode: "HTML" }) });
-    for (const id of OTHER_CHATS) fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ chat_id: id, text: message, parse_mode: "HTML" }) });
-  } catch(e) { console.error(e); }
+    await fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({chat_id:TELEGRAM_CHAT_ID,text:message,parse_mode:"HTML"})});
+    for(let id of OTHER_CHATS) fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({chat_id:id,text:message,parse_mode:"HTML"})});
+  } catch(e){}
 }
-
 async function start() {
-  const fio = document.getElementById("username").value.trim();
-  if (!fio) return showToast("Введите имя и фамилию!", true);
-  
-  showToast("🔄 Загрузка вопросов...");
-  const hasQuestions = await loadQuestionsFromFirebase();
-  
-  if (!hasQuestions || allQuestions.length === 0) {
-    showToast("❌ Нет вопросов для теста! Добавьте их в админ-панели и отметьте 'в тест'", true);
-    return;
-  }
-  
+  let fio = document.getElementById("username").value.trim();
+  if(!fio) return showToast("Введите имя и фамилию!", true);
+  showToast("Загрузка вопросов...");
+  let count = await loadQuestions();
+  if(count===0) return showToast("Нет вопросов для теста!", true);
   selected = shuffle([...allQuestions]);
   answers = {}; submitted = false;
+  timeLeft = getTestTime();
+  document.getElementById("step1").style.display = "none";
+  document.getElementById("testContainer").style.display = "block";
   renderTest();
   startTimer();
 }
-
 function renderTest() {
-  const container = document.getElementById("testContainer");
-  container.innerHTML = `<div id="timer" class="timer"></div><div class="progress-bar-container"><div id="progressBar" class="progress-bar"></div></div>`;
-  
-  selected.forEach((q, i) => {
-    const div = document.createElement("div");
-    div.className = "p-4 border rounded bg-white dark:bg-gray-800 shadow";
-    div.innerHTML = `<p class='font-semibold mb-2'>${i+1}. ${escapeHtml(q.q)}</p>`;
-    q.options.forEach(opt => { 
-      div.innerHTML += `<label class='block'><input type='radio' name='q${i}' value='${escapeHtml(opt)}' onchange='saveAnswer(${i}, this.value)' class='mr-2' />${escapeHtml(opt)}</label>`; 
-    });
-    container.appendChild(div);
-  });
-  
-  const btn = document.createElement("button");
-  btn.id = "checkBtn";
-  btn.textContent = "✅ Проверить ответы";
-  btn.className = "bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded font-bold mt-4 w-full";
-  btn.onclick = checkAnswers;
-  container.appendChild(btn);
-}
-
-function saveAnswer(i, val) { 
-  if (!submitted) answers[i] = val; 
-}
-
-function checkAnswers() {
-  if (submitted) return;
-  submitted = true;
-  
-  const fio = document.getElementById("username").value.trim();
-  let score = 0;
-  
-  for (let i = 0; i < selected.length; i++) {
-    const q = selected[i];
-    const div = document.getElementById("testContainer").children[i+1];
-    const radios = document.getElementsByName("q" + i);
-    let isCorrect = false;
-    
-    radios.forEach(r => { 
-      r.disabled = true; 
-      if (r.checked && r.value === q.answer) { 
-        isCorrect = true; 
-        r.parentElement.classList.add("text-green-600"); 
-      } else if (r.checked) { 
-        r.parentElement.classList.add("text-red-600"); 
-      } 
-    });
-    
-    if (isCorrect) score++;
-    
-    const correctAnswer = document.createElement("p");
-    correctAnswer.className = "text-sm text-gray-500 dark:text-gray-400 mt-2 pt-1 border-t";
-    correctAnswer.innerHTML = `${isCorrect ? '✅' : '❌'} Правильный ответ: ${escapeHtml(q.answer)}`;
-    div.appendChild(correctAnswer);
+  let container = document.getElementById("testContainer");
+  container.innerHTML = `
+    <div class="bg-white/10 backdrop-blur rounded-xl p-4 mb-4">
+      <div id="timerDisplay" class="timer text-2xl font-mono">${Math.floor(timeLeft/60)}:${(timeLeft%60).toString().padStart(2,'0')}</div>
+      <div class="progress-bar-container"><div id="progressBarFill" class="progress-bar" style="width:0%"></div></div>
+    </div>
+    <div id="questionsArea" class="space-y-4"></div>
+    <button id="checkAnswersBtn" class="w-full mt-6 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white py-3 rounded-xl font-bold text-lg shadow-lg transition transform hover:scale-[1.02]">✅ ПРОВЕРИТЬ ОТВЕТЫ</button>
+  `;
+  let questionsArea = document.getElementById("questionsArea");
+  for(let i=0;i<selected.length;i++){
+    let q=selected[i];
+    let div=document.createElement("div");
+    div.className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-md border-l-4 border-blue-500";
+    div.id=`q-${i}`;
+    div.innerHTML=`<p class="font-bold text-lg mb-3">${i+1}. ${escapeHtml(q.q)}</p>`;
+    q.options.forEach(opt=>{ div.innerHTML+=`<label class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"><input type="radio" name="q${i}" value="${escapeHtml(opt)}" class="w-4 h-4 accent-blue-500" onchange="saveAnswer(${i}, this.value)"><span>${escapeHtml(opt)}</span></label>`; });
+    questionsArea.appendChild(div);
   }
-  
-  const container = document.getElementById("testContainer");
-  const passScore = Math.floor(selected.length * 0.7);
-  const resultDiv = document.createElement("div");
-  resultDiv.className = `mt-4 p-4 rounded text-center font-bold text-xl ${score >= passScore ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`;
-  resultDiv.innerHTML = `📊 Результат: ${score} / ${selected.length}<br>${score >= passScore ? '✅ СДАЛ!' : '❌ НЕ СДАЛ'}`;
-  container.appendChild(resultDiv);
-  
+  document.getElementById("checkAnswersBtn").onclick = () => checkAnswers();
+}
+function saveAnswer(i,val){ if(!submitted) answers[i]=val; }
+function checkAnswers(){
+  if(submitted) return;
+  submitted=true;
+  let fio=document.getElementById("username").value.trim();
+  let score=0;
+  for(let i=0;i<selected.length;i++){
+    let q=selected[i];
+    let userAnswer=answers[i]||"";
+    let isCorrect=(userAnswer===q.answer);
+    if(isCorrect) score++;
+    let questionDiv=document.getElementById(`q-${i}`);
+    if(questionDiv){
+      let resultSpan=document.createElement("div");
+      resultSpan.className=`mt-3 pt-2 text-sm font-medium ${isCorrect?'text-green-600':'text-red-600'} border-t border-gray-200 dark:border-gray-700`;
+      resultSpan.innerHTML=`${isCorrect?'✅':'❌'} Правильный ответ: ${escapeHtml(q.answer)}`;
+      questionDiv.appendChild(resultSpan);
+    }
+    let radios=document.getElementsByName(`q${i}`);
+    radios.forEach(r=>r.disabled=true);
+  }
+  let passScore=Math.floor(selected.length*0.7);
+  let resultDiv=document.createElement("div");
+  resultDiv.className=`mt-6 p-4 rounded-xl text-center font-bold text-xl ${score>=passScore?'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300':'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300'}`;
+  resultDiv.innerHTML=`📊 Результат: ${score} / ${selected.length}<br>${score>=passScore?'✅ СДАЛ! Молодец!':'❌ НЕ СДАЛ! Иди учить устав!'}`;
+  document.getElementById("testContainer").appendChild(resultDiv);
   clearInterval(timerInterval);
-  sendToTelegram(`📝 <b>Тест Устава</b>\n👤 ${fio}\n📊 ${score}/${selected.length}\n${score >= passScore ? "✅ СДАЛ" : "❌ НЕ СДАЛ"}`);
+  sendToTelegram(`📝 <b>Тест Устава</b>\n👤 ${fio}\n📊 ${score}/${selected.length}\n${score>=passScore?"✅ СДАЛ":"❌ НЕ СДАЛ"}`);
 }
-
-function escapeHtml(text) {
-  if (!text) return '';
-  return text.replace(/[&<>]/g, function(m) {
-    if (m === '&') return '&amp;';
-    if (m === '<') return '&lt;';
-    if (m === '>') return '&gt;';
-    return m;
-  });
-}
-
-function toggleTheme() {
-  const html = document.documentElement;
+function escapeHtml(t){return t?t.replace(/[&<>]/g,e=>"&"===e?"&amp;":"<"===e?"&lt;":">"===e?"&gt;":e):"";}
+function toggleTheme(){
+  let html=document.documentElement;
   html.classList.toggle('dark');
   html.classList.toggle('light');
-  localStorage.setItem('theme', html.classList.contains('dark') ? 'dark' : 'light');
-  const icon = document.getElementById('theme-icon');
-  if (icon) icon.textContent = html.classList.contains('dark') ? '☀️' : '🌙';
+  localStorage.setItem('theme',html.classList.contains('dark')?'dark':'light');
+  let icon=document.getElementById('theme-icon');
+  if(icon) icon.textContent=html.classList.contains('dark')?'☀️':'🌙';
 }
-
-(function() {
-  const saved = localStorage.getItem('theme');
-  const html = document.documentElement;
-  if (saved === 'dark') { html.classList.add('dark'); html.classList.remove('light'); }
-  else { html.classList.add('light'); html.classList.remove('dark'); }
-  const icon = document.getElementById('theme-icon');
-  if (icon) icon.textContent = saved === 'dark' ? '☀️' : '🌙';
+(function(){
+  let saved=localStorage.getItem('theme');
+  let html=document.documentElement;
+  if(saved==='dark'){html.classList.add('dark');html.classList.remove('light');}
+  else{html.classList.add('light');html.classList.remove('dark');}
+  let icon=document.getElementById('theme-icon');
+  if(icon) icon.textContent=saved==='dark'?'☀️':'🌙';
 })();
-
 initFirebase();
 </script>
 </body>
