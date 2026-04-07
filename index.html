@@ -14,30 +14,34 @@
       background: radial-gradient(ellipse at 20% 30%, #0a0a2a, #050510);
       min-height: 100vh;
       color: #fff;
+      display: flex;
+      flex-direction: column;
     }
-    /* Анимированный градиентный фон */
-    .animated-bg {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: -1;
-      background: radial-gradient(circle at 20% 30%, #0a0a2a, #050510);
+    /* Контейнер для футера внизу */
+    .page-wrapper {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    .content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
     }
     /* Неоновое свечение */
     .neon-glow {
       text-shadow: 0 0 5px #00d4ff, 0 0 10px #00d4ff, 0 0 20px #00d4ff;
-    }
-    .neon-glow-pink {
-      text-shadow: 0 0 5px #ff00d4, 0 0 10px #ff00d4, 0 0 20px #ff00d4;
     }
     /* Карточка теста */
     .test-card {
       background: rgba(15, 15, 35, 0.6);
       backdrop-filter: blur(12px);
       border-radius: 28px;
-      padding: 28px 20px;
+      padding: 32px 24px;
       text-align: center;
       cursor: pointer;
       transition: all 0.3s ease;
@@ -52,7 +56,7 @@
       left: -100%;
       width: 100%;
       height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.2), transparent);
+      background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.15), transparent);
       transition: left 0.5s ease;
     }
     .test-card:hover::before {
@@ -72,7 +76,7 @@
       box-shadow: 0 0 30px rgba(0, 255, 136, 0.3);
     }
     .test-icon {
-      font-size: 48px;
+      font-size: 52px;
       margin-bottom: 16px;
     }
     .test-title {
@@ -84,18 +88,19 @@
       font-size: 13px;
       color: #aaa;
     }
-    /* Кнопка предложений */
+    /* Кнопка предложений внизу */
     .suggestion-btn {
       background: linear-gradient(135deg, #ff00d4, #00d4ff);
       border: none;
       color: white;
-      padding: 14px 28px;
+      padding: 14px 32px;
       border-radius: 60px;
       font-weight: bold;
       font-size: 16px;
       cursor: pointer;
       transition: all 0.3s ease;
       box-shadow: 0 0 15px rgba(0, 212, 255, 0.5);
+      margin-top: 40px;
     }
     .suggestion-btn:hover {
       transform: scale(1.02);
@@ -103,14 +108,14 @@
     }
     /* Логотип */
     .logo {
-      width: 90px;
-      height: 90px;
+      width: 100px;
+      height: 100px;
       background: linear-gradient(135deg, #00d4ff, #ff00d4);
-      border-radius: 28px;
+      border-radius: 30px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 44px;
+      font-size: 48px;
       margin: 0 auto 20px;
       cursor: pointer;
       transition: all 0.3s ease;
@@ -176,37 +181,78 @@
     /* Сетка карточек */
     .tests-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 24px;
-      max-width: 1000px;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 28px;
+      max-width: 900px;
+      width: 100%;
       margin: 0 auto;
     }
-    @media (max-width: 768px) {
-      .tests-grid { gap: 16px; }
-      .test-card { padding: 20px 16px; }
-      .test-icon { font-size: 36px; }
+    @media (max-width: 800px) {
+      .tests-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+        padding: 0 16px;
+      }
+    }
+    @media (max-width: 500px) {
+      .tests-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+      .test-card { padding: 24px 20px; }
+      .test-icon { font-size: 40px; }
       .test-title { font-size: 18px; }
+    }
+    .main-title {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .main-title h1 {
+      font-size: 48px;
+      font-weight: 800;
+    }
+    .main-title p {
+      font-size: 16px;
+      color: #aaa;
+      margin-top: 8px;
+    }
+    @media (max-width: 600px) {
+      .main-title h1 { font-size: 32px; }
+      .main-title p { font-size: 14px; }
+      .logo { width: 70px; height: 70px; font-size: 34px; }
+    }
+    .footer-btn {
+      text-align: center;
+      margin-top: 50px;
     }
   </style>
 </head>
 <body>
-  <div class="animated-bg"></div>
-  <div class="theme-toggle" onclick="toggleTheme()" id="theme-icon">🌙</div>
-  
-  <div class="min-h-screen flex flex-col items-center justify-center p-6">
-    <div class="logo" onclick="onLogoClick()">
-      🎮
-    </div>
-    <h1 class="text-5xl md:text-6xl font-extrabold mb-2 neon-glow text-center">МОСКВА ЛАЙВ</h1>
-    <p class="text-gray-400 mb-12 text-center">Выбери тест и докажи свой уровень 🔥</p>
+  <div class="page-wrapper">
+    <div class="theme-toggle" onclick="toggleTheme()" id="theme-icon">🌙</div>
     
-    <div id="testButtonsContainer" class="tests-grid">
-      <div class="loading text-center col-span-full">🌀 Загрузка...</div>
+    <div class="content">
+      <!-- Логотип и заголовок по центру -->
+      <div class="logo" onclick="onLogoClick()">
+        🎮
+      </div>
+      <div class="main-title">
+        <h1 class="neon-glow">МОСКВА ЛАЙВ</h1>
+        <p>Выбери тест и докажи свой уровень 🔥</p>
+      </div>
+      
+      <!-- Карточки тестов -->
+      <div id="testButtonsContainer" class="tests-grid">
+        <div class="loading" style="text-align: center; grid-column: span 3;">🌀 Загрузка...</div>
+      </div>
+      
+      <!-- Кнопка предложений в самом низу -->
+      <div class="footer-btn">
+        <button onclick="sendSuggestion()" class="suggestion-btn">
+          💡 ПРЕДЛОЖЕНИЯ ИЛИ ОШИБКИ
+        </button>
+      </div>
     </div>
-    
-    <button onclick="sendSuggestion()" class="suggestion-btn mt-12">
-      💡 ПРЕДЛОЖЕНИЯ ИЛИ ОШИБКИ
-    </button>
   </div>
 
   <div id="adminModal" class="admin-modal" onclick="if(event.target===this) closeAdminModal()">
@@ -261,7 +307,7 @@ function renderTests(vis) {
       card.onclick = () => window.location.href = test.url;
       card.innerHTML = `
         <div class="test-icon">${test.icon}</div>
-        <div class="test-title ${test.color === 'pink' ? 'neon-glow-pink' : (test.color === 'green' ? 'neon-glow' : 'neon-glow')}">${test.name}</div>
+        <div class="test-title ${test.color === 'pink' ? 'neon-glow' : (test.color === 'green' ? 'neon-glow' : 'neon-glow')}">${test.name}</div>
         <div class="test-desc">${test.desc}</div>
       `;
       container.appendChild(card);
@@ -269,7 +315,7 @@ function renderTests(vis) {
   });
   
   if(!hasVisible) {
-    container.innerHTML = '<div class="text-center text-gray-400 col-span-full p-8">⚠️ Все тесты скрыты. Зайдите в админку.</div>';
+    container.innerHTML = '<div class="text-center text-gray-400" style="grid-column: span 3; padding: 40px;">⚠️ Все тесты скрыты. Зайдите в админку.</div>';
   }
 }
 
