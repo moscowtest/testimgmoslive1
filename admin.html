@@ -268,7 +268,7 @@ async function generateWithGroq() {
     : `Создай ${count} тестовых вопросов с письменными ответами на русском языке на основе следующего текста. Формат ответа: JSON массив объектов с полями: "question" (вопрос), "answer" (правильный ответ). Верни ТОЛЬКО JSON массив, без пояснений. Текст: ${safeText}`;
   
   try {
-    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+    const response = await fetch("https://cors-anywhere.herokuapp.com/https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${GROQ_API_KEY}`,
