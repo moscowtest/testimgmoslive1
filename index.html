@@ -35,7 +35,7 @@
     .neon-glow {
       text-shadow: 0 0 5px #00d4ff, 0 0 10px #00d4ff, 0 0 20px #00d4ff;
     }
-    /* Карточка теста */
+    /* Карточка теста — фиксированная ширина */
     .test-card {
       background: rgba(15, 15, 35, 0.6);
       backdrop-filter: blur(12px);
@@ -47,9 +47,8 @@
       border: 1px solid rgba(0, 212, 255, 0.3);
       position: relative;
       overflow: hidden;
-      flex: 1;
-      min-width: 240px;
-      max-width: 280px;
+      width: 260px;
+      flex-shrink: 0;
     }
     .test-card::before {
       content: '';
@@ -82,12 +81,12 @@
       margin-bottom: 16px;
     }
     .test-title {
-      font-size: 22px;
+      font-size: 20px;
       font-weight: 700;
       margin-bottom: 8px;
     }
     .test-desc {
-      font-size: 13px;
+      font-size: 12px;
       color: #aaa;
     }
     /* Кнопка предложений внизу */
@@ -213,14 +212,14 @@
     }
     @media (max-width: 800px) {
       .tests-container { gap: 20px; }
-      .test-card { min-width: 220px; max-width: 260px; padding: 24px 20px; }
+      .test-card { width: 220px; padding: 24px 16px; }
       .test-icon { font-size: 44px; }
-      .test-title { font-size: 20px; }
+      .test-title { font-size: 18px; }
     }
     @media (max-width: 600px) {
-      .tests-container { gap: 16px; }
-      .test-card { min-width: 260px; max-width: 300px; width: 100%; padding: 20px 16px; }
-      .test-icon { font-size: 38px; }
+      .tests-container { gap: 16px; flex-direction: column; align-items: center; }
+      .test-card { width: 260px; padding: 20px 16px; }
+      .test-icon { font-size: 40px; }
       .test-title { font-size: 18px; }
       .logo { width: 70px; height: 70px; font-size: 34px; }
       .main-title h1 { font-size: 32px; }
