@@ -11,11 +11,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-    body {
-      background: radial-gradient(ellipse at 20% 30%, #0a0a2a, #050510);
-      min-height: 100vh;
-      color: #fff;
-    }
+    body { background: radial-gradient(ellipse at 20% 30%, #0a0a2a, #050510); min-height: 100vh; color: #fff; }
     .neon-glow { text-shadow: 0 0 5px #00d4ff, 0 0 10px #00d4ff, 0 0 20px #00d4ff; }
     .btn-neon {
       background: rgba(0, 0, 0, 0.6);
@@ -72,6 +68,16 @@
     .toggle-slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: 0.3s; border-radius: 50%; }
     input:checked + .toggle-slider { background-color: #22c55e; }
     input:checked + .toggle-slider:before { transform: translateX(24px); }
+    .spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 2px solid #00d4ff;
+      border-top-color: transparent;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 </head>
 <body>
@@ -80,7 +86,7 @@
   <div class="flex justify-between items-center mb-6">
     <div class="flex items-center gap-3">
       <div class="w-10 h-10 bg-gradient-to-r from-cyan-400 to-pink-500 rounded-xl flex items-center justify-center"><i class="fas fa-crown text-white"></i></div>
-      <div><h1 class="text-2xl font-bold neon-glow">NEON ADMIN</h1><p class="text-gray-400 text-sm">Управление тестами</p></div>
+      <div><h1 class="text-2xl font-bold neon-glow">NEON ADMIN</h1><p class="text-gray-400 text-sm">Управление тестами + ИИ</p></div>
     </div>
     <button onclick="toggleTheme()" class="text-2xl p-2 rounded-full bg-white/10" id="theme-icon">🌙</button>
   </div>
@@ -133,6 +139,21 @@
         </div>
       </div>
 
+      <!-- БЛОК ИИ-ГЕНЕРАЦИИ -->
+      <div class="bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-xl p-4 mb-6">
+        <div class="flex items-center gap-2 mb-3"><i class="fas fa-robot text-pink-400"></i><span class="font-semibold">🤖 ИИ-ГЕНЕРАЦИЯ ВОПРОСОВ (Gemini)</span></div>
+        <div class="space-y-3">
+          <textarea id="aiText" rows="3" class="w-full" placeholder="Вставьте текст (правила, статью, описание) на основе которого ИИ сгенерирует вопросы..."></textarea>
+          <div class="flex flex-wrap gap-3 items-center">
+            <select id="aiCount" class="w-24"><option value="3">3 вопроса</option><option value="5" selected>5 вопросов</option><option value="10">10 вопросов</option></select>
+            <select id="aiType" class="w-32"><option value="multiple">Выбор ответа</option><option value="written">Письменные</option></select>
+            <button onclick="generateWithAI()" id="aiGenerateBtn" class="btn-neon btn-neon-pink"><i class="fas fa-magic mr-1"></i> СГЕНЕРИРОВАТЬ</button>
+          </div>
+          <div id="aiProgress" class="text-sm text-gray-400 hidden"><span class="spinner mr-2"></span>Генерация вопросов...</div>
+          <div id="aiResult" class="space-y-2 mt-3"></div>
+        </div>
+      </div>
+
       <div class="bg-white/5 rounded-xl p-4 mb-6">
         <div class="flex justify-between cursor-pointer" onclick="toggleForm()"><h2><i class="fas fa-plus-circle text-green-400"></i> Добавить вопрос</h2><i id="formToggleIcon" class="fas fa-chevron-up"></i></div>
         <div id="formContent" class="mt-4 space-y-3">
@@ -167,6 +188,10 @@ const FIREBASE_CONFIG = {
   messagingSenderId: "956332293918",
   appId: "1:956332293918:web:e7f66986cca2a30474130f"
 };
+
+// ========== ВАШ API КЛЮЧ GEMINI (ВШИТ) ==========
+const GEMINI_API_KEY = "AIzaSyBPXbjyT2YvkNl4S46ziiJR_bYl6FVrSGY";
+// ===============================================
 
 let currentSet = "ppoQuestions", questions = [], editingIndex = -1, db = null, filteredQuestions = [], currentPage = 1, perPage = 10, formExpanded = true;
 
@@ -209,6 +234,112 @@ function loadTestVisibility(){ let saved=localStorage.getItem('testVisibility');
 function saveTestVisibility(s){ localStorage.setItem('testVisibility',JSON.stringify(s)); db&&db.ref('settings/testVisibility').set(s); }
 function toggleTestVisibility(t,v){ let s=loadTestVisibility(); s[t]=v; saveTestVisibility(s); showToast({ppo:'ППО',ustav:'Устав',leadership:'Руководство'}[t]+' '+(v?'показан':'скрыт')); }
 function updateToggleButtons(){ let s=loadTestVisibility(); document.getElementById('togglePpo').checked=s.ppo; document.getElementById('toggleUstav').checked=s.ustav; document.getElementById('toggleLeadership').checked=s.leadership; }
+
+// ========== ИИ-ГЕНЕРАЦИЯ ЧЕРЕЗ GEMINI (С ВШИТЫМ КЛЮЧОМ) ==========
+async function generateWithAI() {
+  const text = document.getElementById('aiText').value.trim();
+  if (!text) {
+    showToast('❌ Введите текст для генерации вопросов!', true);
+    return;
+  }
+  
+  const count = parseInt(document.getElementById('aiCount').value);
+  const type = document.getElementById('aiType').value;
+  
+  const btn = document.getElementById('aiGenerateBtn');
+  const progress = document.getElementById('aiProgress');
+  const resultDiv = document.getElementById('aiResult');
+  
+  btn.disabled = true;
+  progress.classList.remove('hidden');
+  resultDiv.innerHTML = '';
+  
+  try {
+    const prompt = type === 'multiple' 
+      ? `Создай ${count} тестовых вопросов с вариантами ответов на русском языке на основе следующего текста. Формат ответа: JSON массив объектов с полями: "question" (вопрос), "options" (массив из 3 вариантов), "correct" (правильный ответ, текст варианта). Текст: ${text}`
+      : `Создай ${count} тестовых вопросов с письменными ответами на русском языке на основе следующего текста. Формат ответа: JSON массив объектов с полями: "question" (вопрос), "answer" (правильный ответ). Текст: ${text}`;
+    
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }]
+      })
+    });
+    
+    const data = await response.json();
+    let generatedText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+    
+    if (!generatedText) {
+      throw new Error('Нет ответа от Gemini');
+    }
+    
+    const jsonMatch = generatedText.match(/\[[\s\S]*\]/);
+    if (!jsonMatch) {
+      throw new Error('Не удалось извлечь JSON из ответа');
+    }
+    
+    const generated = JSON.parse(jsonMatch[0]);
+    
+    resultDiv.innerHTML = `<div class="text-green-400 mb-2">✅ Сгенерировано ${generated.length} вопросов:</div>`;
+    
+    for (let i = 0; i < generated.length; i++) {
+      const item = generated[i];
+      const questionText = item.question || item.q;
+      const answer = item.correct || item.answer;
+      
+      const questionBlock = document.createElement('div');
+      questionBlock.className = 'bg-white/10 rounded-lg p-3 mb-2';
+      
+      if (type === 'multiple') {
+        const options = item.options || [];
+        questionBlock.innerHTML = `
+          <div class="font-bold">${i+1}. ${escapeHtml(questionText)}</div>
+          <div class="text-sm text-gray-300 mt-1">Варианты: ${options.map(o => escapeHtml(o)).join(' | ')}</div>
+          <div class="text-green-400 text-sm mt-1">✅ Правильный ответ: ${escapeHtml(answer)}</div>
+          <button onclick='addGeneratedQuestion(${JSON.stringify({ q: questionText, options, answer, type: "multiple" })})' class="btn-neon text-xs mt-2 py-1 px-3">➕ Добавить в набор</button>
+        `;
+      } else {
+        questionBlock.innerHTML = `
+          <div class="font-bold">${i+1}. ${escapeHtml(questionText)}</div>
+          <div class="text-green-400 text-sm mt-1">✅ Правильный ответ: ${escapeHtml(answer)}</div>
+          <button onclick='addGeneratedQuestion(${JSON.stringify({ q: questionText, answer, type: "written" })})' class="btn-neon text-xs mt-2 py-1 px-3">➕ Добавить в набор</button>
+        `;
+      }
+      resultDiv.appendChild(questionBlock);
+    }
+    
+    showToast(`✅ Сгенерировано ${generated.length} вопросов!`);
+  } catch(e) {
+    console.error(e);
+    showToast('❌ Ошибка генерации: ' + e.message, true);
+    resultDiv.innerHTML = `<div class="text-red-400">❌ Ошибка: ${e.message}</div>`;
+  } finally {
+    btn.disabled = false;
+    progress.classList.add('hidden');
+  }
+}
+
+function addGeneratedQuestion(questionData) {
+  const newQuestion = {
+    q: questionData.q,
+    inTest: true
+  };
+  
+  if (questionData.type === 'multiple') {
+    newQuestion.options = questionData.options;
+    newQuestion.answer = questionData.answer;
+  } else {
+    newQuestion.answer = questionData.answer;
+  }
+  
+  questions.push(newQuestion);
+  syncToFirebase();
+  filteredQuestions = [...questions];
+  renderList();
+  updateStats();
+  showToast('✅ Вопрос добавлен в набор!');
+}
 
 document.getElementById('perPage').onchange=changePerPage;
 document.getElementById('searchInput').oninput=filterQuestions;
