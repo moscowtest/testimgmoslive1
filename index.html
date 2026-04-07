@@ -47,6 +47,9 @@
       border: 1px solid rgba(0, 212, 255, 0.3);
       position: relative;
       overflow: hidden;
+      flex: 1;
+      min-width: 240px;
+      max-width: 280px;
     }
     .test-card::before {
       content: '';
@@ -116,7 +119,6 @@
       justify-content: center;
       font-size: 48px;
       margin: 0 auto 20px;
-      cursor: pointer;
       box-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
     }
     /* Маленький незаметный значок админки в левом верхнем углу */
@@ -198,30 +200,31 @@
       z-index: 100;
       border: 1px solid rgba(255,255,255,0.2);
     }
-    /* Сетка карточек */
-    .tests-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
+    /* Контейнер для карточек — flex с центрированием */
+    .tests-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
       gap: 28px;
-      max-width: 900px;
+      max-width: 1000px;
       width: 100%;
       margin: 0 auto;
     }
     @media (max-width: 800px) {
-      .tests-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 20px;
-        padding: 0 16px;
-      }
+      .tests-container { gap: 20px; }
+      .test-card { min-width: 220px; max-width: 260px; padding: 24px 20px; }
+      .test-icon { font-size: 44px; }
+      .test-title { font-size: 20px; }
     }
-    @media (max-width: 500px) {
-      .tests-grid {
-        grid-template-columns: 1fr;
-        gap: 16px;
-      }
-      .test-card { padding: 24px 20px; }
-      .test-icon { font-size: 40px; }
+    @media (max-width: 600px) {
+      .tests-container { gap: 16px; }
+      .test-card { min-width: 260px; max-width: 300px; width: 100%; padding: 20px 16px; }
+      .test-icon { font-size: 38px; }
       .test-title { font-size: 18px; }
+      .logo { width: 70px; height: 70px; font-size: 34px; }
+      .main-title h1 { font-size: 32px; }
+      .main-title p { font-size: 14px; }
     }
     .main-title {
       text-align: center;
@@ -235,11 +238,6 @@
       font-size: 16px;
       color: #aaa;
       margin-top: 8px;
-    }
-    @media (max-width: 600px) {
-      .main-title h1 { font-size: 32px; }
-      .main-title p { font-size: 14px; }
-      .logo { width: 70px; height: 70px; font-size: 34px; }
     }
     .footer-btn {
       text-align: center;
@@ -266,9 +264,9 @@
         <p>Выбери тест и докажи свой уровень 🔥</p>
       </div>
       
-      <!-- Карточки тестов -->
-      <div id="testButtonsContainer" class="tests-grid">
-        <div class="loading" style="text-align: center; grid-column: span 3;">🌀 Загрузка...</div>
+      <!-- Контейнер карточек тестов — flex с центрированием -->
+      <div id="testButtonsContainer" class="tests-container">
+        <div class="loading" style="text-align: center; width: 100%;">🌀 Загрузка...</div>
       </div>
       
       <!-- Кнопка предложений в самом низу -->
@@ -323,10 +321,9 @@ function renderTests(vis) {
     { id: 'leadership', name: '👔 РУКОВОДСТВО', desc: 'Кто есть кто в руководстве', color: 'green', url: 'leadership.html', icon: '👔' }
   ];
   
-  let hasVisible = false;
+  let visibleCards = [];
   tests.forEach(test => {
     if(vis[test.id]) {
-      hasVisible = true;
       const card = document.createElement('div');
       card.className = `test-card ${test.color === 'pink' ? 'pink' : (test.color === 'green' ? 'green' : '')}`;
       card.onclick = () => window.location.href = test.url;
@@ -335,13 +332,17 @@ function renderTests(vis) {
         <div class="test-title ${test.color === 'pink' ? 'neon-glow' : (test.color === 'green' ? 'neon-glow' : 'neon-glow')}">${test.name}</div>
         <div class="test-desc">${test.desc}</div>
       `;
-      container.appendChild(card);
+      visibleCards.push(card);
     }
   });
   
-  if(!hasVisible) {
-    container.innerHTML = '<div class="text-center text-gray-400" style="grid-column: span 3; padding: 40px;">⚠️ Все тесты скрыты. Зайдите в админку.</div>';
+  if(visibleCards.length === 0) {
+    container.innerHTML = '<div class="text-center text-gray-400" style="width: 100%; padding: 40px;">⚠️ Все тесты скрыты. Зайдите в админку.</div>';
+    return;
   }
+  
+  // Добавляем все видимые карточки в контейнер
+  visibleCards.forEach(card => container.appendChild(card));
 }
 
 function onAdminIconClick() {
