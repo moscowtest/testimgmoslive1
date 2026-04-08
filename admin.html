@@ -48,7 +48,7 @@
   <div class="flex justify-between items-center mb-6">
     <div class="flex items-center gap-3">
       <div class="w-10 h-10 bg-gradient-to-r from-cyan-400 to-pink-500 rounded-xl flex items-center justify-center"><i class="fas fa-crown text-white"></i></div>
-      <div><h1 class="text-2xl font-bold neon-glow">NEON ADMIN</h1><p class="text-gray-400 text-sm">Управление тестами + Groq AI</p></div>
+      <div><h1 class="text-2xl font-bold neon-glow">NEON ADMIN</h1><p class="text-gray-400 text-sm">Управление тестами + AI (Groq)</p></div>
     </div>
     <button onclick="toggleTheme()" class="text-2xl p-2 rounded-full bg-white/10" id="theme-icon">🌙</button>
   </div>
@@ -103,15 +103,15 @@
 
       <!-- БЛОК ИИ-ГЕНЕРАЦИИ -->
       <div class="bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-xl p-4 mb-6">
-        <div class="flex items-center gap-2 mb-3"><i class="fas fa-robot text-pink-400"></i><span class="font-semibold">🤖 Groq AI — генерация вопросов (Llama 3.3 70B)</span></div>
+        <div class="flex items-center gap-2 mb-3"><i class="fas fa-robot text-pink-400"></i><span class="font-semibold">🤖 Groq AI — генерация вопросов</span></div>
         <div class="space-y-3">
-          <textarea id="aiText" rows="3" class="w-full" placeholder="Вставьте текст (правила, статью, описание) на основе которого Groq сгенерирует вопросы..."></textarea>
+          <textarea id="aiText" rows="3" class="w-full" placeholder="Вставьте текст для генерации вопросов..."></textarea>
           <div class="flex flex-wrap gap-3 items-center">
             <select id="aiCount" class="w-24"><option value="3">3 вопроса</option><option value="5" selected>5 вопросов</option><option value="10">10 вопросов</option></select>
             <select id="aiType" class="w-32"><option value="multiple">Выбор ответа</option><option value="written">Письменные</option></select>
-            <button onclick="generateWithGroq()" id="aiGenerateBtn" class="btn-neon btn-neon-pink"><i class="fas fa-magic mr-1"></i> СГЕНЕРИРОВАТЬ</button>
+            <button onclick="generateWithAI()" id="aiGenerateBtn" class="btn-neon btn-neon-pink"><i class="fas fa-magic mr-1"></i> СГЕНЕРИРОВАТЬ</button>
           </div>
-          <div id="aiProgress" class="text-sm text-gray-400 hidden"><span class="spinner mr-2"></span>Генерация вопросов через Groq...</div>
+          <div id="aiProgress" class="text-sm text-gray-400 hidden"><span class="spinner mr-2"></span>Генерация...</div>
           <div id="aiResult" class="space-y-2 mt-3"></div>
         </div>
       </div>
@@ -151,9 +151,13 @@ const FIREBASE_CONFIG = {
   appId: "1:956332293918:web:e7f66986cca2a30474130f"
 };
 
-// ========== ГОТОВЫЙ ПРОКСИ (РАБОТАЕТ) ==========
-const PROXY_URL = "https://groq-proxy-sigma.vercel.app/api/groq";
-// ===============================================
+// ========== ИСПОЛЬЗУЕМ ПРЯМОЕ ОБРАЩЕНИЕ К GROQ (НОВЫЙ МЕТОД) ==========
+// ВНИМАНИЕ: Этот метод работает напрямую, без прокси
+// Нужен только API ключ Groq
+// =====================================================================
+
+// ВСТАВЬТЕ ВАШ API КЛЮЧ GROQ СЮДА (получить на console.groq.com)
+const GROQ_API_KEY = "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";
 
 let currentSet = "ppoQuestions", questions = [], editingIndex = -1, db = null, filteredQuestions = [], currentPage = 1, perPage = 10, formExpanded = true;
 
@@ -197,11 +201,16 @@ function saveTestVisibility(s){ localStorage.setItem('testVisibility',JSON.strin
 function toggleTestVisibility(t,v){ let s=loadTestVisibility(); s[t]=v; saveTestVisibility(s); showToast({ppo:'ППО',ustav:'Устав',leadership:'Руководство'}[t]+' '+(v?'показан':'скрыт')); }
 function updateToggleButtons(){ let s=loadTestVisibility(); document.getElementById('togglePpo').checked=s.ppo; document.getElementById('toggleUstav').checked=s.ustav; document.getElementById('toggleLeadership').checked=s.leadership; }
 
-// ========== ИИ-ГЕНЕРАЦИЯ ЧЕРЕЗ ПРОКСИ ==========
-async function generateWithGroq() {
+// ========== ИИ-ГЕНЕРАЦИЯ ЧЕРЕЗ GROQ API (ПРЯМО) ==========
+async function generateWithAI() {
   const text = document.getElementById('aiText').value.trim();
   if (!text) {
     showToast('❌ Введите текст для генерации вопросов!', true);
+    return;
+  }
+  
+  if (!GROQ_API_KEY || GROQ_API_KEY === "ВАШ_API_КЛЮЧ_GROQ") {
+    showToast('❌ Вставьте ваш Groq API ключ в переменную GROQ_API_KEY! Получить на console.groq.com', true);
     return;
   }
   
@@ -221,9 +230,10 @@ async function generateWithGroq() {
     : `Создай ${count} тестовых вопросов с письменными ответами на русском языке на основе следующего текста. Формат ответа: JSON массив объектов с полями: "question" (вопрос), "answer" (правильный ответ). Верни ТОЛЬКО JSON массив, без пояснений. Текст: ${text}`;
   
   try {
-    const response = await fetch(PROXY_URL, {
+    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
       headers: {
+        "Authorization": `Bearer ${GROQ_API_KEY}`,
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
@@ -239,7 +249,7 @@ async function generateWithGroq() {
     
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(errorData.error || `Ошибка ${response.status}`);
+      throw new Error(errorData.error?.message || `Ошибка ${response.status}`);
     }
     
     const data = await response.json();
@@ -287,8 +297,8 @@ async function generateWithGroq() {
     showToast(`✅ Сгенерировано ${generated.length} вопросов!`);
   } catch(e) {
     console.error(e);
-    showToast('❌ Ошибка генерации: ' + e.message, true);
-    resultDiv.innerHTML = `<div class="text-red-400">❌ Ошибка: ${e.message}<br>Попробуйте ещё раз или проверьте API ключ.</div>`;
+    showToast('❌ Ошибка: ' + e.message, true);
+    resultDiv.innerHTML = `<div class="text-red-400">❌ Ошибка: ${e.message}<br>Проверьте API ключ и попробуйте ещё раз.</div>`;
   } finally {
     btn.disabled = false;
     progress.classList.add('hidden');
