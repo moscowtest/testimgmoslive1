@@ -46,7 +46,7 @@
   <div class="flex justify-between items-center mb-6">
     <div class="flex items-center gap-3">
       <div class="w-10 h-10 bg-gradient-to-r from-cyan-400 to-pink-500 rounded-xl flex items-center justify-center"><i class="fas fa-crown text-white"></i></div>
-      <div><h1 class="text-2xl font-bold neon-glow">NEON ADMIN</h1><p class="text-gray-400 text-sm">Управление тестами</p></div>
+      <div><h1 class="text-2xl font-bold neon-glow">NEON ADMIN</h1><p class="text-gray-400 text-sm">Управление вопросами</p></div>
     </div>
   </div>
 
@@ -76,50 +76,46 @@
             <button onclick="clearAllData()" class="w-full btn-neon btn-neon-pink text-sm"><i class="fas fa-trash"></i> Очистить всё</button>
           </div>
         </div>
-        <div class="mt-4 p-3 bg-gray-100 dark:bg-gray-800 rounded-lg"><p class="text-xs text-center"><i class="fas fa-keyboard"></i> Ctrl+S — сохранить, Ctrl+Enter — добавить</p></div>
-        <div class="mt-auto pt-4"><input id="pw" type="password" placeholder="Пароль" class="w-full p-2 bg-gray-100 dark:bg-gray-800 rounded-lg text-center text-sm"></div>
       </div>
     </aside>
 
     <main class="flex-1 glass-card">
-      <div id="panel" class="hidden">
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-          <div class="bg-gradient-to-br from-cyan-500 to-blue-600 rounded-xl p-3"><p class="text-xs opacity-80">Всего</p><p class="text-2xl font-bold" id="statTotal">0</p></div>
-          <div class="bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl p-3"><p class="text-xs opacity-80">Выбор</p><p class="text-2xl font-bold" id="statMultiple">0</p></div>
-          <div class="bg-gradient-to-br from-green-500 to-emerald-500 rounded-xl p-3"><p class="text-xs opacity-80">Письменные</p><p class="text-2xl font-bold" id="statWritten">0</p></div>
-          <div class="bg-gradient-to-br from-orange-500 to-red-500 rounded-xl p-3"><p class="text-xs opacity-80">В тесте</p><p class="text-2xl font-bold" id="statSelected">0</p></div>
-        </div>
-
-        <div class="bg-gradient-to-r from-cyan-500/20 to-purple-500/20 rounded-xl p-4 mb-6">
-          <div class="flex flex-wrap justify-between gap-3">
-            <div><i class="fas fa-check-double mr-2"></i><span class="font-semibold">Отбор вопросов для теста</span></div>
-            <div class="flex flex-wrap gap-2">
-              <button onclick="selectAll()" class="btn-neon text-sm py-1">Выбрать все</button>
-              <button onclick="selectNone()" class="btn-neon text-sm py-1">Снять все</button>
-              <div class="flex gap-1"><input id="randomCount" type="number" value="20" min="1" class="w-16 text-center"><button onclick="selectRandom()" class="btn-neon text-sm py-1">Рандом</button></div>
-            </div>
-          </div>
-        </div>
-
-        <div class="bg-white/5 rounded-xl p-4 mb-6">
-          <div class="flex justify-between cursor-pointer" onclick="toggleForm()"><h2><i class="fas fa-plus-circle text-green-400"></i> Добавить вопрос</h2><i id="formToggleIcon" class="fas fa-chevron-up"></i></div>
-          <div id="formContent" class="mt-4 space-y-3">
-            <div class="flex gap-2"><select id="type" class="flex-1"><option value="multiple">Выбор ответа</option><option value="written">Письменный</option></select><button onclick="clearForm()" class="btn-neon text-sm">Очистить</button></div>
-            <textarea id="q" placeholder="Вопрос..." rows="2" class="w-full"></textarea>
-            <div id="optionFields"><input id="a1" placeholder="Вариант 1" class="w-full mb-2"><input id="a2" placeholder="Вариант 2" class="w-full mb-2"><input id="a3" placeholder="Вариант 3" class="w-full mb-2"></div>
-            <input id="correct" placeholder="Правильный ответ" class="w-full">
-            <input id="tags" placeholder="Теги" class="w-full">
-            <div class="flex gap-2"><button id="addBtn" onclick="addQuestion()" class="btn-neon btn-neon-green flex-1"><i class="fas fa-plus"></i> Добавить</button><button onclick="showPreview()" class="btn-neon flex-1"><i class="fas fa-eye"></i> Предпросмотр</button></div>
-          </div>
-        </div>
-
-        <div class="flex flex-wrap gap-3 mb-4"><div class="flex-1 relative"><i class="fas fa-search absolute left-3 top-3 text-gray-400"></i><input id="searchInput" type="text" placeholder="Поиск..." class="w-full pl-9"></div><select id="perPage" class="w-24"><option value="5">5</option><option value="10" selected>10</option><option value="20">20</option><option value="50">50</option></select></div>
-
-        <div class="flex justify-between items-center mb-3"><h2><i class="fas fa-list-ul mr-2 text-cyan-400"></i>Список вопросов</h2><span id="questionCount" class="text-sm text-gray-400"></span></div>
-        <div id="list" class="space-y-2 max-h-[500px] overflow-auto"></div>
-        <div id="pagination" class="flex justify-center gap-1 mt-4"></div>
-        <div class="text-center text-xs text-gray-400 mt-4"><i class="fas fa-arrows-alt mr-1"></i> Перетаскивайте вопросы за значок для изменения порядка</div>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+        <div class="bg-gradient-to-br from-cyan-500 to-blue-600 rounded-xl p-3"><p class="text-xs opacity-80">Всего</p><p class="text-2xl font-bold" id="statTotal">0</p></div>
+        <div class="bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl p-3"><p class="text-xs opacity-80">Выбор</p><p class="text-2xl font-bold" id="statMultiple">0</p></div>
+        <div class="bg-gradient-to-br from-green-500 to-emerald-500 rounded-xl p-3"><p class="text-xs opacity-80">Письменные</p><p class="text-2xl font-bold" id="statWritten">0</p></div>
+        <div class="bg-gradient-to-br from-orange-500 to-red-500 rounded-xl p-3"><p class="text-xs opacity-80">В тесте</p><p class="text-2xl font-bold" id="statSelected">0</p></div>
       </div>
+
+      <div class="bg-gradient-to-r from-cyan-500/20 to-purple-500/20 rounded-xl p-4 mb-6">
+        <div class="flex flex-wrap justify-between gap-3">
+          <div><i class="fas fa-check-double mr-2"></i><span class="font-semibold">Отбор вопросов для теста</span></div>
+          <div class="flex flex-wrap gap-2">
+            <button onclick="selectAll()" class="btn-neon text-sm py-1">Выбрать все</button>
+            <button onclick="selectNone()" class="btn-neon text-sm py-1">Снять все</button>
+            <div class="flex gap-1"><input id="randomCount" type="number" value="20" min="1" class="w-16 text-center"><button onclick="selectRandom()" class="btn-neon text-sm py-1">Рандом</button></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white/5 rounded-xl p-4 mb-6">
+        <div class="flex justify-between cursor-pointer" onclick="toggleForm()"><h2><i class="fas fa-plus-circle text-green-400"></i> Добавить вопрос</h2><i id="formToggleIcon" class="fas fa-chevron-up"></i></div>
+        <div id="formContent" class="mt-4 space-y-3">
+          <div class="flex gap-2"><select id="type" class="flex-1"><option value="multiple">Выбор ответа</option><option value="written">Письменный</option></select><button onclick="clearForm()" class="btn-neon text-sm">Очистить</button></div>
+          <textarea id="q" placeholder="Вопрос..." rows="2" class="w-full"></textarea>
+          <div id="optionFields"><input id="a1" placeholder="Вариант 1" class="w-full mb-2"><input id="a2" placeholder="Вариант 2" class="w-full mb-2"><input id="a3" placeholder="Вариант 3" class="w-full mb-2"></div>
+          <input id="correct" placeholder="Правильный ответ" class="w-full">
+          <input id="tags" placeholder="Теги (через запятую)" class="w-full">
+          <div class="flex gap-2"><button id="addBtn" onclick="addQuestion()" class="btn-neon btn-neon-green flex-1"><i class="fas fa-plus"></i> Добавить</button><button onclick="showPreview()" class="btn-neon flex-1"><i class="fas fa-eye"></i> Предпросмотр</button></div>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap gap-3 mb-4"><div class="flex-1 relative"><i class="fas fa-search absolute left-3 top-3 text-gray-400"></i><input id="searchInput" type="text" placeholder="Поиск..." class="w-full pl-9"></div><select id="perPage" class="w-24"><option value="5">5</option><option value="10" selected>10</option><option value="20">20</option><option value="50">50</option></select></div>
+
+      <div class="flex justify-between items-center mb-3"><h2><i class="fas fa-list-ul mr-2 text-cyan-400"></i>Список вопросов</h2><span id="questionCount" class="text-sm text-gray-400"></span></div>
+      <div id="list" class="space-y-2 max-h-[500px] overflow-auto"></div>
+      <div id="pagination" class="flex justify-center gap-1 mt-4"></div>
+      <div class="text-center text-xs text-gray-400 mt-4"><i class="fas fa-arrows-alt mr-1"></i> Перетаскивайте вопросы за значок для изменения порядка</div>
     </main>
   </div>
 </div>
@@ -138,17 +134,25 @@ const FIREBASE_CONFIG = {
   appId: "1:956332293918:web:e7f66986cca2a30474130f"
 };
 
+// 🎯 DISCORD WEBHOOKS
+const DISCORD_ADMIN_LOGS = "https://discord.com/api/webhooks/1500489990193414215/UGiAVJSYKONmCqVT6UxnTJi4MAtxxYbPl01-8i1dBcw-RjTm229EHGhmdmoLt4GRnrKS";
+const DISCORD_NEW_QUESTIONS = "https://discord.com/api/webhooks/1500490124650086533/SbQs7pmt_LC-tlMmWlyTKdGXM2IOdDJ3ABkHajk5DidEhf2n8ClWaGhAWW2j6Fin_4Fk";
+
 const PASSWORD = "admin2024";
 let currentSet = "ppoQuestions", questions = [], editingIndex = -1, db = null, filteredQuestions = [], currentPage = 1, perPage = 10, formExpanded = true;
 
-function showToast(msg, isError = false) {
-  const toast = document.createElement('div');
-  toast.className = `toast ${isError ? 'error' : ''}`;
-  toast.innerHTML = `<i class="fas ${isError ? 'fa-exclamation-triangle' : 'fa-check-circle'} mr-2"></i>${msg}`;
-  document.body.appendChild(toast);
-  setTimeout(() => toast.remove(), 3000);
+function logToDiscord(webhook, title, details) {
+  fetch(webhook, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      content: `🔧 **${title}**\n📝 ${details}\n🕐 ${new Date().toLocaleString()}`,
+      username: "Admin Logger"
+    })
+  }).catch(e => console.error("Discord log error:", e));
 }
 
+function showToast(m, e) { let t = document.createElement('div'); t.className = `toast ${e ? 'error' : ''}`; t.innerHTML = `<i class="fas ${e ? 'fa-exclamation-triangle' : 'fa-check-circle'} mr-2"></i>${m}`; document.body.appendChild(t); setTimeout(() => t.remove(), 3000); }
 function toggleForm() { formExpanded = !formExpanded; document.getElementById('formContent').style.display = formExpanded ? 'block' : 'none'; document.getElementById('formToggleIcon').className = formExpanded ? 'fas fa-chevron-up' : 'fas fa-chevron-down'; }
 function updateStats() { let mc = questions.filter(q => q.options).length, wr = questions.filter(q => !q.options).length, sel = questions.filter(q => q.inTest === true).length; document.getElementById('statTotal').innerText = questions.length; document.getElementById('statMultiple').innerText = mc; document.getElementById('statWritten').innerText = wr; document.getElementById('statSelected').innerText = sel; }
 function initFirebase() { if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG); db = firebase.database(); loadFromFirebase(); }
@@ -172,15 +176,15 @@ function showPreview(){ let q=document.getElementById('q').value.trim(); if(!q){
 function closePreview(){ document.getElementById('previewModal').classList.add('hidden'); document.getElementById('previewModal').style.display='none'; }
 function escapeHtml(t){ return t?t.replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])):''; }
 function copyQuestion(i){ let copy=JSON.parse(JSON.stringify(questions[i])); copy.q=copy.q+" (копия)"; questions.push(copy); filteredQuestions=[...questions]; syncToFirebase(); renderList(); updateStats(); showToast('📋 Вопрос скопирован'); }
-function renderList(){ let list=document.getElementById('list'); if(!list) return; let start=(currentPage-1)*perPage, pageQuestions=filteredQuestions.slice(start,start+perPage); list.innerHTML=''; if(!pageQuestions.length){ list.innerHTML='<div class="text-center text-gray-400 p-8">Нет вопросов</div>'; renderPagination(); return; } pageQuestions.forEach((item,idx)=>{ let globalIndex=questions.findIndex(q=>q.q===item.q&&q.answer===item.answer), actualIndex=globalIndex!==-1?globalIndex:start+idx, isSelected=item.inTest===true, el=document.createElement('div'); el.className=`question-card ${isSelected?'selected':''}`; el.draggable=true; el.setAttribute('data-index',actualIndex); el.ondragstart=e=>onDragStart(e,actualIndex); el.ondragover=e=>onDragOver(e,actualIndex); el.ondragleave=onDragLeave; el.ondrop=e=>onDrop(e,actualIndex); el.ondragend=onDragEnd; let preview=item.q.length>100?item.q.substring(0,100)+'...':item.q, tagsHtml=''; if(item.tags && item.tags.length) tagsHtml=`<div class="flex flex-wrap mt-2">${item.tags.map(t=>`<span class="tag">${escapeHtml(t)}</span>`).join('')}</div>`; el.innerHTML=`<div class="flex justify-between"><div><div class="flex items-center gap-2"><i class="fas fa-grip-vertical text-gray-400 cursor-grab"></i><span class="font-bold text-gray-300 text-sm">#${start+idx+1}</span><label class="flex items-center gap-1 ml-2"><input type="checkbox" class="accent-cyan-400" ${isSelected?'checked':''} onchange="toggleQuestionInTest(${actualIndex})"><span class="text-xs">в тест</span></label></div><div class="mt-1">${escapeHtml(preview)}</div>${tagsHtml}</div><div class="flex gap-1"><button onclick="editQuestion(${actualIndex})" class="text-cyan-400 p-1"><i class="fas fa-edit"></i></button><button onclick="copyQuestion(${actualIndex})" class="text-green-400 p-1"><i class="fas fa-copy"></i></button><button onclick="del(${actualIndex})" class="text-pink-400 p-1"><i class="fas fa-trash"></i></button></div></div>`; list.appendChild(el); }); renderPagination(); document.getElementById('questionCount').innerHTML=`<i class="fas fa-database mr-1"></i>${questions.length} вопросов (${filteredQuestions.length})`; }
-function addQuestion(){ let type=document.getElementById('type').value, q=document.getElementById('q').value.trim(), correct=document.getElementById('correct').value.trim(), tagsText=document.getElementById('tags').value.trim(), tags=tagsText?tagsText.split(',').map(t=>t.trim()).filter(t=>t):[]; if(!q){showToast('Введите вопрос!',true);return;} if(!correct){showToast('Введите ответ!',true);return;} let obj; if(type==='multiple'){ let a1=document.getElementById('a1').value.trim(), a2=document.getElementById('a2').value.trim(), a3=document.getElementById('a3').value.trim(); if(!a1||!a2||!a3){showToast('Заполните варианты!',true);return;} obj={q,options:[a1,a2,a3],answer:correct,tags,inTest:true}; }else{ obj={q,answer:correct,tags,inTest:true}; } if(editingIndex>=0){ questions[editingIndex]=obj; editingIndex=-1; document.getElementById('addBtn').innerHTML='<i class="fas fa-plus"></i> Добавить'; showToast('✅ Вопрос обновлён'); }else{ questions.push(obj); showToast('✅ Вопрос добавлен'); } filteredQuestions=[...questions]; syncToFirebase(); renderList(); updateStats(); clearForm(); }
+function renderList(){ let list=document.getElementById('list'); if(!list) return; let start=(currentPage-1)*perPage, pageQuestions=filteredQuestions.slice(start,start+perPage); list.innerHTML=''; if(!pageQuestions.length){ list.innerHTML='<div class="text-center text-gray-400 p-8">Нет вопросов</div>'; renderPagination(); return; } pageQuestions.forEach((item,idx)=>{ let globalIndex=questions.findIndex(q=>q.q===item.q&&q.answer===item.answer), actualIndex=globalIndex!==-1?globalIndex:start+idx, isSelected=item.inTest===true, el=document.createElement('div'); el.className=`question-card ${isSelected?'selected':''}`; el.draggable=true; el.setAttribute('data-index',actualIndex); el.ondragstart=e=>onDragStart(e,actualIndex); el.ondragover=e=>onDragOver(e,actualIndex); el.ondragleave=onDragLeave; el.ondrop=e=>onDrop(e,actualIndex); el.ondragend=onDragEnd; let preview=item.q.length>100?item.q.substring(0,100)+'...':item.q, tagsHtml=''; if(item.tags && item.tags.length) tagsHtml=`<div class="flex flex-wrap mt-2">${item.tags.map(t=>`<span class="tag">${escapeHtml(t)}</span>`).join('')}</div>`; el.innerHTML=`<div class="flex justify-between"><div><div class="flex items-center gap-2"><i class="fas fa-grip-vertical text-gray-400 cursor-grab"></i><span class="font-bold text-gray-300 text-sm">#${start+idx+1}</span><label class="flex items-center gap-1 ml-2"><input type="checkbox" class="accent-cyan-400" ${isSelected?'checked':''} onchange="toggleQuestionInTest(${actualIndex})"><span class="text-xs">в тест</span></label></div><div class="mt-1">${escapeHtml(preview)}</div>${tagsHtml}</div><div class="flex gap-1"><button onclick="editQuestion(${actualIndex})" class="text-cyan-400 p-1"><i class="fas fa-edit"></i></button><button onclick="copyQuestion(${actualIndex})" class="text-green-400 p-1"><i class="fas fa-copy"></i></button><button onclick="del(${actualIndex})" class="text-pink-400 p-1"><i class="fas fa-trash"></i></button></div></div>`; list.appendChild(el); }); renderPagination(); document.getElementById('questionCount').innerHTML=`<i class="fas fa-database mr-1"></i>${questions.length} questions (${filteredQuestions.length})`; }
+function addQuestion(){ let type=document.getElementById('type').value, q=document.getElementById('q').value.trim(), correct=document.getElementById('correct').value.trim(), tagsText=document.getElementById('tags').value.trim(), tags=tagsText?tagsText.split(',').map(t=>t.trim()).filter(t=>t):[]; if(!q){showToast('Введите вопрос!',true);return;} if(!correct){showToast('Введите ответ!',true);return;} let obj; if(type==='multiple'){ let a1=document.getElementById('a1').value.trim(), a2=document.getElementById('a2').value.trim(), a3=document.getElementById('a3').value.trim(); if(!a1||!a2||!a3){showToast('Заполните варианты!',true);return;} obj={q,options:[a1,a2,a3],answer:correct,tags,inTest:true}; }else{ obj={q,answer:correct,tags,inTest:true}; } if(editingIndex>=0){ questions[editingIndex]=obj; editingIndex=-1; document.getElementById('addBtn').innerHTML='<i class="fas fa-plus"></i> Добавить'; showToast('✅ Вопрос обновлён'); }else{ questions.push(obj); showToast('✅ Вопрос добавлен'); logToDiscord(DISCORD_NEW_QUESTIONS, "➕ Добавлен вопрос", `Набор: ${currentSet}\nВопрос: ${q.substring(0, 100)}`); } filteredQuestions=[...questions]; syncToFirebase(); renderList(); updateStats(); clearForm(); }
 function clearForm(){ document.getElementById('q').value=''; document.getElementById('a1').value=''; document.getElementById('a2').value=''; document.getElementById('a3').value=''; document.getElementById('correct').value=''; document.getElementById('tags').value=''; document.getElementById('type').value='multiple'; editingIndex=-1; document.getElementById('addBtn').innerHTML='<i class="fas fa-plus"></i> Добавить'; document.getElementById('optionFields').style.display='block'; }
 function editQuestion(i){ let q=questions[i]; document.getElementById('q').value=q.q; document.getElementById('correct').value=q.answer; document.getElementById('tags').value=q.tags?q.tags.join(', '):''; if(q.options){ document.getElementById('type').value='multiple'; document.getElementById('optionFields').style.display='block'; document.getElementById('a1').value=q.options[0]||''; document.getElementById('a2').value=q.options[1]||''; document.getElementById('a3').value=q.options[2]||''; }else{ document.getElementById('type').value='written'; document.getElementById('optionFields').style.display='none'; } editingIndex=i; document.getElementById('addBtn').innerHTML='<i class="fas fa-save"></i> Обновить'; window.scrollTo({top:0}); if(!formExpanded) toggleForm(); }
-function del(i){ if(confirm('Удалить вопрос?')){ questions.splice(i,1); filteredQuestions=[...questions]; syncToFirebase(); renderList(); updateStats(); showToast('🗑️ Вопрос удалён'); } }
+function del(i){ if(confirm('Удалить вопрос?')){ let deletedQ = questions[i].q; questions.splice(i,1); filteredQuestions=[...questions]; syncToFirebase(); renderList(); updateStats(); showToast('🗑️ Вопрос удалён'); logToDiscord(DISCORD_ADMIN_LOGS, "🗑️ Удалён вопрос", `Набор: ${currentSet}\nВопрос: ${deletedQ.substring(0, 100)}`); } }
 function switchSet(set){ currentSet=set; loadFromFirebase(); clearForm(); document.getElementById('searchInput').value=''; currentPage=1; ['ppoQuestions','ppoWrittenQuestions','ustavQuestions'].forEach(id=>{ let btn=document.getElementById(`btn-${id}`); if(btn) btn.classList.toggle('active', id===set); }); }
 function exportAllData(){ let data={[currentSet]:questions}; let blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}); let a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`questions_${currentSet}_${new Date().toISOString().slice(0,19)}.json`; a.click(); showToast('💾 Экспорт'); }
-function importAllData(input){ let file=input.files[0]; if(!file) return; let reader=new FileReader(); reader.onload=async e=>{ try{ let data=JSON.parse(e.target.result); if(data[currentSet]){ questions=data[currentSet]; filteredQuestions=[...questions]; await syncToFirebase(); renderList(); updateStats(); showToast('📂 Импорт'); } }catch(err){showToast('Ошибка',true);} }; reader.readAsText(file); input.value=''; }
-async function clearAllData(){ if(confirm('Удалить ВСЕ вопросы?')){ questions=[]; filteredQuestions=[]; await syncToFirebase(); renderList(); updateStats(); showToast('🗑️ Все вопросы удалены'); } }
+function importAllData(input){ let file=input.files[0]; if(!file) return; let reader=new FileReader(); reader.onload=async e=>{ try{ let data=JSON.parse(e.target.result); if(data[currentSet]){ questions=data[currentSet]; filteredQuestions=[...questions]; await syncToFirebase(); renderList(); updateStats(); showToast('📂 Импорт'); logToDiscord(DISCORD_ADMIN_LOGS, "📂 Импорт вопросов", `Набор: ${currentSet}\nДобавлено: ${questions.length} вопросов`); } }catch(err){showToast('Ошибка',true);} }; reader.readAsText(file); input.value=''; }
+async function clearAllData(){ if(confirm('Удалить ВСЕ вопросы?')){ questions=[]; filteredQuestions=[]; await syncToFirebase(); renderList(); updateStats(); showToast('🗑️ Все вопросы удалены'); logToDiscord(DISCORD_ADMIN_LOGS, "⚠️ Полная очистка", `Набор: ${currentSet} - удалены все вопросы`); } }
 function loadTestVisibility(){ let saved=localStorage.getItem('testVisibility'); return saved?{ppo:true,ustav:true,leadership:true,...JSON.parse(saved)}:{ppo:true,ustav:true,leadership:true}; }
 function saveTestVisibility(s){ localStorage.setItem('testVisibility',JSON.stringify(s)); db&&db.ref('settings/testVisibility').set(s); }
 function toggleTestVisibility(t,v){ let s=loadTestVisibility(); s[t]=v; saveTestVisibility(s); showToast({ppo:'ППО',ustav:'Устав',leadership:'Руководство'}[t]+' '+(v?'показан':'скрыт')); }
@@ -189,15 +193,8 @@ function updateToggleButtons(){ let s=loadTestVisibility(); document.getElementB
 document.getElementById('perPage').onchange=changePerPage;
 document.getElementById('searchInput').oninput=filterQuestions;
 document.getElementById('type').onchange=()=>{ document.getElementById('optionFields').style.display=document.getElementById('type').value==='multiple'?'block':'none'; };
-document.getElementById("pw").addEventListener("change", function(e) {
-  if (e.target.value === PASSWORD) {
-    document.getElementById("panel").classList.remove("hidden");
-    if (!localStorage.getItem('testVisibility')) localStorage.setItem('testVisibility', JSON.stringify({ ppo: true, ustav: true, leadership: true }));
-    updateToggleButtons();
-    initFirebase();
-    showToast('🔓 Добро пожаловать в админ-панель');
-  } else { showToast('❌ Неверный пароль', true); }
-});
+initFirebase();
+updateToggleButtons();
 </script>
 </body>
 </html>
