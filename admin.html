@@ -51,9 +51,8 @@
   </div>
 
   <div class="flex flex-col lg:flex-row gap-6">
-    <aside class="lg:w-72 glass-card h-fit">
+    <aside class="lg:w-64 glass-card h-fit">
       <div class="space-y-4">
-        <!-- Видимость тестов -->
         <div><p class="text-sm font-semibold mb-3"><i class="fas fa-eye mr-2"></i>Видимость тестов</p>
           <div class="space-y-2">
             <div class="flex justify-between items-center"><span><i class="fas fa-list mr-2 text-purple-400"></i>ППО</span><label class="toggle-switch"><input type="checkbox" id="togglePpo" onchange="toggleTestVisibility('ppo', this.checked)"><span class="toggle-slider"></span></label></div>
@@ -62,22 +61,6 @@
           </div>
         </div>
         <hr class="border-gray-700">
-        
-        <!-- НАСТРОЙКИ ТЕСТОВ -->
-        <div><p class="text-sm font-semibold mb-3"><i class="fas fa-sliders-h mr-2"></i>Настройки тестов</p>
-          <div class="space-y-3">
-            <div class="flex justify-between items-center">
-              <span><i class="fas fa-comment-dots mr-2 text-cyan-400"></i>Подсказка "Не корректное объявление"</span>
-              <label class="toggle-switch">
-                <input type="checkbox" id="toggleWrittenHint" onchange="toggleWrittenHintSetting(this.checked)">
-                <span class="toggle-slider"></span>
-              </label>
-            </div>
-          </div>
-        </div>
-        <hr class="border-gray-700">
-        
-        <!-- Наборы вопросов -->
         <div><p class="text-sm font-semibold mb-3"><i class="fas fa-database mr-2"></i>Наборы вопросов</p>
           <div class="space-y-1">
             <div onclick="switchSet('ppoQuestions')" id="btn-ppoQuestions" class="sidebar-item flex items-center gap-3 p-2 rounded-lg"><i class="fas fa-check-circle text-purple-400"></i><span>PPO Выбор</span></div>
@@ -86,8 +69,6 @@
           </div>
         </div>
         <hr class="border-gray-700">
-        
-        <!-- Действия -->
         <div><p class="text-sm font-semibold mb-3"><i class="fas fa-tools mr-2"></i>Действия</p>
           <div class="space-y-2">
             <button onclick="exportAllData()" class="w-full btn-neon text-sm"><i class="fas fa-download"></i> Экспорт</button>
@@ -170,26 +151,9 @@ function showToast(msg, isError = false) {
 
 function toggleForm() { formExpanded = !formExpanded; document.getElementById('formContent').style.display = formExpanded ? 'block' : 'none'; document.getElementById('formToggleIcon').className = formExpanded ? 'fas fa-chevron-up' : 'fas fa-chevron-down'; }
 function updateStats() { let mc = questions.filter(q => q.options).length, wr = questions.filter(q => !q.options).length, sel = questions.filter(q => q.inTest === true).length; document.getElementById('statTotal').innerText = questions.length; document.getElementById('statMultiple').innerText = mc; document.getElementById('statWritten').innerText = wr; document.getElementById('statSelected').innerText = sel; }
-function initFirebase() { if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG); db = firebase.database(); loadFromFirebase(); loadGlobalSettings(); }
+function initFirebase() { if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG); db = firebase.database(); loadFromFirebase(); }
 async function loadFromFirebase() { let snap = await db.ref(`questions/${currentSet}`).once('value'); if(snap.exists()) questions = snap.val().map(q => ({ ...q, inTest: q.inTest !== undefined ? q.inTest : true })); else questions = []; filteredQuestions = [...questions]; renderList(); updateStats(); }
 async function syncToFirebase() { await db.ref(`questions/${currentSet}`).set(questions); }
-
-// ========== ГЛОБАЛЬНЫЕ НАСТРОЙКИ (подсказка) ==========
-async function loadGlobalSettings() {
-  const snap = await db.ref('settings/global').once('value');
-  const settings = snap.exists() ? snap.val() : {};
-  const showHint = settings.showWrittenHint !== false;
-  document.getElementById('toggleWrittenHint').checked = showHint;
-  localStorage.setItem('showWrittenHint', showHint);
-}
-function toggleWrittenHintSetting(checked) {
-  if (db) {
-    db.ref('settings/global').set({ showWrittenHint: checked });
-  }
-  localStorage.setItem('showWrittenHint', checked);
-  showToast(checked ? '✅ Подсказка включена' : '❌ Подсказка выключена');
-}
-
 function toggleQuestionInTest(i) { questions[i].inTest = !questions[i].inTest; syncToFirebase(); renderList(); updateStats(); showToast(questions[i].inTest ? '✅ Вопрос в тесте' : '❌ Вопрос исключён'); }
 function selectAll() { questions.forEach(q => q.inTest = true); syncToFirebase(); renderList(); updateStats(); showToast('✅ Все вопросы в тесте'); }
 function selectNone() { questions.forEach(q => q.inTest = false); syncToFirebase(); renderList(); updateStats(); showToast('❌ Все вопросы исключены'); }
