@@ -130,10 +130,6 @@
       font-size: 14px;
       resize: vertical;
     }
-    textarea:focus {
-      outline: none;
-      box-shadow: 0 0 15px #ff00d4;
-    }
     input[type="radio"] {
       accent-color: #ff00d4;
       width: 18px;
@@ -205,14 +201,16 @@
     .animate-in {
       animation: fadeInUp 0.4s ease-out;
     }
-    .error-message {
-      background: rgba(255, 0, 0, 0.2);
-      border: 1px solid #ff4444;
-      border-radius: 16px;
+    .feedback-area {
+      margin-top: 20px;
       padding: 16px;
-      margin-bottom: 20px;
-      color: #ff8888;
-      text-align: center;
+      background: rgba(0, 0, 0, 0.4);
+      border-radius: 20px;
+      border-left: 4px solid #00d4ff;
+    }
+    .feedback-area textarea {
+      margin-top: 8px;
+      margin-bottom: 8px;
     }
   </style>
 </head>
@@ -261,12 +259,13 @@ const firebaseConfig = {
   appId: "1:956332293918:web:e7f66986cca2a30474130f"
 };
 
-// 🎯 DISCORD WEBHOOK — результаты тестов
+// 🎯 DISCORD WEBHOOK — результаты и комментарии
 const DISCORD_RESULTS = "https://discord.com/api/webhooks/1500489572025372842/IGJtGda4K64g0comJ-PbOo04fiAVNTfFmD_sZSNk8W0fqbPsgsV0s7yhO-3kMQ-67urU";
 
 let db = null, allQuestions = [], selected = [], userAnswers = {}, timerInterval = null, timeLeft = 1800, testActive = false;
 let currentQuestionIndex = 0;
 
+// ========== ПОДТВЕРЖДЕНИЕ ВЫХОДА (ИДЕЯ №2) ==========
 window.addEventListener('beforeunload', function(e) {
   if (testActive) {
     e.preventDefault();
@@ -279,38 +278,17 @@ firebase.initializeApp(firebaseConfig);
 db = firebase.database();
 
 async function loadQuestions() {
-  console.log("🔍 Загрузка вопросов из Firebase...");
-  try {
-    const mc = await db.ref('questions/ppoQuestions').once('value');
-    const wr = await db.ref('questions/ppoWrittenQuestions').once('value');
-    
-    console.log("📦 ppoQuestions:", mc.exists() ? mc.val() : "null");
-    console.log("📦 ppoWrittenQuestions:", wr.exists() ? wr.val() : "null");
-    
-    let mcQ = mc.exists() ? mc.val() : [];
-    let wrQ = wr.exists() ? wr.val() : [];
-    
-    // Проверяем, что это массив
-    if (!Array.isArray(mcQ)) mcQ = [];
-    if (!Array.isArray(wrQ)) wrQ = [];
-    
-    console.log(`📋 Загружено mcQ: ${mcQ.length}, wrQ: ${wrQ.length}`);
-    
-    // Фильтруем только вопросы с inTest !== false
-    mcQ = mcQ.filter(q => q && q.inTest !== false);
-    wrQ = wrQ.filter(q => q && q.inTest !== false);
-    
-    allQuestions = [...mcQ, ...wrQ];
-    console.log(`✅ Итого вопросов для теста: ${allQuestions.length}`);
-    return allQuestions.length;
-  } catch(e) {
-    console.error("❌ Ошибка загрузки вопросов:", e);
-    return 0;
-  }
+  const mc = await db.ref('questions/ppoQuestions').once('value');
+  const wr = await db.ref('questions/ppoWrittenQuestions').once('value');
+  let mcQ = mc.exists() ? mc.val() : [];
+  let wrQ = wr.exists() ? wr.val() : [];
+  mcQ = mcQ.filter(q => q && q.inTest !== false);
+  wrQ = wrQ.filter(q => q && q.inTest !== false);
+  allQuestions = [...mcQ, ...wrQ];
+  return allQuestions.length;
 }
 
 function shuffle(arr) { 
-  if (!arr || !arr.length) return [];
   for(let i = arr.length - 1; i > 0; i--) { 
     let j = Math.floor(Math.random() * (i + 1)); 
     [arr[i], arr[j]] = [arr[j], arr[i]]; 
@@ -318,10 +296,16 @@ function shuffle(arr) {
   return arr; 
 }
 
-async function sendToDiscord(username, score, total, passed, testName) {
+// ========== ОТПРАВКА В DISCORD (результат + комментарий) ==========
+async function sendToDiscord(username, score, total, passed, testName, comment = null) {
   const color = passed ? 0x00ff88 : 0xff00d4;
   const status = passed ? "✅ СДАЛ" : "❌ НЕ СДАЛ";
   const percent = Math.round(score / total * 100);
+  
+  let description = `**${username}** ${status}\n📊 ${score}/${total} (${percent}%)`;
+  if (comment && comment.trim()) {
+    description += `\n\n💬 **Комментарий:** ${comment}`;
+  }
   
   try {
     await fetch(DISCORD_RESULTS, {
@@ -330,7 +314,7 @@ async function sendToDiscord(username, score, total, passed, testName) {
       body: JSON.stringify({
         embeds: [{
           title: `📊 Результат теста ${testName}`,
-          description: `**${username}** ${status}`,
+          description: description,
           color: color,
           fields: [
             { name: "📝 Правильных ответов", value: `${score}/${total}`, inline: true },
@@ -342,9 +326,7 @@ async function sendToDiscord(username, score, total, passed, testName) {
         }]
       })
     });
-  } catch(e) {
-    console.error("Discord send error:", e);
-  }
+  } catch(e) { console.error("Discord send error:", e); }
 }
 
 async function startTest() {
@@ -354,7 +336,6 @@ async function startTest() {
     return; 
   }
   
-  // Показываем загрузку
   const startBtn = document.getElementById('startBtn');
   startBtn.textContent = "⏳ ЗАГРУЗКА...";
   startBtn.disabled = true;
@@ -365,7 +346,7 @@ async function startTest() {
   startBtn.disabled = false;
   
   if(cnt === 0) { 
-    alert('❌ Нет вопросов для теста!\n\nПроверьте:\n1. В админ-панели добавлены вопросы\n2. У вопросов стоит галочка "в тест"');
+    alert('❌ Нет вопросов для теста!'); 
     return; 
   }
   
@@ -387,7 +368,7 @@ function renderCurrentQuestion() {
   const nextBtn = document.getElementById('nextBtn');
   
   if (!selected.length) {
-    container.innerHTML = '<div class="error-message">❌ Ошибка: нет вопросов для отображения</div>';
+    container.innerHTML = '<div class="error-message">❌ Ошибка: нет вопросов</div>';
     return;
   }
   
@@ -396,11 +377,6 @@ function renderCurrentQuestion() {
   nextBtn.textContent = (currentQuestionIndex === selected.length - 1) ? '🏁 ПОСЛЕДНИЙ ▶' : '➡ ДАЛЕЕ';
   
   const q = selected[currentQuestionIndex];
-  if (!q) {
-    container.innerHTML = '<div class="error-message">❌ Ошибка: вопрос не найден</div>';
-    return;
-  }
-  
   const savedAnswer = userAnswers[currentQuestionIndex] || '';
   const isWritten = !(q.options && q.options.length);
   
@@ -483,7 +459,8 @@ function updateTimerDisplay() {
   document.getElementById('timerDisplay').textContent = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
 }
 
-async function checkAnswers() {
+// ========== ПРОВЕРКА ОТВЕТОВ + КОММЕНТАРИЙ (ИДЕЯ №3) ==========
+function checkAnswers() {
   if(!testActive) return;
   testActive = false;
   clearInterval(timerInterval);
@@ -507,16 +484,26 @@ async function checkAnswers() {
     userResults.push({ q, userAnswer, isCorrect });
   }
   
+  // Показываем результаты
   const container = document.getElementById('currentQuestion');
   let resultsHtml = `
     <div class="result ${correctCount >= Math.floor(selected.length * 0.7) ? 'result-success' : 'result-fail'} mb-6">
       <div class="text-2xl font-bold mb-2">📊 РЕЗУЛЬТАТ</div>
       <div class="text-4xl font-black">${correctCount} / ${selected.length}</div>
-      <div class="mt-2 text-lg">${correctCount >= Math.floor(selected.length * 0.7) ? '✅ ПОЗДРАВЛЯЮ! ТЫ СДАЛ!' : '❌ К СОЖАЛЕНИЮ, ТЫ НЕ СДАЛ'}</div>
-      <div class="text-sm opacity-75 mt-2">Проходной балл: ${Math.floor(selected.length * 0.7)} правильных ответов</div>
+      <div class="mt-2 text-lg">${correctCount >= Math.floor(selected.length * 0.7) ? '✅ СДАЛ!' : '❌ НЕ СДАЛ'}</div>
     </div>
     <div class="space-y-4" id="resultsList"></div>
   `;
+  
+  // Добавляем поле для комментария (ИДЕЯ №3)
+  resultsHtml += `
+    <div class="feedback-area">
+      <label class="font-bold mb-2 block">💬 Что было непонятно? Замечания, предложения:</label>
+      <textarea id="feedbackComment" rows="3" placeholder="Например: вопросы про транспорт слишком сложные, или нашли ошибку в вопросе..."></textarea>
+      <button id="submitFeedbackBtn" class="btn-neon btn-neon-blue w-full mt-2">📨 ОТПРАВИТЬ ОБРАТНУЮ СВЯЗЬ</button>
+    </div>
+  `;
+  
   container.innerHTML = resultsHtml;
   
   const resultsList = document.getElementById('resultsList');
@@ -541,7 +528,23 @@ async function checkAnswers() {
   document.getElementById('questionCounter').innerHTML = '🏆 РЕЗУЛЬТАТЫ ТЕСТА';
   
   const pass = Math.floor(selected.length * 0.7);
-  await sendToDiscord(username, correctCount, selected.length, correctCount >= pass, "ППО");
+  const passed = correctCount >= pass;
+  
+  // Отправляем результат в Discord (пока без комментария, он отправится отдельно)
+  sendToDiscord(username, correctCount, selected.length, passed, "ППО", null);
+  
+  // Обработчик отправки комментария (ИДЕЯ №3)
+  document.getElementById('submitFeedbackBtn').addEventListener('click', async () => {
+    const comment = document.getElementById('feedbackComment').value.trim();
+    if (!comment) {
+      alert('Введите текст комментария!');
+      return;
+    }
+    await sendToDiscord(username, correctCount, selected.length, passed, "ППО", comment);
+    alert('✅ Спасибо за обратную связь! Отправлено в Discord.');
+    document.getElementById('submitFeedbackBtn').disabled = true;
+    document.getElementById('submitFeedbackBtn').textContent = '✅ ОТПРАВЛЕНО';
+  });
 }
 
 function escapeHtml(t) { 
@@ -553,15 +556,6 @@ document.getElementById('startBtn').onclick = startTest;
 document.getElementById('nextBtn').onclick = nextQuestion;
 document.getElementById('prevBtn').onclick = prevQuestion;
 document.getElementById('checkBtn').onclick = checkAnswers;
-
-// Проверка подключения к Firebase
-firebase.database().ref('.info/connected').on('value', (snap) => {
-  if (snap.val() === true) {
-    console.log("✅ Firebase подключен");
-  } else {
-    console.log("❌ Firebase НЕ подключен");
-  }
-});
 </script>
 </body>
 </html>
