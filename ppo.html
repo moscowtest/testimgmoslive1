@@ -264,6 +264,7 @@ const DISCORD_RESULTS = "https://discord.com/api/webhooks/1500489572025372842/IG
 
 let db = null, allQuestions = [], selected = [], userAnswers = {}, timerInterval = null, timeLeft = 1800, testActive = false;
 let currentQuestionIndex = 0;
+let feedbackSent = false;
 
 // ========== ПОДТВЕРЖДЕНИЕ ВЫХОДА (ИДЕЯ №2) ==========
 window.addEventListener('beforeunload', function(e) {
@@ -296,7 +297,7 @@ function shuffle(arr) {
   return arr; 
 }
 
-// ========== ОТПРАВКА В DISCORD (результат + комментарий) ==========
+// ========== ОТПРАВКА В DISCORD (результат + комментарий в одном сообщении) ==========
 async function sendToDiscord(username, score, total, passed, testName, comment = null) {
   const color = passed ? 0x00ff88 : 0xff00d4;
   const status = passed ? "✅ СДАЛ" : "❌ НЕ СДАЛ";
@@ -326,7 +327,11 @@ async function sendToDiscord(username, score, total, passed, testName, comment =
         }]
       })
     });
-  } catch(e) { console.error("Discord send error:", e); }
+    return true;
+  } catch(e) { 
+    console.error("Discord send error:", e);
+    return false;
+  }
 }
 
 async function startTest() {
@@ -448,7 +453,7 @@ function startTimer() {
     if(timeLeft <= 0) { 
       clearInterval(timerInterval); 
       alert('⏰ Время вышло!'); 
-      checkAnswers(); 
+      finishTestAndShowResults(); 
     }
   }, 1000);
 }
@@ -459,8 +464,8 @@ function updateTimerDisplay() {
   document.getElementById('timerDisplay').textContent = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
 }
 
-// ========== ПРОВЕРКА ОТВЕТОВ + КОММЕНТАРИЙ (ИДЕЯ №3) ==========
-function checkAnswers() {
+// ========== ФИНАЛЬНЫЙ РАСЧЁТ И ОТОБРАЖЕНИЕ РЕЗУЛЬТАТОВ ==========
+function finishTestAndShowResults() {
   if(!testActive) return;
   testActive = false;
   clearInterval(timerInterval);
@@ -484,7 +489,6 @@ function checkAnswers() {
     userResults.push({ q, userAnswer, isCorrect });
   }
   
-  // Показываем результаты
   const container = document.getElementById('currentQuestion');
   let resultsHtml = `
     <div class="result ${correctCount >= Math.floor(selected.length * 0.7) ? 'result-success' : 'result-fail'} mb-6">
@@ -530,21 +534,27 @@ function checkAnswers() {
   const pass = Math.floor(selected.length * 0.7);
   const passed = correctCount >= pass;
   
-  // Отправляем результат в Discord (пока без комментария, он отправится отдельно)
-  sendToDiscord(username, correctCount, selected.length, passed, "ППО", null);
+  // Сохраняем данные для отправки комментария
+  let commentData = { username, correctCount, total: selected.length, passed, testName: "ППО" };
   
-  // Обработчик отправки комментария (ИДЕЯ №3)
+  // Обработчик отправки комментария (ИДЕЯ №3) — отправляем результат + комментарий ВМЕСТЕ
   document.getElementById('submitFeedbackBtn').addEventListener('click', async () => {
-    const comment = document.getElementById('feedbackComment').value.trim();
-    if (!comment) {
-      alert('Введите текст комментария!');
+    if (feedbackSent) {
+      alert('Вы уже отправили обратную связь!');
       return;
     }
-    await sendToDiscord(username, correctCount, selected.length, passed, "ППО", comment);
+    const comment = document.getElementById('feedbackComment').value.trim();
+    // Отправляем результат ВМЕСТЕ с комментарием (одно сообщение)
+    await sendToDiscord(commentData.username, commentData.correctCount, commentData.total, commentData.passed, commentData.testName, comment);
+    feedbackSent = true;
     alert('✅ Спасибо за обратную связь! Отправлено в Discord.');
     document.getElementById('submitFeedbackBtn').disabled = true;
     document.getElementById('submitFeedbackBtn').textContent = '✅ ОТПРАВЛЕНО';
   });
+}
+
+function checkAnswers() {
+  finishTestAndShowResults();
 }
 
 function escapeHtml(t) { 
