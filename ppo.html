@@ -259,14 +259,25 @@ const firebaseConfig = {
   appId: "1:956332293918:web:e7f66986cca2a30474130f"
 };
 
-// 🎯 DISCORD WEBHOOK — результаты и комментарии
+// DISCORD WEBHOOKS
 const DISCORD_RESULTS = "https://discord.com/api/webhooks/1500489572025372842/IGJtGda4K64g0comJ-PbOo04fiAVNTfFmD_sZSNk8W0fqbPsgsV0s7yhO-3kMQ-67urU";
+const DISCORD_SUGGESTIONS = "https://discord.com/api/webhooks/1500489792159354900/temeK7DdbRTfd88JBRD_2vLM8QpDRpUMl4CBsyyfrVbw3fJ64znRfr52nZ4iZNEN-7Ks";
 
 let db = null, allQuestions = [], selected = [], userAnswers = {}, timerInterval = null, timeLeft = 1800, testActive = false;
 let currentQuestionIndex = 0;
 let feedbackSent = false;
+let showWrittenHint = true;
 
-// ========== ПОДТВЕРЖДЕНИЕ ВЫХОДА (ИДЕЯ №2) ==========
+// Загрузка настроек подсказки из Firebase
+async function loadHintSetting() {
+  try {
+    const snap = await firebase.database().ref('settings/global').once('value');
+    const settings = snap.exists() ? snap.val() : {};
+    showWrittenHint = settings.showWrittenHint !== false;
+  } catch(e) { showWrittenHint = true; }
+}
+
+// ========== ПОДТВЕРЖДЕНИЕ ВЫХОДА ==========
 window.addEventListener('beforeunload', function(e) {
   if (testActive) {
     e.preventDefault();
@@ -277,6 +288,7 @@ window.addEventListener('beforeunload', function(e) {
 
 firebase.initializeApp(firebaseConfig);
 db = firebase.database();
+loadHintSetting();
 
 async function loadQuestions() {
   const mc = await db.ref('questions/ppoQuestions').once('value');
@@ -297,41 +309,22 @@ function shuffle(arr) {
   return arr; 
 }
 
-// ========== ОТПРАВКА В DISCORD (результат + комментарий в одном сообщении) ==========
-async function sendToDiscord(username, score, total, passed, testName, comment = null) {
-  const color = passed ? 0x00ff88 : 0xff00d4;
-  const status = passed ? "✅ СДАЛ" : "❌ НЕ СДАЛ";
-  const percent = Math.round(score / total * 100);
-  
-  let description = `**${username}** ${status}\n📊 ${score}/${total} (${percent}%)`;
-  if (comment && comment.trim()) {
-    description += `\n\n💬 **Комментарий:** ${comment}`;
-  }
-  
+// ========== ОТПРАВКА В DISCORD ==========
+async function sendToDiscord(webhook, title, description, color) {
   try {
-    await fetch(DISCORD_RESULTS, {
+    await fetch(webhook, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         embeds: [{
-          title: `📊 Результат теста ${testName}`,
+          title: title,
           description: description,
           color: color,
-          fields: [
-            { name: "📝 Правильных ответов", value: `${score}/${total}`, inline: true },
-            { name: "📈 Процент", value: `${percent}%`, inline: true },
-            { name: "🎯 Проходной балл", value: `${Math.floor(total * 0.7)} правильных`, inline: true },
-            { name: "📅 Дата", value: new Date().toLocaleString(), inline: false }
-          ],
           footer: { text: "Москва Лайв | Система тестирования" }
         }]
       })
     });
-    return true;
-  } catch(e) { 
-    console.error("Discord send error:", e);
-    return false;
-  }
+  } catch(e) { console.error("Discord send error:", e); }
 }
 
 async function startTest() {
@@ -388,7 +381,7 @@ function renderCurrentQuestion() {
   let inner = `<div class="question-block" id="q-${currentQuestionIndex}">
     <div class="font-bold text-xl mb-4">${currentQuestionIndex + 1}. ${escapeHtml(q.q)}</div>`;
   
-  if(isWritten) {
+  if(isWritten && showWrittenHint) {
     inner += `<div class="written-hint">
       <span style="font-size: 16px; margin-right: 8px;">💡</span> 
       Если объявление написано с ошибками или некорректно, напишите: 
@@ -464,7 +457,6 @@ function updateTimerDisplay() {
   document.getElementById('timerDisplay').textContent = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
 }
 
-// ========== ФИНАЛЬНЫЙ РАСЧЁТ И ОТОБРАЖЕНИЕ РЕЗУЛЬТАТОВ ==========
 function finishTestAndShowResults() {
   if(!testActive) return;
   testActive = false;
@@ -499,7 +491,6 @@ function finishTestAndShowResults() {
     <div class="space-y-4" id="resultsList"></div>
   `;
   
-  // Добавляем поле для комментария (ИДЕЯ №3)
   resultsHtml += `
     <div class="feedback-area">
       <label class="font-bold mb-2 block">💬 Что было непонятно? Замечания, предложения:</label>
@@ -533,19 +524,23 @@ function finishTestAndShowResults() {
   
   const pass = Math.floor(selected.length * 0.7);
   const passed = correctCount >= pass;
+  const percent = Math.round(correctCount / selected.length * 100);
   
-  // Сохраняем данные для отправки комментария
-  let commentData = { username, correctCount, total: selected.length, passed, testName: "ППО" };
+  // Отправляем результат в канал результатов
+  sendToDiscord(DISCORD_RESULTS, `📊 Результат теста ППО`, `**${username}** ${passed ? '✅ СДАЛ' : '❌ НЕ СДАЛ'}\n📊 ${correctCount}/${selected.length} (${percent}%)\n🎯 Проходной балл: ${Math.floor(selected.length * 0.7)} правильных`, passed ? 0x00ff88 : 0xff00d4);
   
-  // Обработчик отправки комментария (ИДЕЯ №3) — отправляем результат + комментарий ВМЕСТЕ
+  // Обработчик отправки комментария (в канал предложений)
   document.getElementById('submitFeedbackBtn').addEventListener('click', async () => {
     if (feedbackSent) {
       alert('Вы уже отправили обратную связь!');
       return;
     }
     const comment = document.getElementById('feedbackComment').value.trim();
-    // Отправляем результат ВМЕСТЕ с комментарием (одно сообщение)
-    await sendToDiscord(commentData.username, commentData.correctCount, commentData.total, commentData.passed, commentData.testName, comment);
+    if (!comment) {
+      alert('Введите текст комментария!');
+      return;
+    }
+    await sendToDiscord(DISCORD_SUGGESTIONS, `💡 Предложение / замечание от ${username}`, comment, 0x00d4ff);
     feedbackSent = true;
     alert('✅ Спасибо за обратную связь! Отправлено в Discord.');
     document.getElementById('submitFeedbackBtn').disabled = true;
