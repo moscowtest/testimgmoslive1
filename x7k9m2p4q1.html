@@ -9,45 +9,9 @@
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="firebase-config.js"></script>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-    body { background: radial-gradient(ellipse at 20% 30%, #0a0a2a, #050510); min-height: 100vh; color: #fff; }
-    .neon-glow { text-shadow: 0 0 5px #00d4ff, 0 0 10px #00d4ff, 0 0 20px #00d4ff; }
-    .btn-neon { background: rgba(0,0,0,0.6); border: 2px solid #00d4ff; color: #00d4ff; padding: 10px 20px; border-radius: 60px; font-weight: bold; cursor: pointer; transition: all 0.3s ease; backdrop-filter: blur(10px); }
-    .btn-neon:hover { background: #00d4ff; color: #050510; box-shadow: 0 0 20px #00d4ff; transform: scale(1.02); }
-    .btn-neon-pink { border-color: #ff00d4; color: #ff00d4; }
-    .btn-neon-pink:hover { background: #ff00d4; box-shadow: 0 0 20px #ff00d4; }
-    .btn-neon-green { border-color: #00ff88; color: #00ff88; }
-    .btn-neon-green:hover { background: #00ff88; box-shadow: 0 0 20px #00ff88; }
-    .glass-card { background: rgba(20,20,50,0.4); backdrop-filter: blur(12px); border-radius: 24px; border: 1px solid rgba(0,212,255,0.3); padding: 20px; }
-    input, textarea, select { background: rgba(0,0,0,0.5); border: 1px solid #00d4ff; border-radius: 12px; padding: 10px; color: #00d4ff; outline: none; }
-    input:focus, textarea:focus, select:focus { box-shadow: 0 0 15px rgba(0,212,255,0.3); }
-    .question-card { background: rgba(20,20,50,0.6); border-radius: 16px; padding: 16px; margin-bottom: 12px; cursor: grab; border-left: 4px solid #00d4ff; }
-    .question-card.selected { border-left-color: #00ff88; background: rgba(0,255,136,0.1); }
-    .tag { background: #00d4ff20; color: #00d4ff; padding: 2px 8px; border-radius: 20px; font-size: 10px; display: inline-block; margin-right: 6px; margin-bottom: 4px; }
-    .pagination-btn { background: rgba(0,212,255,0.2); padding: 6px 12px; border-radius: 8px; cursor: pointer; margin: 0 3px; }
-    .pagination-btn.active { background: #00d4ff; color: #050510; }
-    .toast { position: fixed; bottom: 20px; right: 20px; background: #00d4ff; color: #050510; padding: 12px 20px; border-radius: 12px; z-index: 1000; font-weight: bold; }
-    .toast.error { background: #ff00d4; }
-    .sidebar-item { transition: all 0.2s; cursor: pointer; padding: 8px 12px; border-radius: 12px; }
-    .sidebar-item:hover { background: rgba(0,212,255,0.2); }
-    .sidebar-item.active { background: rgba(0,212,255,0.3); border-left: 2px solid #00d4ff; }
-    .toggle-switch { position: relative; display: inline-block; width: 48px; height: 24px; }
-    .toggle-switch input { opacity: 0; width: 0; height: 0; }
-    .toggle-slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: 0.3s; border-radius: 24px; }
-    .toggle-slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: 0.3s; border-radius: 50%; }
-    input:checked + .toggle-slider { background-color: #22c55e; }
-    input:checked + .toggle-slider:before { transform: translateX(24px); }
-    .leadership-role-item, .leadership-employee-item {
-      background: rgba(20,20,50,0.6);
-      border-radius: 12px;
-      padding: 12px;
-      margin-bottom: 8px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .leadership-role-item span, .leadership-employee-item span { flex: 1; }
+    *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif}body{background:radial-gradient(ellipse at 20% 30%,#0a0a2a,#050510);min-height:100vh;color:#fff}.neon-glow{text-shadow:0 0 5px #00d4ff,0 0 10px #00d4ff,0 0 20px #00d4ff}.btn-neon{background:rgba(0,0,0,0.6);border:2px solid #00d4ff;color:#00d4ff;padding:10px 20px;border-radius:60px;font-weight:700;cursor:pointer;transition:all .3s ease;backdrop-filter:blur(10px)}.btn-neon:hover{background:#00d4ff;color:#050510;box-shadow:0 0 20px #00d4ff;transform:scale(1.02)}.btn-neon-pink{border-color:#ff00d4;color:#ff00d4}.btn-neon-pink:hover{background:#ff00d4;box-shadow:0 0 20px #ff00d4}.btn-neon-green{border-color:#00ff88;color:#00ff88}.btn-neon-green:hover{background:#00ff88;box-shadow:0 0 20px #00ff88}.glass-card{background:rgba(20,20,50,0.4);backdrop-filter:blur(12px);border-radius:24px;border:1px solid rgba(0,212,255,0.3);padding:20px}input,textarea,select{background:rgba(0,0,0,0.5);border:1px solid #00d4ff;border-radius:12px;padding:10px;color:#00d4ff;outline:0}input:focus,textarea:focus,select:focus{box-shadow:0 0 15px rgba(0,212,255,0.3)}.question-card{background:rgba(20,20,50,0.6);border-radius:16px;padding:16px;margin-bottom:12px;cursor:grab;border-left:4px solid #00d4ff}.question-card.selected{border-left-color:#00ff88;background:rgba(0,255,136,0.1)}.tag{background:#00d4ff20;color:#00d4ff;padding:2px 8px;border-radius:20px;font-size:10px;display:inline-block;margin-right:6px;margin-bottom:4px}.pagination-btn{background:rgba(0,212,255,0.2);padding:6px 12px;border-radius:8px;cursor:pointer;margin:0 3px}.pagination-btn.active{background:#00d4ff;color:#050510}.toast{position:fixed;bottom:20px;right:20px;background:#00d4ff;color:#050510;padding:12px 20px;border-radius:12px;z-index:1000;font-weight:700}.toast.error{background:#ff00d4}.sidebar-item{transition:all .2s;cursor:pointer;padding:8px 12px;border-radius:12px}.sidebar-item:hover{background:rgba(0,212,255,0.2)}.sidebar-item.active{background:rgba(0,212,255,0.3);border-left:2px solid #00d4ff}.toggle-switch{position:relative;display:inline-block;width:48px;height:24px}.toggle-switch input{opacity:0;width:0;height:0}.toggle-slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background-color:#ccc;transition:.3s;border-radius:24px}.toggle-slider:before{position:absolute;content:"";height:18px;width:18px;left:3px;bottom:3px;background-color:#fff;transition:.3s;border-radius:50%}input:checked+.toggle-slider{background-color:#22c55e}input:checked+.toggle-slider:before{transform:translateX(24px)}.login-container{max-width:400px;margin:0 auto;text-align:center}.error-text{color:#ff8888;font-size:14px;margin-top:8px}.blocked-text{color:#ffaa00;font-size:14px;margin-top:8px}
   </style>
 </head>
 <body>
@@ -56,112 +20,67 @@
   <div class="flex justify-between items-center mb-6">
     <div class="flex items-center gap-3">
       <div class="w-10 h-10 bg-gradient-to-r from-cyan-400 to-pink-500 rounded-xl flex items-center justify-center"><i class="fas fa-crown text-white"></i></div>
-      <div><h1 class="text-2xl font-bold neon-glow">NEON ADMIN</h1><p class="text-gray-400 text-sm">Управление тестами</p></div>
+      <div><h1 class="text-2xl font-bold neon-glow">NEON ADMIN</h1><p class="text-gray-400 text-sm">Безопасная панель управления</p></div>
     </div>
   </div>
 
-  <div class="flex flex-col lg:flex-row gap-6">
-    <aside class="lg:w-72 glass-card h-fit">
-      <div class="space-y-4">
-        <div><p class="text-sm font-semibold mb-3"><i class="fas fa-eye mr-2"></i>Видимость тестов</p>
-          <div class="space-y-2">
-            <div class="flex justify-between items-center"><span><i class="fas fa-list mr-2 text-purple-400"></i>ППО</span><label class="toggle-switch"><input type="checkbox" id="togglePpo" onchange="toggleTestVisibility('ppo', this.checked)"><span class="toggle-slider"></span></label></div>
-            <div class="flex justify-between items-center"><span><i class="fas fa-book mr-2 text-blue-400"></i>Устав</span><label class="toggle-switch"><input type="checkbox" id="toggleUstav" onchange="toggleTestVisibility('ustav', this.checked)"><span class="toggle-slider"></span></label></div>
-            <div class="flex justify-between items-center"><span><i class="fas fa-users mr-2 text-green-400"></i>Руководство</span><label class="toggle-switch"><input type="checkbox" id="toggleLeadership" onchange="toggleTestVisibility('leadership', this.checked)"><span class="toggle-slider"></span></label></div>
+  <div id="step1" class="glass-card login-container p-6">
+    <h2 class="text-2xl font-bold mb-4 neon-glow">🔐 ВХОД В АДМИНКУ</h2>
+    <input type="password" id="passwordInput" placeholder="Введите пароль" class="w-full mb-3">
+    <button onclick="checkPassword()" class="btn-neon w-full">ПРОДОЛЖИТЬ</button>
+    <div id="passwordError" class="error-text mt-2 hidden"></div>
+    <div id="blockedMessage" class="blocked-text mt-2 hidden"></div>
+  </div>
+
+  <div id="step2" class="glass-card login-container p-6" style="display: none;">
+    <h2 class="text-2xl font-bold mb-4 neon-glow">🔢 ДВУХФАКТОРНАЯ АУТЕНТИФИКАЦИЯ</h2>
+    <p class="text-sm text-gray-300 mb-3">Код отправлен в приватный Discord-канал</p>
+    <input type="text" id="codeInput" placeholder="Введите 6-значный код" class="w-full mb-3" maxlength="6">
+    <button onclick="check2FACode()" class="btn-neon btn-neon-green w-full">ПОДТВЕРДИТЬ</button>
+    <button onclick="resendCode()" class="btn-neon w-full mt-2" style="background:#334155">🔄 Отправить код повторно</button>
+    <div id="codeError" class="error-text mt-2 hidden"></div>
+  </div>
+
+  <div id="adminPanel" class="glass-card" style="display: none;">
+    <div class="flex flex-col lg:flex-row gap-6">
+      <aside class="lg:w-64">
+        <div class="space-y-4">
+          <div><p class="text-sm font-semibold mb-3"><i class="fas fa-eye mr-2"></i>Видимость тестов</p>
+            <div class="space-y-2"><div class="flex justify-between items-center"><span><i class="fas fa-list mr-2 text-purple-400"></i>ППО</span><label class="toggle-switch"><input type="checkbox" id="togglePpo" onchange="toggleTestVisibility('ppo',this.checked)"><span class="toggle-slider"></span></label></div>
+            <div class="flex justify-between items-center"><span><i class="fas fa-book mr-2 text-blue-400"></i>Устав</span><label class="toggle-switch"><input type="checkbox" id="toggleUstav" onchange="toggleTestVisibility('ustav',this.checked)"><span class="toggle-slider"></span></label></div>
+            <div class="flex justify-between items-center"><span><i class="fas fa-users mr-2 text-green-400"></i>Руководство</span><label class="toggle-switch"><input type="checkbox" id="toggleLeadership" onchange="toggleTestVisibility('leadership',this.checked)"><span class="toggle-slider"></span></label></div></div>
           </div>
-        </div>
-        <hr class="border-gray-700">
-        <div><p class="text-sm font-semibold mb-3"><i class="fas fa-database mr-2"></i>Наборы вопросов</p>
-          <div class="space-y-1">
-            <div onclick="switchSet('ppoQuestions')" id="btn-ppoQuestions" class="sidebar-item flex items-center gap-3 p-2 rounded-lg"><i class="fas fa-check-circle text-purple-400"></i><span>PPO Выбор</span></div>
+          <hr class="border-gray-700">
+          <div><p class="text-sm font-semibold mb-3"><i class="fas fa-database mr-2"></i>Наборы вопросов</p>
+            <div class="space-y-1"><div onclick="switchSet('ppoQuestions')" id="btn-ppoQuestions" class="sidebar-item flex items-center gap-3 p-2 rounded-lg"><i class="fas fa-check-circle text-purple-400"></i><span>PPO Выбор</span></div>
             <div onclick="switchSet('ppoWrittenQuestions')" id="btn-ppoWrittenQuestions" class="sidebar-item flex items-center gap-3 p-2 rounded-lg"><i class="fas fa-pen text-green-400"></i><span>PPO Письменные</span></div>
-            <div onclick="switchSet('ustavQuestions')" id="btn-ustavQuestions" class="sidebar-item flex items-center gap-3 p-2 rounded-lg"><i class="fas fa-gavel text-blue-400"></i><span>Устав</span></div>
-            <div onclick="switchSet('leadership')" id="btn-leadership" class="sidebar-item flex items-center gap-3 p-2 rounded-lg"><i class="fas fa-users text-green-400"></i><span>Руководство</span></div>
+            <div onclick="switchSet('ustavQuestions')" id="btn-ustavQuestions" class="sidebar-item flex items-center gap-3 p-2 rounded-lg"><i class="fas fa-gavel text-blue-400"></i><span>Устав</span></div></div>
           </div>
-        </div>
-        <hr class="border-gray-700">
-        <div><p class="text-sm font-semibold mb-3"><i class="fas fa-tools mr-2"></i>Действия</p>
-          <div class="space-y-2">
-            <button onclick="exportAllData()" class="w-full btn-neon text-sm"><i class="fas fa-download"></i> Экспорт</button>
+          <hr class="border-gray-700">
+          <div><p class="text-sm font-semibold mb-3"><i class="fas fa-tools mr-2"></i>Действия</p>
+            <div class="space-y-2"><button onclick="exportAllData()" class="w-full btn-neon text-sm"><i class="fas fa-download"></i> Экспорт</button>
             <label class="w-full btn-neon text-sm cursor-pointer text-center block"><i class="fas fa-upload"></i> Импорт<input type="file" id="importFile" accept=".json" style="display:none" onchange="importAllData(this)"></label>
-            <button onclick="clearAllData()" class="w-full btn-neon btn-neon-pink text-sm"><i class="fas fa-trash"></i> Очистить всё</button>
+            <button onclick="clearAllData()" class="w-full btn-neon btn-neon-pink text-sm"><i class="fas fa-trash"></i> Очистить всё</button></div>
           </div>
+          <div class="mt-4 p-3 bg-gray-100 dark:bg-gray-800 rounded-lg"><p class="text-xs text-center"><i class="fas fa-keyboard"></i> Ctrl+S — сохранить, Ctrl+Enter — добавить</p></div>
         </div>
-        <div class="mt-4 p-3 bg-gray-100 dark:bg-gray-800 rounded-lg"><p class="text-xs text-center"><i class="fas fa-keyboard"></i> Ctrl+S — сохранить, Ctrl+Enter — добавить</p></div>
-      </div>
-    </aside>
-
-    <main class="flex-1 glass-card">
-      <div id="panel" class="hidden">
-        <!-- Стандартные блоки для PPO и Устава -->
-        <div id="standardPanel">
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-            <div class="bg-gradient-to-br from-cyan-500 to-blue-600 rounded-xl p-3"><p class="text-xs opacity-80">Всего</p><p class="text-2xl font-bold" id="statTotal">0</p></div>
-            <div class="bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl p-3"><p class="text-xs opacity-80">Выбор</p><p class="text-2xl font-bold" id="statMultiple">0</p></div>
-            <div class="bg-gradient-to-br from-green-500 to-emerald-500 rounded-xl p-3"><p class="text-xs opacity-80">Письменные</p><p class="text-2xl font-bold" id="statWritten">0</p></div>
-            <div class="bg-gradient-to-br from-orange-500 to-red-500 rounded-xl p-3"><p class="text-xs opacity-80">В тесте</p><p class="text-2xl font-bold" id="statSelected">0</p></div>
-          </div>
-
-          <div class="bg-gradient-to-r from-cyan-500/20 to-purple-500/20 rounded-xl p-4 mb-6">
-            <div class="flex flex-wrap justify-between gap-3">
-              <div><i class="fas fa-check-double mr-2"></i><span class="font-semibold">Отбор вопросов для теста</span></div>
-              <div class="flex flex-wrap gap-2">
-                <button onclick="selectAll()" class="btn-neon text-sm py-1">Выбрать все</button>
-                <button onclick="selectNone()" class="btn-neon text-sm py-1">Снять все</button>
-                <div class="flex gap-1"><input id="randomCount" type="number" value="20" min="1" class="w-16 text-center"><button onclick="selectRandom()" class="btn-neon text-sm py-1">Рандом</button></div>
-              </div>
-            </div>
-          </div>
-
-          <div class="bg-white/5 rounded-xl p-4 mb-6">
-            <div class="flex justify-between cursor-pointer" onclick="toggleForm()"><h2><i class="fas fa-plus-circle text-green-400"></i> Добавить вопрос</h2><i id="formToggleIcon" class="fas fa-chevron-up"></i></div>
-            <div id="formContent" class="mt-4 space-y-3">
-              <div class="flex gap-2"><select id="type" class="flex-1"><option value="multiple">Выбор ответа</option><option value="written">Письменный</option></select><button onclick="clearForm()" class="btn-neon text-sm">Очистить</button></div>
-              <textarea id="q" placeholder="Вопрос..." rows="2" class="w-full"></textarea>
-              <div id="optionFields"><input id="a1" placeholder="Вариант 1" class="w-full mb-2"><input id="a2" placeholder="Вариант 2" class="w-full mb-2"><input id="a3" placeholder="Вариант 3" class="w-full mb-2"></div>
-              <input id="correct" placeholder="Правильный ответ" class="w-full">
-              <input id="tags" placeholder="Теги" class="w-full">
-              <div class="flex gap-2"><button id="addBtn" onclick="addQuestion()" class="btn-neon btn-neon-green flex-1"><i class="fas fa-plus"></i> Добавить</button><button onclick="showPreview()" class="btn-neon flex-1"><i class="fas fa-eye"></i> Предпросмотр</button></div>
-            </div>
-          </div>
-
-          <div class="flex flex-wrap gap-3 mb-4"><div class="flex-1 relative"><i class="fas fa-search absolute left-3 top-3 text-gray-400"></i><input id="searchInput" type="text" placeholder="Поиск..." class="w-full pl-9"></div><select id="perPage" class="w-24"><option value="5">5</option><option value="10" selected>10</option><option value="20">20</option><option value="50">50</option></select></div>
-
-          <div class="flex justify-between items-center mb-3"><h2><i class="fas fa-list-ul mr-2 text-cyan-400"></i>Список вопросов</h2><span id="questionCount" class="text-sm text-gray-400"></span></div>
-          <div id="list" class="space-y-2 max-h-[500px] overflow-auto"></div>
-          <div id="pagination" class="flex justify-center gap-1 mt-4"></div>
-          <div class="text-center text-xs text-gray-400 mt-4"><i class="fas fa-arrows-alt mr-1"></i> Перетаскивайте вопросы за значок для изменения порядка</div>
+      </aside>
+      <main class="flex-1">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+          <div class="bg-gradient-to-br from-cyan-500 to-blue-600 rounded-xl p-3"><p class="text-xs opacity-80">Всего</p><p class="text-2xl font-bold" id="statTotal">0</p></div>
+          <div class="bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl p-3"><p class="text-xs opacity-80">Выбор</p><p class="text-2xl font-bold" id="statMultiple">0</p></div>
+          <div class="bg-gradient-to-br from-green-500 to-emerald-500 rounded-xl p-3"><p class="text-xs opacity-80">Письменные</p><p class="text-2xl font-bold" id="statWritten">0</p></div>
+          <div class="bg-gradient-to-br from-orange-500 to-red-500 rounded-xl p-3"><p class="text-xs opacity-80">В тесте</p><p class="text-2xl font-bold" id="statSelected">0</p></div>
         </div>
-
-        <!-- Панель для редактирования руководства -->
-        <div id="leadershipPanel" style="display: none;">
-          <h2 class="text-xl font-bold mb-4 neon-glow">👔 Управление тестом Руководства</h2>
-          
-          <!-- Должности -->
-          <div class="bg-white/5 rounded-xl p-4 mb-6">
-            <div class="flex justify-between items-center mb-3">
-              <h3 class="text-lg font-semibold"><i class="fas fa-tags mr-2 text-green-400"></i>Должности</h3>
-              <div class="flex gap-2">
-                <input type="text" id="newRoleName" placeholder="Новая должность" class="text-sm">
-                <button onclick="addLeadershipRole()" class="btn-neon text-sm py-1 px-3">➕ Добавить</button>
-              </div>
-            </div>
-            <div id="rolesList" class="space-y-2 max-h-[300px] overflow-auto"></div>
-          </div>
-
-          <!-- Сотрудники -->
-          <div class="bg-white/5 rounded-xl p-4 mb-6">
-            <div class="flex justify-between items-center mb-3">
-              <h3 class="text-lg font-semibold"><i class="fas fa-users mr-2 text-green-400"></i>Сотрудники</h3>
-              <button onclick="showAddEmployeeModal()" class="btn-neon text-sm py-1 px-3">➕ Добавить сотрудника</button>
-            </div>
-            <div id="employeesList" class="space-y-2 max-h-[300px] overflow-auto"></div>
-          </div>
-
-          <button onclick="saveLeadershipData()" class="btn-neon btn-neon-green w-full mt-4">💾 СОХРАНИТЬ ВСЕ ДАННЫЕ</button>
-        </div>
-      </div>
-    </main>
+        <div class="bg-gradient-to-r from-cyan-500/20 to-purple-500/20 rounded-xl p-4 mb-6"><div class="flex flex-wrap justify-between gap-3"><div><i class="fas fa-check-double mr-2"></i><span class="font-semibold">Отбор вопросов для теста</span></div><div class="flex flex-wrap gap-2"><button onclick="selectAll()" class="btn-neon text-sm py-1">Выбрать все</button><button onclick="selectNone()" class="btn-neon text-sm py-1">Снять все</button><div class="flex gap-1"><input id="randomCount" type="number" value="20" min="1" class="w-16 text-center"><button onclick="selectRandom()" class="btn-neon text-sm py-1">Рандом</button></div></div></div></div>
+        <div class="bg-white/5 rounded-xl p-4 mb-6"><div class="flex justify-between cursor-pointer" onclick="toggleForm()"><h2><i class="fas fa-plus-circle text-green-400"></i> Добавить вопрос</h2><i id="formToggleIcon" class="fas fa-chevron-up"></i></div><div id="formContent" class="mt-4 space-y-3"><div class="flex gap-2"><select id="type" class="flex-1"><option value="multiple">Выбор ответа</option><option value="written">Письменный</option></select><button onclick="clearForm()" class="btn-neon text-sm">Очистить</button></div><textarea id="q" placeholder="Вопрос..." rows="2" class="w-full"></textarea><div id="optionFields"><input id="a1" placeholder="Вариант 1" class="w-full mb-2"><input id="a2" placeholder="Вариант 2" class="w-full mb-2"><input id="a3" placeholder="Вариант 3" class="w-full mb-2"></div><input id="correct" placeholder="Правильный ответ" class="w-full"><input id="tags" placeholder="Теги (через запятую)" class="w-full"><div class="flex gap-2"><button id="addBtn" onclick="addQuestion()" class="btn-neon btn-neon-green flex-1"><i class="fas fa-plus"></i> Добавить</button><button onclick="showPreview()" class="btn-neon flex-1"><i class="fas fa-eye"></i> Предпросмотр</button></div></div></div>
+        <div class="flex flex-wrap gap-3 mb-4"><div class="flex-1 relative"><i class="fas fa-search absolute left-3 top-3 text-gray-400"></i><input id="searchInput" type="text" placeholder="Поиск..." class="w-full pl-9"></div><select id="perPage" class="w-24" onchange="changePerPage()"><option value="5">5</option><option value="10" selected>10</option><option value="20">20</option><option value="50">50</option></select></div>
+        <div class="flex justify-between items-center mb-3"><h2><i class="fas fa-list-ul mr-2 text-cyan-400"></i>Список вопросов</h2><span id="questionCount" class="text-sm text-gray-400"></span></div>
+        <div id="list" class="space-y-2 max-h-[500px] overflow-auto"></div>
+        <div id="pagination" class="flex justify-center gap-1 mt-4"></div>
+        <div class="text-center text-xs text-gray-400 mt-4"><i class="fas fa-arrows-alt mr-1"></i> Перетаскивайте вопросы за значок для изменения порядка</div>
+      </main>
+    </div>
   </div>
 </div>
 
@@ -169,268 +88,526 @@
   <div class="bg-gray-900 rounded-2xl p-6 max-w-md w-full border border-cyan-400"><h3 class="font-bold text-xl mb-3"><i class="fas fa-eye text-cyan-400 mr-2"></i>Предпросмотр</h3><div id="previewContent"></div><button onclick="closePreview()" class="btn-neon w-full mt-4">Закрыть</button></div>
 </div>
 
-<!-- Модальное окно для добавления сотрудника -->
-<div id="employeeModal" class="fixed inset-0 bg-black/80 backdrop-blur hidden items-center justify-center z-[2000]">
-  <div class="bg-gray-900 rounded-2xl p-6 max-w-md w-full border border-green-400">
-    <h3 class="font-bold text-xl mb-3"><i class="fas fa-user-plus text-green-400 mr-2"></i>Добавить сотрудника</h3>
-    <input type="text" id="empName" placeholder="Имя и фамилия" class="w-full mb-3">
-    <select id="empRole" class="w-full mb-3"></select>
-    <div class="flex gap-2">
-      <button onclick="addEmployee()" class="btn-neon btn-neon-green flex-1">Добавить</button>
-      <button onclick="closeEmployeeModal()" class="btn-neon flex-1">Отмена</button>
-    </div>
-  </div>
-</div>
-
 <script>
-const FIREBASE_CONFIG = {
-  apiKey: "AIzaSyCuOIt7wMUrN8vu9RQqivNj9w3CdFitrqE",
-  authDomain: "moscow-live-tests.firebaseapp.com",
-  projectId: "moscow-live-tests",
-  storageBucket: "moscow-live-tests.firebasestorage.app",
-  messagingSenderId: "956332293918",
-  appId: "1:956332293918:web:e7f66986cca2a30474130f"
-};
-
-const PASSWORD = "admin2024";
-let currentSet = "ppoQuestions", questions = [], editingIndex = -1, db = null, filteredQuestions = [], currentPage = 1, perPage = 10, formExpanded = true;
-let leadershipRoles = [], leadershipEmployees = [];
-
-function showToast(msg, isError = false) {
-  const toast = document.createElement('div');
-  toast.className = `toast ${isError ? 'error' : ''}`;
-  toast.innerHTML = `<i class="fas ${isError ? 'fa-exclamation-triangle' : 'fa-check-circle'} mr-2"></i>${msg}`;
-  document.body.appendChild(toast);
-  setTimeout(() => toast.remove(), 3000);
-}
-
-function toggleForm() { formExpanded = !formExpanded; document.getElementById('formContent').style.display = formExpanded ? 'block' : 'none'; document.getElementById('formToggleIcon').className = formExpanded ? 'fas fa-chevron-up' : 'fas fa-chevron-down'; }
-function updateStats() { let mc = questions.filter(q => q.options).length, wr = questions.filter(q => !q.options).length, sel = questions.filter(q => q.inTest === true).length; document.getElementById('statTotal').innerText = questions.length; document.getElementById('statMultiple').innerText = mc; document.getElementById('statWritten').innerText = wr; document.getElementById('statSelected').innerText = sel; }
-function initFirebase() { if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG); db = firebase.database(); loadFromFirebase(); loadLeadershipFromFirebase(); }
-async function loadFromFirebase() { let snap = await db.ref(`questions/${currentSet}`).once('value'); if(snap.exists()) questions = snap.val().map(q => ({ ...q, inTest: q.inTest !== undefined ? q.inTest : true })); else questions = []; filteredQuestions = [...questions]; renderList(); updateStats(); }
-async function syncToFirebase() { await db.ref(`questions/${currentSet}`).set(questions); }
-
-async function loadLeadershipFromFirebase() {
-  const snap = await db.ref('leadership').once('value');
-  const data = snap.val();
-  if (data) {
-    leadershipRoles = data.roles || [];
-    leadershipEmployees = data.employees || [];
-  } else {
-    leadershipRoles = [
-      "Председатель-Правительства", "Заместитель-Председателя-Правительства 1",
-      "Министр социальной политики", "Директор Москва-LIVE", "Глава Отдела Кадров"
-    ];
-    leadershipEmployees = [
-      { name: "Виктор Ваффентрагер", role: "Председатель-Правительства" },
-      { name: "Даниил Гранде", role: "Заместитель-Председателя-Правительства 1" },
-      { name: "Рамзан Непупсиков", role: "Министр социальной политики" },
-      { name: "Данил Валерьянов", role: "Директор Москва-LIVE" },
-      { name: "Артём Берёзов", role: "Глава Отдела Кадров" }
-    ];
+(function(){
+  // ========== ЗАЩИТА ОТ КОПИРОВАНИЯ ==========
+  const allowedDomains = ['moscow-live-tests.github.io', 'localhost', '127.0.0.1'];
+  const currentHost = window.location.hostname;
+  let isAllowed = false;
+  for (let i = 0; i < allowedDomains.length; i++) {
+    if (currentHost === allowedDomains[i] || currentHost.includes('github.io')) {
+      isAllowed = true;
+      break;
+    }
   }
-  renderLeadershipPanel();
-}
-
-async function saveLeadershipToFirebase() {
-  await db.ref('leadership').set({ roles: leadershipRoles, employees: leadershipEmployees });
-  showToast('✅ Данные руководства сохранены');
-}
-
-function renderLeadershipPanel() {
-  // Рендер должностей
-  const rolesContainer = document.getElementById('rolesList');
-  if (rolesContainer) {
-    rolesContainer.innerHTML = leadershipRoles.map((role, idx) => `
-      <div class="leadership-role-item">
-        <span>${escapeHtml(role)}</span>
-        <div class="flex gap-2">
-          <button onclick="editLeadershipRole(${idx})" class="text-cyan-400"><i class="fas fa-edit"></i></button>
-          <button onclick="deleteLeadershipRole(${idx})" class="text-pink-400"><i class="fas fa-trash"></i></button>
-        </div>
-      </div>
-    `).join('');
+  if (!isAllowed) {
+    document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;background:#0a0a2a;color:white;font-family:monospace;flex-direction:column;gap:20px;"><h1>🔒 ДОСТУП ЗАПРЕЩЁН</h1><p>Этот сайт скопирован или используется без разрешения.</p><p>Оригинал доступен только для сотрудников Москва Лайв.</p></div>';
+    throw new Error('Access denied');
   }
+
+  // ========== ЗАГРУЗКА КОНФИГА ИЗ ОБФУСЦИРОВАННОГО ФАЙЛА ==========
+  const firebaseConfig = window._0x2c3a;
   
-  // Рендер сотрудников
-  const employeesContainer = document.getElementById('employeesList');
-  if (employeesContainer) {
-    employeesContainer.innerHTML = leadershipEmployees.map((emp, idx) => `
-      <div class="leadership-role-item">
-        <div>
-          <div class="font-medium">${escapeHtml(emp.name)}</div>
-          <div class="text-sm text-gray-400">→ ${escapeHtml(emp.role)}</div>
-        </div>
-        <div class="flex gap-2">
-          <button onclick="editLeadershipEmployee(${idx})" class="text-cyan-400"><i class="fas fa-edit"></i></button>
-          <button onclick="deleteLeadershipEmployee(${idx})" class="text-pink-400"><i class="fas fa-trash"></i></button>
-        </div>
-      </div>
-    `).join('');
-  }
-  
-  // Обновляем выпадающий список в модалке
-  const roleSelect = document.getElementById('empRole');
-  if (roleSelect) {
-    roleSelect.innerHTML = leadershipRoles.map(role => `<option value="${escapeHtml(role)}">${escapeHtml(role)}</option>`).join('');
-  }
-}
-
-function addLeadershipRole() {
-  const newRole = document.getElementById('newRoleName').value.trim();
-  if (!newRole) { showToast('Введите название должности', true); return; }
-  if (leadershipRoles.includes(newRole)) { showToast('Такая должность уже есть', true); return; }
-  leadershipRoles.push(newRole);
-  renderLeadershipPanel();
-  document.getElementById('newRoleName').value = '';
-  showToast('✅ Должность добавлена');
-}
-
-function editLeadershipRole(idx) {
-  const newName = prompt('Новое название должности:', leadershipRoles[idx]);
-  if (newName && newName.trim()) {
-    const oldName = leadershipRoles[idx];
-    leadershipRoles[idx] = newName.trim();
-    // Обновляем роль у сотрудников
-    leadershipEmployees.forEach(emp => {
-      if (emp.role === oldName) emp.role = newName.trim();
+  if (!firebase.apps.length) {
+    firebase.initializeApp({
+      apiKey: firebaseConfig._0x2b9c,
+      authDomain: firebaseConfig._0x277b,
+      projectId: firebaseConfig._0x1f9c,
+      storageBucket: firebaseConfig._0x4e3b,
+      messagingSenderId: firebaseConfig._0x5a8c,
+      appId: firebaseConfig._0x3a2f
     });
-    renderLeadershipPanel();
-    showToast('✅ Должность обновлена');
   }
-}
+  const db = firebase.database();
 
-function deleteLeadershipRole(idx) {
-  if (confirm('Удалить должность?')) {
-    const roleToDelete = leadershipRoles[idx];
-    leadershipRoles.splice(idx, 1);
-    // Удаляем сотрудников с этой должностью
-    leadershipEmployees = leadershipEmployees.filter(emp => emp.role !== roleToDelete);
-    renderLeadershipPanel();
-    showToast('🗑️ Должность удалена');
+  // ========== 2FA НАСТРОЙКИ ==========
+  const DISCORD_CODE_WEBHOOK = "https://discord.com/api/webhooks/1503013566289281037/5hJsRG7FVQK0hG3j8NSCIqwg-qmf39fi8tzsbL_IaCJnWtjHJ9RMyL-yf8Z5OVdT1MXR";
+  let pending2FACode = null;
+  let codeExpiration = null;
+  let failedAttempts = 0;
+  let blockedUntil = null;
+
+  function showToast(msg, isError = false) {
+    const toast = document.createElement('div');
+    toast.className = `toast ${isError ? 'error' : ''}`;
+    toast.innerHTML = `<i class="fas ${isError ? 'fa-exclamation-triangle' : 'fa-check-circle'} mr-2"></i>${msg}`;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
   }
-}
 
-function showAddEmployeeModal() {
-  if (leadershipRoles.length === 0) {
-    showToast('Сначала добавьте должности!', true);
-    return;
+  async function sendCodeToDiscord(code) {
+    try {
+      await fetch(DISCORD_CODE_WEBHOOK, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          content: `🔐 **Код для входа в админ-панель Москва Лайв**\n\`\`\`${code}\`\`\`\nКод действителен 5 минут. Никому не сообщайте!`,
+          username: "2FA Bot"
+        })
+      });
+      return true;
+    } catch(e) { return false; }
   }
-  document.getElementById('empName').value = '';
-  document.getElementById('employeeModal').classList.remove('hidden');
-  document.getElementById('employeeModal').style.display = 'flex';
-}
 
-function closeEmployeeModal() {
-  document.getElementById('employeeModal').classList.add('hidden');
-  document.getElementById('employeeModal').style.display = 'none';
-}
-
-function addEmployee() {
-  const name = document.getElementById('empName').value.trim();
-  const role = document.getElementById('empRole').value;
-  if (!name) { showToast('Введите имя сотрудника', true); return; }
-  if (!role) { showToast('Выберите должность', true); return; }
-  leadershipEmployees.push({ name, role });
-  renderLeadershipPanel();
-  closeEmployeeModal();
-  showToast('✅ Сотрудник добавлен');
-}
-
-function editLeadershipEmployee(idx) {
-  const emp = leadershipEmployees[idx];
-  const newName = prompt('Новое имя сотрудника:', emp.name);
-  if (newName && newName.trim()) {
-    leadershipEmployees[idx].name = newName.trim();
-    renderLeadershipPanel();
-    showToast('✅ Сотрудник обновлён');
+  async function loadBlockStatus() {
+    try {
+      const snapshot = await db.ref('settings/adminBlock').once('value');
+      const data = snapshot.val();
+      if (data && data.blockedUntil && data.blockedUntil > Date.now()) {
+        blockedUntil = data.blockedUntil;
+        const minutesLeft = Math.ceil((blockedUntil - Date.now()) / 60000);
+        document.getElementById('blockedMessage').innerText = `🔒 Слишком много попыток. Доступ заблокирован на ${minutesLeft} мин.`;
+        document.getElementById('blockedMessage').classList.remove('hidden');
+        document.getElementById('passwordInput').disabled = true;
+      } else if (data && data.blockedUntil && data.blockedUntil <= Date.now()) {
+        await db.ref('settings/adminBlock').remove();
+        failedAttempts = 0;
+        blockedUntil = null;
+      }
+    } catch(e) {}
   }
-}
 
-function deleteLeadershipEmployee(idx) {
-  if (confirm('Удалить сотрудника?')) {
-    leadershipEmployees.splice(idx, 1);
-    renderLeadershipPanel();
-    showToast('🗑️ Сотрудник удалён');
+  async function saveBlock(attempts) {
+    if (attempts >= 3) {
+      const blockTime = Date.now() + 15 * 60 * 1000;
+      await db.ref('settings/adminBlock').set({ failedAttempts: attempts, blockedUntil: blockTime });
+      blockedUntil = blockTime;
+      document.getElementById('blockedMessage').innerText = `🔒 Доступ заблокирован на 15 минут.`;
+      document.getElementById('blockedMessage').classList.remove('hidden');
+      document.getElementById('passwordInput').disabled = true;
+    }
   }
-}
 
-async function saveLeadershipData() {
-  await saveLeadershipToFirebase();
-}
+  async function checkPassword() {
+    const password = document.getElementById('passwordInput').value;
+    if (!password) { showToast('Введите пароль!', true); return; }
+    if (blockedUntil && blockedUntil > Date.now()) { showToast('Доступ временно заблокирован!', true); return; }
+    
+    try {
+      const snapshot = await db.ref('settings/adminPassword').once('value');
+      const correctPassword = snapshot.val();
+      
+      if (correctPassword && password === correctPassword) {
+        failedAttempts = 0;
+        await db.ref('settings/adminBlock').remove();
+        pending2FACode = Math.floor(100000 + Math.random() * 900000).toString();
+        codeExpiration = Date.now() + 5 * 60 * 1000;
+        await sendCodeToDiscord(pending2FACode);
+        showToast('✅ Код отправлен в Discord!');
+        document.getElementById('step1').style.display = 'none';
+        document.getElementById('step2').style.display = 'block';
+      } else {
+        failedAttempts++;
+        await saveBlock(failedAttempts);
+        showToast('Неверный пароль!', true);
+        document.getElementById('passwordError').innerText = `Осталось попыток: ${3 - failedAttempts}`;
+        document.getElementById('passwordError').classList.remove('hidden');
+      }
+    } catch(e) { showToast('Ошибка: ' + e.message, true); }
+  }
 
-function toggleQuestionInTest(i) { questions[i].inTest = !questions[i].inTest; syncToFirebase(); renderList(); updateStats(); showToast(questions[i].inTest ? '✅ Вопрос в тесте' : '❌ Вопрос исключён'); }
-function selectAll() { questions.forEach(q => q.inTest = true); syncToFirebase(); renderList(); updateStats(); showToast('✅ Все вопросы в тесте'); }
-function selectNone() { questions.forEach(q => q.inTest = false); syncToFirebase(); renderList(); updateStats(); showToast('❌ Все вопросы исключены'); }
-function selectRandom() { let cnt = parseInt(document.getElementById('randomCount').value); if(cnt > questions.length) { showToast(`Максимум ${questions.length}`, true); return; } questions.forEach(q => q.inTest = false); let idx = [...Array(questions.length).keys()]; for(let i=idx.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[idx[i],idx[j]]=[idx[j],idx[i]];} for(let i=0;i<cnt;i++) questions[idx[i]].inTest = true; syncToFirebase(); renderList(); updateStats(); showToast(`🎲 Выбрано ${cnt} вопросов`); }
-let dragStartIndex = null;
-function onDragStart(e,i){ dragStartIndex=i; e.dataTransfer.effectAllowed='move'; e.target.classList.add('opacity-50'); }
-function onDragOver(e,i){ e.preventDefault(); let t=e.target.closest('.question-card'); if(t && dragStartIndex!==null && dragStartIndex!==i) t.classList.add('drag-over'); }
-function onDragLeave(e){ let t=e.target.closest('.question-card'); if(t) t.classList.remove('drag-over'); }
-function onDrop(e,i){ e.preventDefault(); let t=e.target.closest('.question-card'); if(t) t.classList.remove('drag-over'); if(dragStartIndex!==null && dragStartIndex!==i){ let item = questions[dragStartIndex]; questions.splice(dragStartIndex,1); questions.splice(i,0,item); filteredQuestions=[...questions]; renderList(); syncToFirebase(); showToast('📌 Порядок изменён'); } dragStartIndex=null; }
-function onDragEnd(e){ e.target.classList.remove('opacity-50'); dragStartIndex=null; }
-function filterQuestions(){ let term=document.getElementById('searchInput').value.toLowerCase(); filteredQuestions=term?questions.filter(q=>q.q.toLowerCase().includes(term)||(q.answer&&q.answer.toLowerCase().includes(term))):[...questions]; currentPage=1; renderList(); }
-function changePerPage(){ perPage=parseInt(document.getElementById('perPage').value); currentPage=1; renderList(); }
-function renderPagination(){ let total=Math.ceil(filteredQuestions.length/perPage), div=document.getElementById('pagination'); if(!div) return; if(total<=1){div.innerHTML='';return;} let html=''; for(let i=1;i<=Math.min(total,10);i++) html+=`<span class="pagination-btn ${i===currentPage?'active':''}" onclick="goToPage(${i})">${i}</span>`; div.innerHTML=html; }
-function goToPage(p){ currentPage=p; renderList(); }
-function showPreview(){ let q=document.getElementById('q').value.trim(); if(!q){showToast('Введите вопрос!',true);return;} let html=`<p class="font-bold">${escapeHtml(q)}</p>`; if(document.getElementById('type').value==='multiple'){ let a1=document.getElementById('a1').value.trim(), a2=document.getElementById('a2').value.trim(), a3=document.getElementById('a3').value.trim(); html+=`<div class="space-y-2 mt-3">${a1?`<label><input type="radio" disabled> ${escapeHtml(a1)}</label><br>`:''}${a2?`<label><input type="radio" disabled> ${escapeHtml(a2)}</label><br>`:''}${a3?`<label><input type="radio" disabled> ${escapeHtml(a3)}</label><br>`:''}</div>`; }else{ html+=`<textarea rows="3" class="w-full mt-2 p-2 border rounded" placeholder="Ответ..."></textarea>`; } document.getElementById('previewContent').innerHTML=html; document.getElementById('previewModal').classList.remove('hidden'); document.getElementById('previewModal').style.display='flex'; }
-function closePreview(){ document.getElementById('previewModal').classList.add('hidden'); document.getElementById('previewModal').style.display='none'; }
-function escapeHtml(t){ return t?t.replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])):''; }
-function copyQuestion(i){ let copy=JSON.parse(JSON.stringify(questions[i])); copy.q=copy.q+" (копия)"; questions.push(copy); filteredQuestions=[...questions]; syncToFirebase(); renderList(); updateStats(); showToast('📋 Вопрос скопирован'); }
-function renderList(){ let list=document.getElementById('list'); if(!list) return; let start=(currentPage-1)*perPage, pageQuestions=filteredQuestions.slice(start,start+perPage); list.innerHTML=''; if(!pageQuestions.length){ list.innerHTML='<div class="text-center text-gray-400 p-8">Нет вопросов</div>'; renderPagination(); return; } pageQuestions.forEach((item,idx)=>{ let globalIndex=questions.findIndex(q=>q.q===item.q&&q.answer===item.answer), actualIndex=globalIndex!==-1?globalIndex:start+idx, isSelected=item.inTest===true, el=document.createElement('div'); el.className=`question-card ${isSelected?'selected':''}`; el.draggable=true; el.setAttribute('data-index',actualIndex); el.ondragstart=e=>onDragStart(e,actualIndex); el.ondragover=e=>onDragOver(e,actualIndex); el.ondragleave=onDragLeave; el.ondrop=e=>onDrop(e,actualIndex); el.ondragend=onDragEnd; let preview=item.q.length>100?item.q.substring(0,100)+'...':item.q, tagsHtml=''; if(item.tags && item.tags.length) tagsHtml=`<div class="flex flex-wrap mt-2">${item.tags.map(t=>`<span class="tag">${escapeHtml(t)}</span>`).join('')}</div>`; el.innerHTML=`<div class="flex justify-between"><div><div class="flex items-center gap-2"><i class="fas fa-grip-vertical text-gray-400 cursor-grab"></i><span class="font-bold text-gray-300 text-sm">#${start+idx+1}</span><label class="flex items-center gap-1 ml-2"><input type="checkbox" class="accent-cyan-400" ${isSelected?'checked':''} onchange="toggleQuestionInTest(${actualIndex})"><span class="text-xs">в тест</span></label></div><div class="mt-1">${escapeHtml(preview)}</div>${tagsHtml}</div><div class="flex gap-1"><button onclick="editQuestion(${actualIndex})" class="text-cyan-400 p-1"><i class="fas fa-edit"></i></button><button onclick="copyQuestion(${actualIndex})" class="text-green-400 p-1"><i class="fas fa-copy"></i></button><button onclick="del(${actualIndex})" class="text-pink-400 p-1"><i class="fas fa-trash"></i></button></div></div>`; list.appendChild(el); }); renderPagination(); document.getElementById('questionCount').innerHTML=`<i class="fas fa-database mr-1"></i>${questions.length} вопросов (${filteredQuestions.length})`; }
-function addQuestion(){ let type=document.getElementById('type').value, q=document.getElementById('q').value.trim(), correct=document.getElementById('correct').value.trim(), tagsText=document.getElementById('tags').value.trim(), tags=tagsText?tagsText.split(',').map(t=>t.trim()).filter(t=>t):[]; if(!q){showToast('Введите вопрос!',true);return;} if(!correct){showToast('Введите ответ!',true);return;} let obj; if(type==='multiple'){ let a1=document.getElementById('a1').value.trim(), a2=document.getElementById('a2').value.trim(), a3=document.getElementById('a3').value.trim(); if(!a1||!a2||!a3){showToast('Заполните варианты!',true);return;} obj={q,options:[a1,a2,a3],answer:correct,tags,inTest:true}; }else{ obj={q,answer:correct,tags,inTest:true}; } if(editingIndex>=0){ questions[editingIndex]=obj; editingIndex=-1; document.getElementById('addBtn').innerHTML='<i class="fas fa-plus"></i> Добавить'; showToast('✅ Вопрос обновлён'); }else{ questions.push(obj); showToast('✅ Вопрос добавлен'); } filteredQuestions=[...questions]; syncToFirebase(); renderList(); updateStats(); clearForm(); }
-function clearForm(){ document.getElementById('q').value=''; document.getElementById('a1').value=''; document.getElementById('a2').value=''; document.getElementById('a3').value=''; document.getElementById('correct').value=''; document.getElementById('tags').value=''; document.getElementById('type').value='multiple'; editingIndex=-1; document.getElementById('addBtn').innerHTML='<i class="fas fa-plus"></i> Добавить'; document.getElementById('optionFields').style.display='block'; }
-function editQuestion(i){ let q=questions[i]; document.getElementById('q').value=q.q; document.getElementById('correct').value=q.answer; document.getElementById('tags').value=q.tags?q.tags.join(', '):''; if(q.options){ document.getElementById('type').value='multiple'; document.getElementById('optionFields').style.display='block'; document.getElementById('a1').value=q.options[0]||''; document.getElementById('a2').value=q.options[1]||''; document.getElementById('a3').value=q.options[2]||''; }else{ document.getElementById('type').value='written'; document.getElementById('optionFields').style.display='none'; } editingIndex=i; document.getElementById('addBtn').innerHTML='<i class="fas fa-save"></i> Обновить'; window.scrollTo({top:0}); if(!formExpanded) toggleForm(); }
-function del(i){ if(confirm('Удалить вопрос?')){ questions.splice(i,1); filteredQuestions=[...questions]; syncToFirebase(); renderList(); updateStats(); showToast('🗑️ Вопрос удалён'); } }
-function switchSet(set){ 
-  currentSet = set; 
-  if (set === 'leadership') {
-    document.getElementById('standardPanel').style.display = 'none';
-    document.getElementById('leadershipPanel').style.display = 'block';
-    loadLeadershipFromFirebase();
-  } else {
-    document.getElementById('standardPanel').style.display = 'block';
-    document.getElementById('leadershipPanel').style.display = 'none';
+  async function check2FACode() {
+    const code = document.getElementById('codeInput').value;
+    if (!code) { showToast('Введите код!', true); return; }
+    if (!pending2FACode || Date.now() > codeExpiration) {
+      showToast('Код истёк. Начните заново.', true);
+      document.getElementById('step2').style.display = 'none';
+      document.getElementById('step1').style.display = 'block';
+      pending2FACode = null;
+      return;
+    }
+    if (code === pending2FACode) {
+      pending2FACode = null;
+      showToast('✅ Доступ разрешён!');
+      document.getElementById('step1').style.display = 'none';
+      document.getElementById('step2').style.display = 'none';
+      document.getElementById('adminPanel').style.display = 'block';
+      initAdminPanel();
+    } else {
+      showToast('Неверный код!', true);
+    }
+  }
+
+  async function resendCode() {
+    if (pending2FACode && Date.now() < codeExpiration) {
+      await sendCodeToDiscord(pending2FACode);
+      showToast('✅ Код отправлен повторно!');
+    } else {
+      showToast('Код истёк. Начните заново.', true);
+      document.getElementById('step2').style.display = 'none';
+      document.getElementById('step1').style.display = 'block';
+      pending2FACode = null;
+    }
+  }
+
+  // ========== ОСНОВНАЯ ЛОГИКА АДМИНКИ ==========
+  let currentSet = "ppoQuestions", questions = [], editingIndex = -1, filteredQuestions = [], currentPage = 1, perPage = 10, formExpanded = true;
+
+  function toggleForm() { 
+    formExpanded = !formExpanded; 
+    document.getElementById('formContent').style.display = formExpanded ? 'block' : 'none'; 
+    document.getElementById('formToggleIcon').className = formExpanded ? 'fas fa-chevron-up' : 'fas fa-chevron-down'; 
+  }
+  
+  function updateStats() { 
+    let mc = questions.filter(q => q.options).length;
+    let wr = questions.filter(q => !q.options).length;
+    let sel = questions.filter(q => q.inTest === true).length;
+    document.getElementById('statTotal').innerText = questions.length;
+    document.getElementById('statMultiple').innerText = mc;
+    document.getElementById('statWritten').innerText = wr;
+    document.getElementById('statSelected').innerText = sel;
+  }
+  
+  async function loadFromFirebase() { 
+    let snap = await db.ref(`questions/${currentSet}`).once('value'); 
+    if(snap.exists()) questions = snap.val().map(q => ({ ...q, inTest: q.inTest !== undefined ? q.inTest : true })); 
+    else questions = []; 
+    filteredQuestions = [...questions]; 
+    renderList(); 
+    updateStats(); 
+  }
+  
+  async function syncToFirebase() { await db.ref(`questions/${currentSet}`).set(questions); }
+  
+  function toggleQuestionInTest(i) { 
+    questions[i].inTest = !questions[i].inTest; 
+    syncToFirebase(); 
+    renderList(); 
+    updateStats(); 
+    showToast(questions[i].inTest ? '✅ Вопрос в тесте' : '❌ Вопрос исключён'); 
+  }
+  
+  function selectAll() { questions.forEach(q => q.inTest = true); syncToFirebase(); renderList(); updateStats(); showToast('✅ Все вопросы в тесте'); }
+  function selectNone() { questions.forEach(q => q.inTest = false); syncToFirebase(); renderList(); updateStats(); showToast('❌ Все вопросы исключены'); }
+  
+  function selectRandom() { 
+    let cnt = parseInt(document.getElementById('randomCount').value); 
+    if(cnt > questions.length) { showToast(`Максимум ${questions.length}`, true); return; } 
+    questions.forEach(q => q.inTest = false); 
+    let idx = [...Array(questions.length).keys()]; 
+    for(let i=idx.length-1;i>0;i--){ let j=Math.floor(Math.random()*(i+1)); [idx[i],idx[j]]=[idx[j],idx[i]]; } 
+    for(let i=0;i<cnt;i++) questions[idx[i]].inTest = true; 
+    syncToFirebase(); renderList(); updateStats(); showToast(`🎲 Выбрано ${cnt} вопросов`); 
+  }
+  
+  let dragStartIndex = null;
+  function onDragStart(e,i){ dragStartIndex=i; e.dataTransfer.effectAllowed='move'; e.target.classList.add('opacity-50'); }
+  function onDragOver(e,i){ e.preventDefault(); let t=e.target.closest('.question-card'); if(t && dragStartIndex!==null && dragStartIndex!==i) t.classList.add('drag-over'); }
+  function onDragLeave(e){ let t=e.target.closest('.question-card'); if(t) t.classList.remove('drag-over'); }
+  function onDrop(e,i){ e.preventDefault(); let t=e.target.closest('.question-card'); if(t) t.classList.remove('drag-over'); if(dragStartIndex!==null && dragStartIndex!==i){ let item = questions[dragStartIndex]; questions.splice(dragStartIndex,1); questions.splice(i,0,item); filteredQuestions=[...questions]; renderList(); syncToFirebase(); showToast('📌 Порядок изменён'); } dragStartIndex=null; }
+  function onDragEnd(e){ e.target.classList.remove('opacity-50'); dragStartIndex=null; }
+  
+  function filterQuestions(){ 
+    let term=document.getElementById('searchInput').value.toLowerCase(); 
+    filteredQuestions=term ? questions.filter(q=>q.q.toLowerCase().includes(term)||(q.answer&&q.answer.toLowerCase().includes(term))) : [...questions]; 
+    currentPage=1; 
+    renderList(); 
+  }
+  
+  function changePerPage(){ 
+    perPage = parseInt(document.getElementById('perPage').value); 
+    currentPage = 1; 
+    renderList(); 
+  }
+  
+  function renderPagination(){ 
+    let total = Math.ceil(filteredQuestions.length / perPage); 
+    let div = document.getElementById('pagination'); 
+    if(!div) return; 
+    if(total <= 1){ div.innerHTML = ''; return; } 
+    let html = ''; 
+    for(let i = 1; i <= Math.min(total, 15); i++){ 
+      html += `<span class="pagination-btn ${i === currentPage ? 'active' : ''}" onclick="goToPage(${i})">${i}</span>`; 
+    } 
+    div.innerHTML = html; 
+  }
+  
+  function goToPage(p){ 
+    currentPage = p; 
+    renderList(); 
+  }
+  
+  function showPreview(){ 
+    let q = document.getElementById('q').value.trim(); 
+    if(!q){showToast('Введите вопрос!',true);return;} 
+    let html = `<p class="font-bold">${escapeHtml(q)}</p>`; 
+    if(document.getElementById('type').value === 'multiple'){ 
+      let a1 = document.getElementById('a1').value.trim(), a2 = document.getElementById('a2').value.trim(), a3 = document.getElementById('a3').value.trim(); 
+      html += `<div class="space-y-2 mt-3">${a1 ? `<label><input type="radio" disabled> ${escapeHtml(a1)}</label><br>` : ''}${a2 ? `<label><input type="radio" disabled> ${escapeHtml(a2)}</label><br>` : ''}${a3 ? `<label><input type="radio" disabled> ${escapeHtml(a3)}</label><br>` : ''}</div>`; 
+    } else { 
+      html += `<textarea rows="3" class="w-full mt-2 p-2 border rounded" placeholder="Ответ..."></textarea>`; 
+    } 
+    document.getElementById('previewContent').innerHTML = html; 
+    document.getElementById('previewModal').classList.remove('hidden'); 
+    document.getElementById('previewModal').style.display = 'flex'; 
+  }
+  
+  function closePreview(){ 
+    document.getElementById('previewModal').classList.add('hidden'); 
+    document.getElementById('previewModal').style.display = 'none'; 
+  }
+  
+  function escapeHtml(t){ return t ? t.replace(/[&<>]/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[m])) : ''; }
+  
+  function copyQuestion(i){ 
+    let copy = JSON.parse(JSON.stringify(questions[i])); 
+    copy.q = copy.q + " (копия)"; 
+    questions.push(copy); 
+    filteredQuestions = [...questions]; 
+    syncToFirebase(); 
+    renderList(); 
+    updateStats(); 
+    showToast('📋 Вопрос скопирован'); 
+  }
+  
+  function renderList(){ 
+    let list = document.getElementById('list'); 
+    if(!list) return; 
+    let start = (currentPage - 1) * perPage; 
+    let pageQuestions = filteredQuestions.slice(start, start + perPage); 
+    list.innerHTML = ''; 
+    if(!pageQuestions.length){ 
+      list.innerHTML = '<div class="text-center text-gray-400 p-8">Нет вопросов</div>'; 
+      renderPagination(); 
+      return; 
+    } 
+    pageQuestions.forEach((item, idx) => { 
+      let globalIndex = questions.findIndex(q => q.q === item.q && q.answer === item.answer); 
+      let actualIndex = globalIndex !== -1 ? globalIndex : start + idx; 
+      let isSelected = item.inTest === true; 
+      let el = document.createElement('div'); 
+      el.className = `question-card ${isSelected ? 'selected' : ''}`; 
+      el.draggable = true; 
+      el.setAttribute('data-index', actualIndex); 
+      el.ondragstart = e => onDragStart(e, actualIndex); 
+      el.ondragover = e => onDragOver(e, actualIndex); 
+      el.ondragleave = onDragLeave; 
+      el.ondrop = e => onDrop(e, actualIndex); 
+      el.ondragend = onDragEnd; 
+      let preview = item.q.length > 100 ? item.q.substring(0, 100) + '...' : item.q; 
+      let tagsHtml = ''; 
+      if(item.tags && item.tags.length) tagsHtml = `<div class="flex flex-wrap mt-2">${item.tags.map(t => `<span class="tag">${escapeHtml(t)}</span>`).join('')}</div>`; 
+      el.innerHTML = `
+        <div class="flex justify-between">
+          <div>
+            <div class="flex items-center gap-2">
+              <i class="fas fa-grip-vertical text-gray-400 cursor-grab"></i>
+              <span class="font-bold text-gray-300 text-sm">#${start + idx + 1}</span>
+              <label class="flex items-center gap-1 ml-2">
+                <input type="checkbox" class="accent-cyan-400" ${isSelected ? 'checked' : ''} onchange="toggleQuestionInTest(${actualIndex})">
+                <span class="text-xs">в тест</span>
+              </label>
+            </div>
+            <div class="mt-1">${escapeHtml(preview)}</div>
+            ${tagsHtml}
+          </div>
+          <div class="flex gap-1">
+            <button onclick="editQuestion(${actualIndex})" class="text-cyan-400 p-1"><i class="fas fa-edit"></i></button>
+            <button onclick="copyQuestion(${actualIndex})" class="text-green-400 p-1"><i class="fas fa-copy"></i></button>
+            <button onclick="del(${actualIndex})" class="text-pink-400 p-1"><i class="fas fa-trash"></i></button>
+          </div>
+        </div>
+      `; 
+      list.appendChild(el); 
+    }); 
+    renderPagination(); 
+    document.getElementById('questionCount').innerHTML = `<i class="fas fa-database mr-1"></i>${questions.length} вопросов (${filteredQuestions.length})`; 
+  }
+  
+  function addQuestion(){ 
+    let type = document.getElementById('type').value, 
+        q = document.getElementById('q').value.trim(), 
+        correct = document.getElementById('correct').value.trim(), 
+        tagsText = document.getElementById('tags').value.trim(), 
+        tags = tagsText ? tagsText.split(',').map(t => t.trim()).filter(t => t) : []; 
+    if(!q){ showToast('Введите вопрос!', true); return; } 
+    if(!correct){ showToast('Введите ответ!', true); return; } 
+    let obj; 
+    if(type === 'multiple'){ 
+      let a1 = document.getElementById('a1').value.trim(), 
+          a2 = document.getElementById('a2').value.trim(), 
+          a3 = document.getElementById('a3').value.trim(); 
+      if(!a1 || !a2 || !a3){ showToast('Заполните варианты!', true); return; } 
+      obj = { q, options: [a1, a2, a3], answer: correct, tags, inTest: true }; 
+    } else { 
+      obj = { q, answer: correct, tags, inTest: true }; 
+    } 
+    if(editingIndex >= 0){ 
+      questions[editingIndex] = obj; 
+      editingIndex = -1; 
+      document.getElementById('addBtn').innerHTML = '<i class="fas fa-plus"></i> Добавить'; 
+      showToast('✅ Вопрос обновлён'); 
+    } else { 
+      questions.push(obj); 
+      showToast('✅ Вопрос добавлен'); 
+    } 
+    filteredQuestions = [...questions]; 
+    syncToFirebase(); 
+    renderList(); 
+    updateStats(); 
+    clearForm(); 
+  }
+  
+  function clearForm(){ 
+    document.getElementById('q').value = ''; 
+    document.getElementById('a1').value = ''; 
+    document.getElementById('a2').value = ''; 
+    document.getElementById('a3').value = ''; 
+    document.getElementById('correct').value = ''; 
+    document.getElementById('tags').value = ''; 
+    document.getElementById('type').value = 'multiple'; 
+    editingIndex = -1; 
+    document.getElementById('addBtn').innerHTML = '<i class="fas fa-plus"></i> Добавить'; 
+    document.getElementById('optionFields').style.display = 'block'; 
+  }
+  
+  function editQuestion(i){ 
+    let q = questions[i]; 
+    document.getElementById('q').value = q.q; 
+    document.getElementById('correct').value = q.answer; 
+    document.getElementById('tags').value = q.tags ? q.tags.join(', ') : ''; 
+    if(q.options){ 
+      document.getElementById('type').value = 'multiple'; 
+      document.getElementById('optionFields').style.display = 'block'; 
+      document.getElementById('a1').value = q.options[0] || ''; 
+      document.getElementById('a2').value = q.options[1] || ''; 
+      document.getElementById('a3').value = q.options[2] || ''; 
+    } else { 
+      document.getElementById('type').value = 'written'; 
+      document.getElementById('optionFields').style.display = 'none'; 
+    } 
+    editingIndex = i; 
+    document.getElementById('addBtn').innerHTML = '<i class="fas fa-save"></i> Обновить'; 
+    window.scrollTo({top:0}); 
+    if(!formExpanded) toggleForm(); 
+  }
+  
+  function del(i){ 
+    if(confirm('Удалить вопрос?')){ 
+      questions.splice(i,1); 
+      filteredQuestions = [...questions]; 
+      syncToFirebase(); 
+      renderList(); 
+      updateStats(); 
+      showToast('🗑️ Вопрос удалён'); 
+    } 
+  }
+  
+  function switchSet(set){ 
+    currentSet = set; 
     loadFromFirebase(); 
+    clearForm(); 
+    document.getElementById('searchInput').value = ''; 
+    currentPage = 1; 
+    ['ppoQuestions', 'ppoWrittenQuestions', 'ustavQuestions'].forEach(id => { 
+      let btn = document.getElementById(`btn-${id}`); 
+      if(btn) btn.classList.toggle('active', id === set); 
+    }); 
   }
-  clearForm(); 
-  document.getElementById('searchInput').value = ''; 
-  currentPage = 1; 
-  ['ppoQuestions', 'ppoWrittenQuestions', 'ustavQuestions', 'leadership'].forEach(id => { 
-    let btn = document.getElementById(`btn-${id}`); 
-    if(btn) btn.classList.toggle('active', id === set); 
-  }); 
-}
-function exportAllData(){ let data={[currentSet]:questions}; let blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}); let a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`questions_${currentSet}_${new Date().toISOString().slice(0,19)}.json`; a.click(); showToast('💾 Экспорт'); }
-function importAllData(input){ let file=input.files[0]; if(!file) return; let reader=new FileReader(); reader.onload=async e=>{ try{ let data=JSON.parse(e.target.result); if(data[currentSet]){ questions=data[currentSet]; filteredQuestions=[...questions]; await syncToFirebase(); renderList(); updateStats(); showToast('📂 Импорт'); } }catch(err){showToast('Ошибка',true);} }; reader.readAsText(file); input.value=''; }
-async function clearAllData(){ if(confirm('Удалить ВСЕ вопросы?')){ questions=[]; filteredQuestions=[]; await syncToFirebase(); renderList(); updateStats(); showToast('🗑️ Все вопросы удалены'); } }
-function loadTestVisibility(){ let saved=localStorage.getItem('testVisibility'); return saved?{ppo:true,ustav:true,leadership:true,...JSON.parse(saved)}:{ppo:true,ustav:true,leadership:true}; }
-function saveTestVisibility(s){ localStorage.setItem('testVisibility',JSON.stringify(s)); db&&db.ref('settings/testVisibility').set(s); }
-function toggleTestVisibility(t,v){ let s=loadTestVisibility(); s[t]=v; saveTestVisibility(s); showToast({ppo:'ППО',ustav:'Устав',leadership:'Руководство'}[t]+' '+(v?'показан':'скрыт')); }
-function updateToggleButtons(){ let s=loadTestVisibility(); document.getElementById('togglePpo').checked=s.ppo; document.getElementById('toggleUstav').checked=s.ustav; document.getElementById('toggleLeadership').checked=s.leadership; }
-
-document.getElementById('perPage').onchange=changePerPage;
-document.getElementById('searchInput').oninput=filterQuestions;
-document.getElementById('type').onchange=()=>{ document.getElementById('optionFields').style.display=document.getElementById('type').value==='multiple'?'block':'none'; };
-document.getElementById("pw").addEventListener("change", function(e) {
-  if (e.target.value === PASSWORD) {
-    document.getElementById("panel").classList.remove("hidden");
-    if (!localStorage.getItem('testVisibility')) localStorage.setItem('testVisibility', JSON.stringify({ ppo: true, ustav: true, leadership: true }));
+  
+  function exportAllData(){ 
+    let data = { [currentSet]: questions }; 
+    let blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }); 
+    let a = document.createElement('a'); 
+    a.href = URL.createObjectURL(blob); 
+    a.download = `questions_${currentSet}_${new Date().toISOString().slice(0,19)}.json`; 
+    a.click(); 
+    showToast('💾 Экспорт'); 
+  }
+  
+  function importAllData(input){ 
+    let file = input.files[0]; 
+    if(!file) return; 
+    let reader = new FileReader(); 
+    reader.onload = async e => { 
+      try { 
+        let data = JSON.parse(e.target.result); 
+        if(data[currentSet]){ 
+          questions = data[currentSet]; 
+          filteredQuestions = [...questions]; 
+          await syncToFirebase(); 
+          renderList(); 
+          updateStats(); 
+          showToast('📂 Импорт'); 
+        } 
+      } catch(err){ showToast('Ошибка', true); } 
+    }; 
+    reader.readAsText(file); 
+    input.value = ''; 
+  }
+  
+  async function clearAllData(){ 
+    if(confirm('Удалить ВСЕ вопросы?')){ 
+      questions = []; 
+      filteredQuestions = []; 
+      await syncToFirebase(); 
+      renderList(); 
+      updateStats(); 
+      showToast('🗑️ Все вопросы удалены'); 
+    } 
+  }
+  
+  function loadTestVisibility(){ 
+    let saved = localStorage.getItem('testVisibility'); 
+    return saved ? { ppo: true, ustav: true, leadership: true, ...JSON.parse(saved) } : { ppo: true, ustav: true, leadership: true }; 
+  }
+  
+  function saveTestVisibility(s){ 
+    localStorage.setItem('testVisibility', JSON.stringify(s)); 
+    db.ref('settings/testVisibility').set(s); 
+  }
+  
+  function toggleTestVisibility(t, v){ 
+    let s = loadTestVisibility(); 
+    s[t] = v; 
+    saveTestVisibility(s); 
+    showToast({ ppo: 'ППО', ustav: 'Устав', leadership: 'Руководство' }[t] + ' ' + (v ? 'показан' : 'скрыт')); 
+  }
+  
+  function updateToggleButtons(){ 
+    let s = loadTestVisibility(); 
+    document.getElementById('togglePpo').checked = s.ppo; 
+    document.getElementById('toggleUstav').checked = s.ustav; 
+    document.getElementById('toggleLeadership').checked = s.leadership; 
+  }
+  
+  function initAdminPanel() {
+    // Вешаем обработчики
+    document.getElementById('perPage').onchange = changePerPage;
+    document.getElementById('searchInput').oninput = filterQuestions;
+    document.getElementById('type').onchange = () => { 
+      document.getElementById('optionFields').style.display = document.getElementById('type').value === 'multiple' ? 'block' : 'none'; 
+    };
+    
+    loadFromFirebase();
     updateToggleButtons();
-    initFirebase();
-    showToast('🔓 Добро пожаловать в админ-панель');
-  } else { showToast('❌ Неверный пароль', true); }
-});
-
-window.addLeadershipRole = addLeadershipRole;
-window.editLeadershipRole = editLeadershipRole;
-window.deleteLeadershipRole = deleteLeadershipRole;
-window.showAddEmployeeModal = showAddEmployeeModal;
-window.closeEmployeeModal = closeEmployeeModal;
-window.addEmployee = addEmployee;
-window.editLeadershipEmployee = editLeadershipEmployee;
-window.deleteLeadershipEmployee = deleteLeadershipEmployee;
-window.saveLeadershipData = saveLeadershipData;
+  }
+  
+  // Экспорт глобальных функций
+  window.checkPassword = checkPassword;
+  window.check2FACode = check2FACode;
+  window.resendCode = resendCode;
+  window.toggleForm = toggleForm;
+  window.selectAll = selectAll;
+  window.selectNone = selectNone;
+  window.selectRandom = selectRandom;
+  window.exportAllData = exportAllData;
+  window.clearAllData = clearAllData;
+  window.addQuestion = addQuestion;
+  window.showPreview = showPreview;
+  window.closePreview = closePreview;
+  window.editQuestion = editQuestion;
+  window.del = del;
+  window.copyQuestion = copyQuestion;
+  window.switchSet = switchSet;
+  window.toggleTestVisibility = toggleTestVisibility;
+  window.changePerPage = changePerPage;
+  window.goToPage = goToPage;
+  window.filterQuestions = filterQuestions;
+  
+  loadBlockStatus();
+})();
 </script>
 </body>
 </html>
