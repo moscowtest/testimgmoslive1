@@ -10,165 +10,31 @@
   <script src="firebase-config.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: 'Inter', sans-serif;
-      background: radial-gradient(ellipse at 20% 30%, #0a0a2a, #050510);
-      min-height: 100vh;
-      color: #fff;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+    body { background: radial-gradient(ellipse at 20% 30%, #0a0a2a, #050510); min-height: 100vh; color: #fff; }
     .neon-glow { text-shadow: 0 0 5px #00ff88, 0 0 10px #00ff88, 0 0 20px #00ff88; }
-    .btn-neon {
-      background: rgba(0, 0, 0, 0.5);
-      border: 2px solid #00ff88;
-      color: #00ff88;
-      padding: 14px 28px;
-      border-radius: 60px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      backdrop-filter: blur(10px);
-      font-size: 16px;
-    }
-    .btn-neon:hover {
-      background: #00ff88;
-      color: #050510;
-      box-shadow: 0 0 30px #00ff88;
-      transform: scale(1.02);
-    }
-    .btn-home {
-      position: fixed;
-      top: 20px;
-      left: 20px;
-      background: rgba(0, 0, 0, 0.5);
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      color: white;
-      padding: 8px 16px;
-      border-radius: 40px;
-      font-size: 14px;
-      font-weight: 500;
-      text-decoration: none;
-      transition: all 0.3s ease;
-      z-index: 100;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .btn-home:hover {
-      background: #00ff88;
-      border-color: #00ff88;
-      color: #050510;
-      transform: scale(1.02);
-    }
-    .glass-card {
-      background: rgba(15, 25, 45, 0.6);
-      backdrop-filter: blur(12px);
-      border-radius: 32px;
-      border: 1px solid rgba(0, 255, 136, 0.3);
-      padding: 32px;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-    }
-    .timer-box {
-      font-size: 32px;
-      font-weight: bold;
-      text-align: center;
-      padding: 16px;
-      background: rgba(0, 0, 0, 0.5);
-      border-radius: 60px;
-      margin-bottom: 24px;
-      border: 1px solid #00ff88;
-      color: #00ff88;
-    }
-    .result {
-      text-align: center;
-      padding: 20px;
-      border-radius: 20px;
-      margin-top: 20px;
-      font-weight: bold;
-    }
-    .result-success { background: rgba(0, 255, 136, 0.15); color: #00ff88; border: 1px solid #00ff88; }
-    .result-fail { background: rgba(255, 0, 212, 0.15); color: #ff00d4; border: 1px solid #ff00d4; }
+    .btn-neon { background: rgba(0,0,0,0.5); border: 2px solid #00ff88; color: #00ff88; padding: 12px 24px; border-radius: 60px; font-weight: 700; cursor: pointer; transition: all 0.3s ease; backdrop-filter: blur(10px); }
+    .btn-neon:hover { background: #00ff88; color: #050510; box-shadow: 0 0 30px #00ff88; transform: scale(1.02); }
+    .btn-home { position: fixed; top: 20px; left: 20px; background: rgba(0,0,0,0.5); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 8px 16px; border-radius: 40px; font-size: 14px; text-decoration: none; transition: all 0.3s; z-index: 100; display: inline-flex; align-items: center; gap: 8px; }
+    .btn-home:hover { background: #00ff88; color: #050510; }
+    .glass-card { background: rgba(15,25,45,0.6); backdrop-filter: blur(12px); border-radius: 32px; border: 1px solid rgba(0,255,136,0.3); padding: 32px; }
+    .timer-box { font-size: 32px; font-weight: bold; text-align: center; padding: 16px; background: rgba(0,0,0,0.5); border-radius: 60px; margin-bottom: 24px; border: 1px solid #00ff88; color: #00ff88; }
+    .result { text-align: center; padding: 20px; border-radius: 20px; margin-top: 20px; font-weight: bold; }
+    .result-success { background: rgba(0,255,136,0.15); color: #00ff88; border: 1px solid #00ff88; }
+    .result-fail { background: rgba(255,0,212,0.15); color: #ff00d4; border: 1px solid #ff00d4; }
     .hidden { display: none; }
-    .question-counter { text-align: center; margin-bottom: 16px; font-size: 14px; color: #aaa; letter-spacing: 1px; }
-    @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-    .animate-in { animation: fadeInUp 0.4s ease-out; }
-    
-    .drag-container {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 16px;
-      margin-top: 20px;
-    }
-    .draggable-item {
-      background: rgba(0, 255, 136, 0.15);
-      border: 1px solid #00ff88;
-      border-radius: 60px;
-      padding: 12px 20px;
-      cursor: grab;
-      text-align: center;
-      backdrop-filter: blur(5px);
-      font-weight: 500;
-      transition: all 0.2s;
-    }
+    .drag-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 16px; margin-top: 20px; }
+    .draggable-item { background: rgba(0,255,136,0.15); border: 1px solid #00ff88; border-radius: 60px; padding: 12px 20px; cursor: grab; text-align: center; backdrop-filter: blur(5px); font-weight: 500; transition: all 0.2s; }
     .draggable-item:active { cursor: grabbing; }
-    .draggable-item:hover {
-      background: rgba(0, 255, 136, 0.3);
-      transform: scale(1.02);
-    }
-    .drop-target {
-      background: rgba(0, 0, 0, 0.4);
-      border: 2px dashed #00ff88;
-      border-radius: 60px;
-      padding: 12px 20px;
-      text-align: center;
-      min-width: 200px;
-      transition: all 0.2s;
-      position: relative;
-    }
-    .drop-target.correct {
-      background: rgba(0, 255, 136, 0.2);
-      border: 2px solid #00ff88;
-    }
-    .drop-target.incorrect {
-      background: rgba(255, 0, 212, 0.2);
-      border: 2px solid #ff00d4;
-    }
-    .drop-target.drag-over {
-      border-color: #ff00d4;
-      background: rgba(255, 0, 212, 0.2);
-    }
-    .reset-btn {
-      position: absolute;
-      top: -10px;
-      right: -10px;
-      background: #ff00d4;
-      color: white;
-      border-radius: 50%;
-      width: 24px;
-      height: 24px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 12px;
-      cursor: pointer;
-      transition: all 0.2s;
-      opacity: 0;
-    }
-    .drop-target:hover .reset-btn {
-      opacity: 1;
-    }
-    .reset-btn:hover {
-      transform: scale(1.1);
-      background: #ff4444;
-    }
-    @media (max-width: 768px) {
-      .drag-container { flex-direction: column; align-items: center; }
-      .draggable-item, .drop-target { min-width: 240px; width: 100%; max-width: 280px; }
-      .btn-home { top: 10px; left: 10px; padding: 6px 12px; font-size: 12px; }
-      .glass-card { padding: 20px; margin-top: 50px; }
-    }
+    .draggable-item:hover { background: rgba(0,255,136,0.3); transform: scale(1.02); }
+    .drop-target { background: rgba(0,0,0,0.4); border: 2px dashed #00ff88; border-radius: 60px; padding: 12px 20px; text-align: center; min-width: 200px; transition: all 0.2s; position: relative; }
+    .drop-target.correct { background: rgba(0,255,136,0.2); border: 2px solid #00ff88; }
+    .drop-target.incorrect { background: rgba(255,0,212,0.2); border: 2px solid #ff00d4; }
+    .drop-target.drag-over { border-color: #ff00d4; background: rgba(255,0,212,0.2); }
+    .reset-btn { position: absolute; top: -10px; right: -10px; background: #ff00d4; color: white; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 12px; cursor: pointer; transition: all 0.2s; opacity: 0; }
+    .drop-target:hover .reset-btn { opacity: 1; }
+    .reset-btn:hover { transform: scale(1.1); background: #ff4444; }
+    @media (max-width: 768px) { .drag-container { flex-direction: column; align-items: center; } .draggable-item, .drop-target { min-width: 240px; width: 100%; max-width: 280px; } .btn-home { top: 10px; left: 10px; padding: 6px 12px; font-size: 12px; } .glass-card { padding: 20px; margin-top: 50px; } }
   </style>
 </head>
 <body>
@@ -188,7 +54,6 @@
 
   <div id="step2" class="hidden animate-in">
     <div class="timer-box" id="timerDisplay">15:00</div>
-    <div class="question-counter" id="questionCounter">Сопоставьте должности</div>
     <div id="gameContainer"></div>
     <button class="btn-neon w-full mt-6" id="checkBtn">✅ ПРОВЕРИТЬ ОТВЕТЫ</button>
     <div id="resultArea"></div>
@@ -196,7 +61,7 @@
 </div>
 
 <script>
-// ========== ПОЛУЧЕНИЕ КОНФИГА ИЗ ОБФУСЦИРОВАННОГО ФАЙЛА ==========
+// ========== ПОЛУЧЕНИЕ КОНФИГА ==========
 const firebaseConfig = window._0x2c3a;
 if (!firebase.apps.length) {
   firebase.initializeApp({
@@ -208,55 +73,26 @@ if (!firebase.apps.length) {
     appId: firebaseConfig._0x3a2f
   });
 }
-// ===============================================================
-
+const db = firebase.database();
 const DISCORD_RESULTS = "https://discord.com/api/webhooks/1500489572025372842/IGJtGda4K64g0comJ-PbOo04fiAVNTfFmD_sZSNk8W0fqbPsgsV0s7yhO-3kMQ-67urU";
 
-let db = firebase.database();
 let timerInterval = null, timeLeft = 900, testActive = false;
 let userMatches = {};
-let currentRoles = [];
-let currentEmployees = [];
+let leadershipRoles = [];
+let leadershipEmployees = [];
 
 async function loadLeadershipData() {
   try {
-    const snapshot = await db.ref('leadership').once('value');
-    const data = snapshot.val();
+    const snap = await db.ref('leadership').once('value');
+    const data = snap.val();
     if (data && data.roles && data.employees) {
-      currentRoles = data.roles;
-      currentEmployees = data.employees;
+      leadershipRoles = data.roles;
+      leadershipEmployees = data.employees;
     } else {
-      // Дефолтные данные
-      currentRoles = [
-        "Председатель-Правительства",
-        "Заместитель-Председателя-Правительства 1",
-        "Заместитель-Председателя-Правительства 2",
-        "Министр социальной политики",
-        "Заместитель Министра социальной политики",
-        "Директор Москва-LIVE",
-        "Зам. Директора Москва LIVE 1",
-        "Зам. Директора Москва LIVE 2",
-        "Глава Отдела Кадров",
-        "Глава Отдела Журналистики",
-        "Глава Отдела Мероприятий",
-        "Глава Отдела Эфиров"
-      ];
-      currentEmployees = [
-        { name: "Виктор Ваффентрагер", role: "Председатель-Правительства" },
-        { name: "Даниил Гранде", role: "Заместитель-Председателя-Правительства 1" },
-        { name: "Данил Валерьянов", role: "Директор Москва-LIVE" },
-        { name: "Александр Волчаров", role: "Зам. Директора Москва LIVE 1" },
-        { name: "Рамзан Непупсиков", role: "Министр социальной политики" },
-        { name: "Ксения Ваффентрагер", role: "Заместитель Министра социальной политики" },
-        { name: "Артём Берёзов", role: "Глава Отдела Кадров" },
-        { name: "Даниила Валерьянов", role: "Глава Отдела Журналистики" },
-        { name: "Эрика Краснодарова", role: "Глава Отдела Мероприятий" },
-        { name: "Виктория Ромеро", role: "Глава Отдела Эфиров" }
-      ];
+      leadershipRoles = [];
+      leadershipEmployees = [];
     }
-  } catch(e) {
-    console.error(e);
-  }
+  } catch(e) { console.error(e); }
 }
 
 function shuffle(arr) {
@@ -267,11 +103,18 @@ function shuffle(arr) {
   return arr;
 }
 
+function showToast(msg) {
+  const toast = document.createElement('div');
+  toast.className = 'fixed bottom-5 right-5 bg-green-500 text-black px-4 py-2 rounded-full z-50';
+  toast.textContent = msg;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 2000);
+}
+
 async function sendToDiscord(username, correctCount, total, passed) {
   const color = passed ? 0x00ff88 : 0xff00d4;
   const status = passed ? "✅ СДАЛ" : "❌ НЕ СДАЛ";
   const percent = Math.round(correctCount / total * 100);
-  
   try {
     await fetch(DISCORD_RESULTS, {
       method: "POST",
@@ -291,38 +134,22 @@ async function sendToDiscord(username, correctCount, total, passed) {
         }]
       })
     });
-  } catch(e) { console.error("Discord send error:", e); }
+  } catch(e) { console.error(e); }
 }
 
 function resetEmployeeRole(employeeName) {
   delete userMatches[employeeName];
   renderGame();
-  showToastMessage(`🔄 Сброшено: ${employeeName}`);
-}
-
-function showToastMessage(msg) {
-  const toast = document.createElement('div');
-  toast.className = 'fixed bottom-5 right-5 bg-green-500 text-black px-4 py-2 rounded-full z-50 animate-pulse';
-  toast.textContent = msg;
-  document.body.appendChild(toast);
-  setTimeout(() => toast.remove(), 2000);
+  showToast(`🔄 Сброшено: ${employeeName}`);
 }
 
 function initDragAndDrop() {
   let dragged = null;
-  const rolesContainer = document.getElementById('rolesContainer');
-  const namesContainer = document.getElementById('namesContainer');
-  
-  if (!rolesContainer || !namesContainer) return;
-  
-  // Настройка перетаскиваемых элементов
   document.querySelectorAll('.draggable-item').forEach(el => {
     el.setAttribute('draggable', 'true');
     el.ondragstart = (e) => { dragged = el; e.dataTransfer.setData('text/plain', ''); };
     el.ondragend = () => { dragged = null; };
   });
-  
-  // Настройка целей для сброса
   document.querySelectorAll('.drop-target').forEach(target => {
     target.ondragover = (e) => e.preventDefault();
     target.ondragenter = (e) => { e.preventDefault(); target.classList.add('drag-over'); };
@@ -336,10 +163,44 @@ function initDragAndDrop() {
       if (role && name) {
         userMatches[name] = role;
         renderGame();
-        showToastMessage(`📌 ${name} → ${role}`);
+        showToast(`📌 ${name} → ${role}`);
       }
     };
   });
+}
+
+function renderGame() {
+  const container = document.getElementById('gameContainer');
+  const shuffledRoles = shuffle([...leadershipRoles]);
+  const availableRoles = shuffledRoles.filter(role => !Object.values(userMatches).includes(role));
+  
+  container.innerHTML = `
+    <div class="mb-6">
+      <h2 class="text-xl font-bold mb-3 text-center">📌 Доступные должности</h2>
+      <div id="rolesContainer" class="drag-container">
+        ${availableRoles.map(role => `<div class="draggable-item" draggable="true" data-role="${escapeHtml(role)}">${escapeHtml(role)}</div>`).join('')}
+      </div>
+    </div>
+    <div>
+      <h2 class="text-xl font-bold mb-3 text-center">👤 Сотрудники</h2>
+      <div id="namesContainer" class="drag-container">
+        ${leadershipEmployees.map(emp => {
+          const matchedRole = userMatches[emp.name];
+          if (matchedRole) {
+            return `
+              <div class="drop-target correct" data-expected="${escapeHtml(emp.role)}" data-name="${escapeHtml(emp.name)}">
+                ${escapeHtml(emp.name)}<br><span class="text-xs text-green-400">→ ${escapeHtml(matchedRole)}</span>
+                <div class="reset-btn" onclick="resetEmployeeRole('${escapeHtml(emp.name)}')">✖</div>
+              </div>
+            `;
+          } else {
+            return `<div class="drop-target" data-expected="${escapeHtml(emp.role)}" data-name="${escapeHtml(emp.name)}">${escapeHtml(emp.name)}</div>`;
+          }
+        }).join('')}
+      </div>
+    </div>
+  `;
+  initDragAndDrop();
 }
 
 async function startTest() {
@@ -350,6 +211,12 @@ async function startTest() {
   }
   
   await loadLeadershipData();
+  
+  if (leadershipRoles.length === 0 || leadershipEmployees.length === 0) {
+    alert('❌ Нет данных для теста! Сначала добавьте должности и сотрудников в админ-панели.');
+    return;
+  }
+  
   userMatches = {};
   testActive = true;
   timeLeft = 900;
@@ -357,41 +224,6 @@ async function startTest() {
   startTimer();
   document.getElementById('step1').classList.add('hidden');
   document.getElementById('step2').classList.remove('hidden');
-}
-
-function renderGame() {
-  const container = document.getElementById('gameContainer');
-  const shuffledRoles = shuffle([...currentRoles]);
-  const availableRoles = shuffledRoles.filter(role => !Object.values(userMatches).includes(role));
-  
-  container.innerHTML = `
-    <div class="mb-6">
-      <h2 class="text-xl font-bold mb-3 text-center">📌 Доступные должности</h2>
-      <div id="rolesContainer" class="drag-container">
-        ${availableRoles.map(role => `<div class="draggable-item" draggable="true" data-role="${role}">${role}</div>`).join('')}
-      </div>
-    </div>
-    <div>
-      <h2 class="text-xl font-bold mb-3 text-center">👤 Сотрудники</h2>
-      <div id="namesContainer" class="drag-container">
-        ${currentEmployees.map(emp => {
-          const matchedRole = userMatches[emp.name];
-          if (matchedRole) {
-            return `
-              <div class="drop-target correct" data-expected="${emp.role}" data-name="${emp.name}">
-                ${emp.name}<br><span class="text-xs text-green-400">→ ${matchedRole}</span>
-                <div class="reset-btn" onclick="resetEmployeeRole('${emp.name}')">✖</div>
-              </div>
-            `;
-          } else {
-            return `<div class="drop-target" data-expected="${emp.role}" data-name="${emp.name}">${emp.name}</div>`;
-          }
-        }).join('')}
-      </div>
-    </div>
-  `;
-  
-  initDragAndDrop();
 }
 
 function startTimer() {
@@ -414,7 +246,7 @@ function updateTimerDisplay() {
   document.getElementById('timerDisplay').textContent = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
 }
 
-function checkAnswers() {
+async function checkAnswers() {
   if (!testActive) return;
   testActive = false;
   clearInterval(timerInterval);
@@ -422,14 +254,17 @@ function checkAnswers() {
   const username = document.getElementById('username').value.trim();
   let correctCount = 0;
   
-  for (let i = 0; i < currentEmployees.length; i++) {
-    const emp = currentEmployees[i];
+  for (let i = 0; i < leadershipEmployees.length; i++) {
+    const emp = leadershipEmployees[i];
     const matched = userMatches[emp.name];
     const isCorrect = (matched === emp.role);
     if (isCorrect) correctCount++;
+    
+    const target = document.querySelector(`.drop-target[data-name="${escapeHtml(emp.name)}"]`);
+    if (target) target.classList.add(isCorrect ? 'correct' : 'incorrect');
   }
   
-  const total = currentEmployees.length;
+  const total = leadershipEmployees.length;
   const pass = Math.floor(total * 0.7);
   const passed = correctCount >= pass;
   
@@ -441,10 +276,12 @@ function checkAnswers() {
     </div>
   `;
   
-  sendToDiscord(username, correctCount, total, passed);
-  
-  // Отключаем drag-and-drop после проверки
-  document.querySelectorAll('.draggable-item').forEach(el => el.setAttribute('draggable', 'false'));
+  await sendToDiscord(username, correctCount, total, passed);
+}
+
+function escapeHtml(str) {
+  if (!str) return '';
+  return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m]));
 }
 
 document.getElementById('startBtn').onclick = startTest;
