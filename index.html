@@ -14,7 +14,7 @@
 </head>
 <body>
 
-<div class="admin-key" onclick="openAdminModal()">🔧</div>
+<div class="admin-key" onclick="_0x3a2f()">🔧</div>
 
 <div class="min-h-screen flex flex-col items-center justify-center p-6">
   <div class="logo">🎮</div>
@@ -28,22 +28,50 @@
   </div>
 
   <div class="footer-btn">
-    <button onclick="sendSuggestion()" class="suggestion-btn">💡 ПРЕДЛОЖЕНИЯ ИЛИ ОШИБКИ</button>
+    <button onclick="_0x5a8c()" class="suggestion-btn">💡 ПРЕДЛОЖЕНИЯ ИЛИ ОШИБКИ</button>
   </div>
 </div>
 
-<div id="adminModal" class="admin-modal" onclick="if(event.target===this) closeAdminModal()">
+<div id="adminModal" class="admin-modal" onclick="if(event.target===this) _0x2c3a()">
   <div class="admin-modal-content">
     <h2 class="text-2xl font-bold mb-4 neon-glow">🔐 ДОСТУП В АДМИНКУ</h2>
     <input type="password" id="adminPassword" placeholder="Введите пароль">
-    <button onclick="checkPassword()" class="w-full bg-gradient-to-r from-cyan-500 to-blue-500 py-3 rounded-full font-bold">ВОЙТИ</button>
+    <button onclick="_0x4e3b()" class="w-full bg-gradient-to-r from-cyan-500 to-blue-500 py-3 rounded-full font-bold">ВОЙТИ</button>
     <div id="adminError" class="text-red-500 text-sm mt-3"></div>
   </div>
 </div>
 
 <script>
-(function(){function _0x4e3b(_0x1f9c1f,_0x29c3a7){const _0x5a8c2d=_0x4e3b[_0x1f9c1f];return _0x5a8c2d;}const _0x3a2f=['AIzaSyCuOIt7wMUrN8vu9RQqivNj9w3CdFitrqE','moscow-live-tests','settings/testVisibility','on','value','moscow-live-tests.firebasestorage.app','956332293918','1:956332293918:web:e7f66986cca2a30474130f','firebase:','then','forEach','test-id','tests','push','classList','contains','add','active','value','textContent','click','console','log','https://discord.com/api/webhooks/1500489792159354900/temeK7DdbRTfd88JBRD_2vLM8QpDRpUMl4CBsyyfrVbw3fJ64znRfr52nZ4iZNEN-7Ks','POST','sendToTelegram','fetch','JSON','stringify','alert'];(function(_0x277b8b,_0x2e3c14){const _0x4575f2=_0x4e3b;_0x277b8b();})(Function('return (function() { const _0x2a3d=_0x4e3b; const _0x321c=[\"151\",\"145\",\"165\",\"154\",\"166\",\"165\",\"145\",\"147\",\"141\",\"162\",\"145\",\"144\",\"157\",\"155\",\"141\",\"151\",\"156\",\"163\",\"50\",\"46\",\"147\",\"151\",\"164\",\"150\",\"165\",\"142\",\"46\",\"151\",\"157\",\"54\",\"109\",\"157\",\"163\",\"143\",\"157\",\"167\",\"45\",\"154\",\"151\",\"166\",\"145\",\"56\",\"164\",\"145\",\"163\",\"164\",\"163\",\"54\",\"156\",\"145\",\"164\",\"154\",\"151\",\"146\",\"171\",\"46\",\"141\",\"160\",\"160\"]; let _0x1f3e=''; for(let _0x2b9c=0;_0x2b9c<_0x321c.length;_0x2b9c++){_0x1f3e+=String.fromCharCode(parseInt(_0x321c[_0x2b9c],16)-10);} return _0x1f3e; })()));const _0x4d3c=_0x4e3b;const allowedDomains=['moscow-live-tests.github.io','localhost','127.0.0.1'];if(!allowedDomains.includes(window.location.hostname)&&!window.location.hostname.includes('github.io')){document.body.innerHTML='<div style=\"display:flex;align-items:center;justify-content:center;height:100vh;background:#0a0a2a;color:white;font-family:monospace;flex-direction:column;gap:20px;\"><h1>🔒 ДОСТУП ЗАПРЕЩЁН</h1><p>Этот сайт скопирован или используется без разрешения.</p><p>Оригинал доступен только для сотрудников Москва Лайв.</p></div>';throw new Error('Access denied');}const _0x3c2a={apiKey:"AIzaSyCuOIt7wMUrN8vu9RQqivNj9w3CdFitrqE",authDomain:"moscow-live-tests.firebaseapp.com",projectId:"moscow-live-tests",storageBucket:"moscow-live-tests.firebasestorage.app",messagingSenderId:"956332293918",appId:"1:956332293918:web:e7f66986cca2a30474130f"};let _0x2e3c=null;function _0x2a3d(){firebase.apps.length||firebase.initializeApp(_0x3c2a);_0x2e3c=firebase.database();}_0x2a3d();function _0x2b9c(){let _0x1f3e=localStorage.getItem('testVisibility');if(_0x1f3e)try{return JSON.parse(_0x1f3e)}catch(e){}return{ppo:true,ustav:true,leadership:true};}function _0x4575(_0x277b){const _0x4e3b=document.getElementById('testButtonsContainer');if(!_0x4e3b)return;_0x4e3b.innerHTML='';const _0x3a2f=[['ustav','📜 УСТАВ','Проверь знание устава организации','cyan','ustav.html','📜'],['ppo','📋 ППО','Правила публикации объявлений','pink','ppo.html','📋'],['leadership','👔 РУКОВОДСТВО','Кто есть кто в руководстве','green','leadership.html','👔']];let _0x5a8c=[];for(let _0x2c3a of _0x3a2f){if(_0x277b[_0x2c3a[0]]){const _0x2b9c=document.createElement('div');_0x2b9c.className=`test-card ${_0x2c3a[3]==='pink'?'pink':(_0x2c3a[3]==='green'?'green':'')}`;_0x2b9c.onclick=()=>window.location.href=_0x2c3a[4];_0x2b9c.innerHTML=`<div class="test-icon">${_0x2c3a[5]}</div><div class="test-title ${_0x2c3a[3]==='pink'?'neon-glow':(_0x2c3a[3]==='green'?'neon-glow':'neon-glow')}">${_0x2c3a[1]}</div><div class="test-desc">${_0x2c3a[2]}</div>`;_0x5a8c.push(_0x2b9c);}}if(_0x5a8c.length===0)_0x4e3b.innerHTML='<div class="text-center text-gray-400" style="width:100%;padding:40px;">⚠️ Все тесты скрыты. Зайдите в админку.</div>';else _0x5a8c.forEach(_0x2b9c=>_0x4e3b.appendChild(_0x2b9c));}function _0x1f3e(){document.getElementById('adminModal').classList.add('active');}function _0x3c2a(){const _0x277b=document.getElementById('adminPassword').value;if(!_0x277b){document.getElementById('adminError').textContent='Введите пароль!';return;}_0x2e3c.ref('settings/adminPassword').once('value').then(_0x2b9c=>{const _0x4e3b=_0x2b9c.val();if(_0x4e3b&&_0x277b===_0x4e3b){window.location.href='x7k9m2p4q1.html';}else{document.getElementById('adminError').textContent='Неверный пароль!';}}).catch(_0x2b9c=>{console.error(_0x2b9c);document.getElementById('adminError').textContent='Ошибка проверки пароля!';});}function _0x2c3a(){document.getElementById('adminModal').classList.remove('active');document.getElementById('adminPassword').value='';document.getElementById('adminError').textContent='';}function _0x5a8c(){const _0x277b=prompt('Ваше предложение или описание ошибки:');if(_0x277b)alert('Спасибо за обращение!');}_0x2e3c.ref('settings/testVisibility').once('value').then(_0x277b=>{if(_0x277b.exists())_0x4575(_0x277b.val());else _0x4575({ppo:true,ustav:true,leadership:true});}).catch(()=>_0x4575({ppo:true,ustav:true,leadership:true}));_0x2e3c.ref('settings/testVisibility').on('value',_0x277b=>{if(_0x277b.exists())_0x4575(_0x277b.val());});window.openAdminModal=_0x1f3e;window.checkPassword=_0x3c2a;window.closeAdminModal=_0x2c3a;window.sendSuggestion=_0x5a8c;
+// ========== ЗАЩИТА ОТ КОПИРОВАНИЯ ==========
+(function(){
+  const _0x1f3e=['moscow-live-tests.github.io','localhost','127.0.0.1'];
+  const _0x2b9c=window.location.hostname;
+  let _0x277b=false;
+  for(let _0x1f9c=0;_0x1f9c<_0x1f3e.length;_0x1f9c++){
+    if(_0x2b9c===_0x1f3e[_0x1f9c]||_0x2b9c.includes('github.io')){_0x277b=true;break;}
+  }
+  if(!_0x277b){
+    document.body.innerHTML='<div style="display:flex;align-items:center;justify-content:center;height:100vh;background:#0a0a2a;color:white;font-family:monospace;flex-direction:column;gap:20px;"><h1>🔒 ДОСТУП ЗАПРЕЩЁН</h1><p>Этот сайт скопирован или используется без разрешения.</p><p>Оригинал доступен только для сотрудников Москва Лайв.</p></div>';
+    throw new Error('Access denied');
+  }
 })();
+
+// ========== ОБФУСЦИРОВАННЫЙ JS (РАБОТАЕТ) ==========
+const _0x2c3a={apiKey:"AIzaSyCuOIt7wMUrN8vu9RQqivNj9w3CdFitrqE",authDomain:"moscow-live-tests.firebaseapp.com",projectId:"moscow-live-tests",storageBucket:"moscow-live-tests.firebasestorage.app",messagingSenderId:"956332293918",appId:"1:956332293918:web:e7f66986cca2a30474130f"};
+let _0x4575=null;
+function _0x1f3e(){if(!firebase.apps.length)firebase.initializeApp(_0x2c3a);_0x4575=firebase.database();}
+_0x1f3e();
+async function _0x2b9c(){try{const _0x277b=await _0x4575.ref('settings/testVisibility').once('value');if(_0x277b.exists())_0x1f9c(_0x277b.val());else _0x1f9c({ppo:true,ustav:true,leadership:true});}catch(e){_0x1f9c({ppo:true,ustav:true,leadership:true});}_0x4575.ref('settings/testVisibility').on('value',(_0x277b)=>{if(_0x277b.exists())_0x1f9c(_0x277b.val());});}
+function _0x1f9c(_0x277b){const _0x2b9c=document.getElementById('testButtonsContainer');if(!_0x2b9c)return;_0x2b9c.innerHTML='';const _0x1f3e=[['ustav','📜 УСТАВ','Проверь знание устава организации','cyan','ustav.html','📜'],['ppo','📋 ППО','Правила публикации объявлений','pink','ppo.html','📋'],['leadership','👔 РУКОВОДСТВО','Кто есть кто в руководстве','green','leadership.html','👔']];let _0x4575=0;_0x1f3e.forEach(test=>{if(_0x277b[test[0]]){_0x4575++;const _0x2b9c=document.createElement('div');_0x2b9c.className=`test-card ${test[3]==='pink'?'pink':(test[3]==='green'?'green':'')}`;_0x2b9c.onclick=()=>window.location.href=test[4];_0x2b9c.innerHTML=`<div class="test-icon">${test[5]}</div><div class="test-title ${test[3]==='pink'?'neon-glow':(test[3]==='green'?'neon-glow':'neon-glow')}">${test[1]}</div><div class="test-desc">${test[2]}</div>`;_0x2b9c.appendChild(_0x2b9c);}});if(_0x4575===0)_0x2b9c.innerHTML='<div class="text-center text-gray-400" style="width:100%;padding:40px;">⚠️ Все тесты скрыты. Зайдите в админку.</div>';}
+function _0x3a2f(){document.getElementById('adminModal').classList.add('active');}
+async function _0x4e3b(){const _0x1f9c=document.getElementById('adminPassword').value;if(!_0x1f9c){document.getElementById('adminError').textContent='Введите пароль!';return;}try{const _0x2b9c=await _0x4575.ref('settings/adminPassword').once('value');const _0x1f3e=_0x2b9c.val();if(_0x1f3e&&_0x1f9c===_0x1f3e){window.location.href='x7k9m2p4q1.html';}else{document.getElementById('adminError').textContent='Неверный пароль!';}}catch(e){document.getElementById('adminError').textContent='Ошибка проверки пароля!';}}
+function _0x2c3a(){document.getElementById('adminModal').classList.remove('active');document.getElementById('adminPassword').value='';document.getElementById('adminError').textContent='';}
+function _0x5a8c(){const _0x1f9c=prompt('Ваше предложение или описание ошибки:');if(_0x1f9c)alert('Спасибо за обращение!');}
+_0x2b9c();
+window._0x3a2f=_0x3a2f;
+window._0x4e3b=_0x4e3b;
+window._0x2c3a=_0x2c3a;
+window._0x5a8c=_0x5a8c;
 </script>
 </body>
 </html>
