@@ -42,7 +42,15 @@
     .login-container { max-width: 400px; margin: 0 auto; text-align: center; }
     .error-text { color: #ff8888; font-size: 14px; margin-top: 8px; }
     .blocked-text { color: #ffaa00; font-size: 14px; margin-top: 8px; }
-    .leadership-item { background: rgba(20,20,50,0.6); border-radius: 12px; padding: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+    .leadership-item {
+      background: rgba(20,20,50,0.6);
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
   </style>
 </head>
 <body>
@@ -160,7 +168,7 @@
               <div class="flex justify-between items-center mb-4 flex-wrap gap-2">
                 <h3 class="text-lg font-semibold">Список должностей</h3>
                 <div class="flex gap-2">
-                  <input type="text" id="newRoleName" placeholder="Новая должность" class="text-sm w-48">
+                  <input type="text" id="newRoleName" placeholder="Новая должность" class="text-sm p-2 bg-black/50 border border-cyan-500 rounded-lg w-48">
                   <button onclick="addLeadershipRole()" class="btn-neon text-sm py-1 px-3">➕ Добавить</button>
                 </div>
               </div>
@@ -179,6 +187,7 @@
           </div>
 
           <button onclick="saveLeadershipData()" class="btn-neon btn-neon-green w-full py-3">💾 СОХРАНИТЬ ВСЕ ДАННЫЕ</button>
+          <button onclick="switchToQuestions()" class="btn-neon w-full py-3 mt-2">← Вернуться к вопросам</button>
         </div>
       </div>
     </main>
@@ -401,18 +410,43 @@ function editQuestion(i){ let q=questions[i]; document.getElementById('q').value
 
 function del(i){ if(confirm('Удалить вопрос?')){ questions.splice(i,1); filteredQuestions=[...questions]; syncToFirebase(); renderList(); updateStats(); showToast('🗑️ Вопрос удалён'); } }
 
-function switchSet(set){ 
-  currentSet = set; 
-  document.getElementById('questionsPanel').style.display = 'block';
+function switchToQuestions() {
   document.getElementById('leadershipPanel').style.display = 'none';
-  loadFromFirebase(); 
-  clearForm(); 
-  document.getElementById('searchInput').value = ''; 
-  currentPage = 1; 
-  ['ppoQuestions', 'ppoWrittenQuestions', 'ustavQuestions', 'leadership'].forEach(id => { 
-    let btn = document.getElementById(`btn-${id}`); 
-    if(btn) btn.classList.toggle('active', id === set); 
-  }); 
+  document.getElementById('questionsPanel').style.display = 'block';
+  
+  // Снимаем подсветку с кнопки руководства
+  document.querySelectorAll('.sidebar-item').forEach(btn => btn.classList.remove('active'));
+  const activeBtn = document.querySelector(`.sidebar-item[onclick*="switchSet('ppo"]`) || document.querySelector(`.sidebar-item[onclick*="switchSet('ustav"]`);
+  if (activeBtn) activeBtn.classList.add('active');
+}
+
+function switchToLeadership() {
+  document.getElementById('questionsPanel').style.display = 'none';
+  document.getElementById('leadershipPanel').style.display = 'block';
+  loadLeadershipFromFirebase();
+  
+  // Подсветка кнопки
+  document.querySelectorAll('.sidebar-item').forEach(btn => btn.classList.remove('active'));
+  const leadershipBtn = document.getElementById('btn-leadership');
+  if (leadershipBtn) leadershipBtn.classList.add('active');
+}
+
+function switchSet(set) {
+  if (set === 'leadership') {
+    switchToLeadership();
+  } else {
+    document.getElementById('leadershipPanel').style.display = 'none';
+    document.getElementById('questionsPanel').style.display = 'block';
+    currentSet = set;
+    loadFromFirebase();
+    clearForm();
+    document.getElementById('searchInput').value = '';
+    currentPage = 1;
+    ['ppoQuestions', 'ppoWrittenQuestions', 'ustavQuestions', 'leadership'].forEach(id => {
+      let btn = document.getElementById(`btn-${id}`);
+      if (btn) btn.classList.toggle('active', id === set);
+    });
+  }
 }
 
 function exportAllData(){ let data={[currentSet]:questions}; let blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}); let a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`questions_${currentSet}_${new Date().toISOString().slice(0,19)}.json`; a.click(); showToast('💾 Экспорт'); }
@@ -445,36 +479,6 @@ async function loadLeadershipFromFirebase() {
     console.error(e); 
   }
   renderLeadershipPanels();
-}
-function updateLeadershipEmptyMessage() {
-  const rolesContainer = document.getElementById('rolesList');
-  const employeesContainer = document.getElementById('employeesList');
-  
-  if (rolesContainer && leadershipRoles.length === 0) {
-    if (!document.getElementById('emptyRolesMsg')) {
-      const msg = document.createElement('div');
-      msg.id = 'emptyRolesMsg';
-      msg.className = 'text-center text-gray-400 py-8';
-      msg.innerHTML = '📌 Нет должностей. Добавьте первую!';
-      rolesContainer.appendChild(msg);
-    }
-  } else if (rolesContainer) {
-    const msg = document.getElementById('emptyRolesMsg');
-    if (msg) msg.remove();
-  }
-  
-  if (employeesContainer && leadershipEmployees.length === 0) {
-    if (!document.getElementById('emptyEmployeesMsg')) {
-      const msg = document.createElement('div');
-      msg.id = 'emptyEmployeesMsg';
-      msg.className = 'text-center text-gray-400 py-8';
-      msg.innerHTML = '👥 Нет сотрудников. Добавьте первого!';
-      employeesContainer.appendChild(msg);
-    }
-  } else if (employeesContainer) {
-    const msg = document.getElementById('emptyEmployeesMsg');
-    if (msg) msg.remove();
-  }
 }
 
 async function saveLeadershipData() {
@@ -534,32 +538,6 @@ function renderLeadershipPanels() {
       roleSelect.innerHTML = '<option disabled>Сначала добавьте должности</option>';
     } else {
       roleSelect.innerHTML = leadershipRoles.map(role => `<option value="${escapeHtml(role)}">${escapeHtml(role)}</option>`).join('');
-    }
-  }
-}
-  
-  const employeesContainer = document.getElementById('employeesList');
-  if (employeesContainer) {
-    if (leadershipEmployees.length === 0) {
-      employeesContainer.innerHTML = '<div class="text-center text-gray-400 py-8">👥 Нет сотрудников. Добавьте первого!</div>';
-    } else {
-      employeesContainer.innerHTML = leadershipEmployees.map((emp, idx) => `
-        <div class="leadership-item">
-          <div><div class="font-medium">${escapeHtml(emp.name)}</div><div class="text-sm text-gray-400">→ ${escapeHtml(emp.role)}</div></div>
-          <div>
-            <button onclick="editLeadershipEmployee(${idx})" class="text-cyan-400 mr-2"><i class="fas fa-edit"></i></button>
-            <button onclick="deleteLeadershipEmployee(${idx})" class="text-pink-400"><i class="fas fa-trash"></i></button>
-          </div>
-        </div>
-      `).join('');
-    }
-  }
-  
-  const roleSelect = document.getElementById('empRole');
-  if (roleSelect) {
-    roleSelect.innerHTML = leadershipRoles.map(role => `<option value="${escapeHtml(role)}">${escapeHtml(role)}</option>`).join('');
-    if (leadershipRoles.length === 0) {
-      roleSelect.innerHTML = '<option disabled>Сначала добавьте должности</option>';
     }
   }
 }
@@ -637,8 +615,7 @@ function deleteLeadershipEmployee(idx) {
   }
 }
 
-
-// Кнопки переключения вкладок в руководстве
+// Обработчики вкладок руководства
 document.getElementById('leadershipRolesTab')?.addEventListener('click', () => {
   document.getElementById('leadershipRolesPanel').style.display = 'block';
   document.getElementById('leadershipEmployeesPanel').style.display = 'none';
@@ -651,18 +628,6 @@ document.getElementById('leadershipEmployeesTab')?.addEventListener('click', () 
   document.getElementById('leadershipEmployeesTab').classList.add('active');
   document.getElementById('leadershipRolesTab').classList.remove('active');
 });
-
-// Переопределяем switchSet для руководства
-const originalSwitchSet = window.switchSet;
-window.switchSet = function(set) {
-  if (set === 'leadership') {
-    switchToLeadership();
-  } else {
-    document.getElementById('questionsPanel').style.display = 'block';
-    document.getElementById('leadershipPanel').style.display = 'none';
-    originalSwitchSet(set);
-  }
-};
 
 // ========== ВИДИМОСТЬ ТЕСТОВ ==========
 function loadTestVisibility(){ let saved=localStorage.getItem('testVisibility'); return saved?{ppo:true,ustav:true,leadership:true,...JSON.parse(saved)}:{ppo:true,ustav:true,leadership:true}; }
@@ -700,6 +665,7 @@ window.addEmployee = addEmployee;
 window.editLeadershipEmployee = editLeadershipEmployee;
 window.deleteLeadershipEmployee = deleteLeadershipEmployee;
 window.saveLeadershipData = saveLeadershipData;
+window.switchToQuestions = switchToQuestions;
 </script>
 </body>
 </html>
