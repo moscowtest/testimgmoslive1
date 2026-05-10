@@ -437,18 +437,15 @@ async function loadLeadershipFromFirebase() {
       leadershipRoles = data.roles;
       leadershipEmployees = data.employees;
     } else {
-      // Если узла нет — просто пустые массивы, НИЧЕГО НЕ СОЗДАЁМ
+      // НЕ СОЗДАЁМ ДЕФОЛТНЫЕ ДАННЫЕ — оставляем пустыми
       leadershipRoles = [];
       leadershipEmployees = [];
     }
   } catch(e) { 
     console.error(e); 
-    showToast('❌ Ошибка загрузки руководства: ' + e.message, true);
   }
   renderLeadershipPanels();
-  updateLeadershipEmptyMessage();
 }
-
 function updateLeadershipEmptyMessage() {
   const rolesContainer = document.getElementById('rolesList');
   const employeesContainer = document.getElementById('employeesList');
@@ -513,6 +510,33 @@ function renderLeadershipPanels() {
       `).join('');
     }
   }
+  
+  const employeesContainer = document.getElementById('employeesList');
+  if (employeesContainer) {
+    if (leadershipEmployees.length === 0) {
+      employeesContainer.innerHTML = '<div class="text-center text-gray-400 py-8">👥 Нет сотрудников. Добавьте первого!</div>';
+    } else {
+      employeesContainer.innerHTML = leadershipEmployees.map((emp, idx) => `
+        <div class="leadership-item">
+          <div><div class="font-medium">${escapeHtml(emp.name)}</div><div class="text-sm text-gray-400">→ ${escapeHtml(emp.role)}</div></div>
+          <div>
+            <button onclick="editLeadershipEmployee(${idx})" class="text-cyan-400 mr-2"><i class="fas fa-edit"></i></button>
+            <button onclick="deleteLeadershipEmployee(${idx})" class="text-pink-400"><i class="fas fa-trash"></i></button>
+          </div>
+        </div>
+      `).join('');
+    }
+  }
+  
+  const roleSelect = document.getElementById('empRole');
+  if (roleSelect) {
+    if (leadershipRoles.length === 0) {
+      roleSelect.innerHTML = '<option disabled>Сначала добавьте должности</option>';
+    } else {
+      roleSelect.innerHTML = leadershipRoles.map(role => `<option value="${escapeHtml(role)}">${escapeHtml(role)}</option>`).join('');
+    }
+  }
+}
   
   const employeesContainer = document.getElementById('employeesList');
   if (employeesContainer) {
@@ -613,15 +637,7 @@ function deleteLeadershipEmployee(idx) {
   }
 }
 
-function switchToLeadership() {
-  document.getElementById('questionsPanel').style.display = 'none';
-  document.getElementById('leadershipPanel').style.display = 'block';
-  loadLeadershipFromFirebase();
-  
-  // Подсветка кнопки в меню
-  document.querySelectorAll('.sidebar-item').forEach(btn => btn.classList.remove('active'));
-  document.getElementById('btn-leadership').classList.add('active');
-}
+
 // Кнопки переключения вкладок в руководстве
 document.getElementById('leadershipRolesTab')?.addEventListener('click', () => {
   document.getElementById('leadershipRolesPanel').style.display = 'block';
