@@ -2,54 +2,187 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
   <title>Тест Руководства | Москва ЛАЙВ</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+  <script src="firebase-config.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-    body { background: radial-gradient(ellipse at 20% 30%, #0a0a2a, #050510); min-height: 100vh; color: #fff; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: radial-gradient(ellipse at 20% 30%, #0a0a2a, #050510);
+      min-height: 100vh;
+      color: #fff;
+    }
     .neon-glow { text-shadow: 0 0 5px #00ff88, 0 0 10px #00ff88, 0 0 20px #00ff88; }
     .btn-neon {
-      background: rgba(0, 0, 0, 0.6);
+      background: rgba(0, 0, 0, 0.5);
       border: 2px solid #00ff88;
       color: #00ff88;
-      padding: 12px 24px;
+      padding: 14px 28px;
       border-radius: 60px;
-      font-weight: bold;
+      font-weight: 700;
       cursor: pointer;
       transition: all 0.3s ease;
       backdrop-filter: blur(10px);
+      font-size: 16px;
     }
-    .btn-neon:hover { background: #00ff88; color: #050510; box-shadow: 0 0 30px #00ff88; transform: scale(1.02); }
-    .glass-card { background: rgba(20, 20, 50, 0.4); backdrop-filter: blur(12px); border-radius: 24px; border: 1px solid rgba(0, 255, 136, 0.3); padding: 24px; }
-    .question-block { background: rgba(20, 20, 50, 0.6); border-radius: 20px; padding: 20px; margin-bottom: 20px; border-left: 4px solid #00ff88; }
-    .timer-box { font-size: 32px; font-weight: bold; text-align: center; padding: 16px; background: rgba(0,0,0,0.5); border-radius: 60px; margin-bottom: 24px; border: 1px solid #00ff88; color: #00ff88; }
-    .result { text-align: center; padding: 20px; border-radius: 20px; margin-top: 20px; font-weight: bold; }
-    .correct { background: rgba(0, 255, 136, 0.2); color: #00ff88; border: 1px solid #00ff88; }
-    .wrong { background: rgba(255, 0, 212, 0.2); color: #ff00d4; border: 1px solid #ff00d4; }
+    .btn-neon:hover {
+      background: #00ff88;
+      color: #050510;
+      box-shadow: 0 0 30px #00ff88;
+      transform: scale(1.02);
+    }
+    .btn-neon-green {
+      border-color: #00ff88;
+      color: #00ff88;
+    }
+    .btn-home {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 40px;
+      font-size: 14px;
+      font-weight: 500;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      z-index: 100;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .btn-home:hover {
+      background: #00ff88;
+      border-color: #00ff88;
+      color: #050510;
+      transform: scale(1.02);
+    }
+    .glass-card {
+      background: rgba(15, 25, 45, 0.6);
+      backdrop-filter: blur(12px);
+      border-radius: 32px;
+      border: 1px solid rgba(0, 255, 136, 0.3);
+      padding: 32px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    }
+    .timer-box {
+      font-size: 32px;
+      font-weight: bold;
+      text-align: center;
+      padding: 16px;
+      background: rgba(0, 0, 0, 0.5);
+      border-radius: 60px;
+      margin-bottom: 24px;
+      border: 1px solid #00ff88;
+      color: #00ff88;
+    }
+    .result {
+      text-align: center;
+      padding: 20px;
+      border-radius: 20px;
+      margin-top: 20px;
+      font-weight: bold;
+    }
+    .result-success { background: rgba(0, 255, 136, 0.15); color: #00ff88; border: 1px solid #00ff88; }
+    .result-fail { background: rgba(255, 0, 212, 0.15); color: #ff00d4; border: 1px solid #ff00d4; }
     .hidden { display: none; }
-    .drag-container { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 16px; }
-    .draggable-item { background: rgba(0, 255, 136, 0.2); border: 1px solid #00ff88; border-radius: 60px; padding: 10px 20px; cursor: grab; text-align: center; backdrop-filter: blur(5px); }
-    .drop-target { background: rgba(0, 0, 0, 0.4); border: 2px dashed #00ff88; border-radius: 60px; padding: 10px 20px; text-align: center; min-width: 200px; }
-    .drop-target.correct { background: rgba(0, 255, 136, 0.3); border: 2px solid #00ff88; }
-    .drop-target.incorrect { background: rgba(255, 0, 212, 0.3); border: 2px solid #ff00d4; }
+    .question-counter { text-align: center; margin-bottom: 16px; font-size: 14px; color: #aaa; letter-spacing: 1px; }
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .animate-in { animation: fadeInUp 0.4s ease-out; }
+    
+    /* Стили для drag-and-drop */
+    .drag-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 16px;
+      margin-top: 20px;
+    }
+    .draggable-item {
+      background: rgba(0, 255, 136, 0.15);
+      border: 1px solid #00ff88;
+      border-radius: 60px;
+      padding: 12px 20px;
+      cursor: grab;
+      text-align: center;
+      backdrop-filter: blur(5px);
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+    .draggable-item:active { cursor: grabbing; }
+    .draggable-item:hover {
+      background: rgba(0, 255, 136, 0.3);
+      transform: scale(1.02);
+    }
+    .drop-target {
+      background: rgba(0, 0, 0, 0.4);
+      border: 2px dashed #00ff88;
+      border-radius: 60px;
+      padding: 12px 20px;
+      text-align: center;
+      min-width: 200px;
+      transition: all 0.2s;
+    }
+    .drop-target.correct {
+      background: rgba(0, 255, 136, 0.2);
+      border: 2px solid #00ff88;
+    }
+    .drop-target.incorrect {
+      background: rgba(255, 0, 212, 0.2);
+      border: 2px solid #ff00d4;
+    }
+    .drop-target.drag-over {
+      border-color: #ff00d4;
+      background: rgba(255, 0, 212, 0.2);
+    }
+    .selection-item {
+      text-align: center;
+      margin-top: 16px;
+    }
+    select {
+      background: rgba(0, 0, 0, 0.5);
+      border: 1px solid #00ff88;
+      border-radius: 60px;
+      padding: 10px 16px;
+      color: white;
+      width: 100%;
+      max-width: 280px;
+      margin-top: 8px;
+    }
+    @media (max-width: 768px) {
+      .drag-container { flex-direction: column; align-items: center; }
+      .draggable-item, .drop-target { min-width: 240px; width: 100%; max-width: 280px; }
+      .btn-home { top: 10px; left: 10px; padding: 6px 12px; font-size: 12px; }
+      .glass-card { padding: 20px; margin-top: 50px; }
+    }
   </style>
 </head>
 <body>
 
+<a href="index.html" class="btn-home">🏠 НА ГЛАВНУЮ</a>
+
 <div class="glass-card max-w-4xl mx-auto mt-12 p-6">
   <div class="text-center mb-6">
-    <h1 class="text-4xl font-extrabold neon-glow">👔 ТЕСТ РУКОВОДСТВА</h1>
-    <p class="text-gray-400 mt-2">Сопоставьте должности и сотрудников</p>
+    <h1 class="text-4xl font-extrabold neon-glow mb-2">👔 ТЕСТ РУКОВОДСТВА</h1>
+    <p class="text-gray-300 mt-1">Сопоставьте должности и сотрудников</p>
   </div>
 
-  <div id="step1">
-    <input type="text" id="username" placeholder="Имя и фамилия" class="w-full p-3 rounded-xl bg-black/50 border border-green-500 text-white text-center mb-4">
-    <button class="btn-neon w-full" id="startBtn">▶ НАЧАТЬ ТЕСТ</button>
+  <div id="step1" class="animate-in">
+    <input type="text" id="username" placeholder="Введите ваше имя и фамилию" class="w-full p-4 rounded-xl bg-black/40 border-2 border-green-500 text-white text-center text-lg focus:outline-none focus:ring-2 focus:ring-green-500 transition">
+    <button class="btn-neon w-full mt-6" id="startBtn">▶ СТАРТ ТЕСТА</button>
   </div>
 
-  <div id="step2" class="hidden">
+  <div id="step2" class="hidden animate-in">
     <div class="timer-box" id="timerDisplay">15:00</div>
+    <div class="question-counter" id="questionCounter">Сопоставьте должности</div>
     <div id="gameContainer"></div>
     <button class="btn-neon w-full mt-6" id="checkBtn">✅ ПРОВЕРИТЬ ОТВЕТЫ</button>
     <div id="resultArea"></div>
@@ -57,28 +190,131 @@
 </div>
 
 <script>
-const TELEGRAM_TOKEN = "7611996960:AAH7uARRG4FS8aM0M5xcK25PMagBOvnSjbQ";
-const TELEGRAM_CHAT_ID = "5755169925";
-const OTHER_CHATS = ["1360982536", "5329733389", "1880536475", "1302624133", "5337802253", "902249172", "8038255042"];
+// ========== ПОЛУЧЕНИЕ КОНФИГА ИЗ ОБФУСЦИРОВАННОГО ФАЙЛА ==========
+const firebaseConfig = window._0x2c3a;
+if (!firebase.apps.length) {
+  firebase.initializeApp({
+    apiKey: firebaseConfig._0x2b9c,
+    authDomain: firebaseConfig._0x277b,
+    projectId: firebaseConfig._0x1f9c,
+    storageBucket: firebaseConfig._0x4e3b,
+    messagingSenderId: firebaseConfig._0x5a8c,
+    appId: firebaseConfig._0x3a2f
+  });
+}
+// ===============================================================
+
+// DISCORD WEBHOOKS
+const DISCORD_RESULTS = "https://discord.com/api/webhooks/1500489572025372842/IGJtGda4K64g0comJ-PbOo04fiAVNTfFmD_sZSNk8W0fqbPsgsV0s7yhO-3kMQ-67urU";
+
+let timerInterval = null, timeLeft = 900, testActive = false;
+let userMatches = {};
 
 const ROLES = [
-  "Председатель-Правительства", "Заместитель-Председателя-Правительства 1",
-  "Министр социальной политики", "Директор Москва-LIVE"
+  "Председатель-Правительства",
+  "Заместитель-Председателя-Правительства 1",
+  "Заместитель-Председателя-Правительства 2",
+  "Министр социальной политики",
+  "Заместитель Министра социальной политики",
+  "Директор Москва-LIVE",
+  "Зам. Директора Москва LIVE 1",
+  "Зам. Директора Москва LIVE 2",
+  "Глава Отдела Кадров",
+  "Глава Отдела Журналистики",
+  "Глава Отдела Мероприятий",
+  "Глава Отдела Эфиров",
+  "Зам. Отдела Кадров 1",
+  "Зам. Отдела Кадров 2",
+  "Зам. Отдела Журналистики 1",
+  "Зам. Отдела Журналистики 2",
+  "Зам. Отдела Мероприятий 1",
+  "Зам. Отдела Мероприятий 2",
+  "Зам. Отдела Эфиров 1",
+  "Зам. Отдела Эфиров 2",
+  "Главный Администратор",
+  "Заместитель Главного Администратора",
+  "Главный куратор Гос. организаций",
+  "Помощник Главного Куратора Гос. организаций 1",
+  "Помощник Главного Куратора Гос. организаций 2",
+  "Помощник Главного Куратора Гос. организаций 3",
+  "Куратор Фракции"
 ];
+
 const NAMES = [
   { name: "Виктор Ваффентрагер", role: "Председатель-Правительства" },
   { name: "Даниил Гранде", role: "Заместитель-Председателя-Правительства 1" },
+  { name: "Данил Валерьянов", role: "Директор Москва-LIVE" },
+  { name: "Александр Волчаров", role: "Зам. Директора Москва LIVE 1" },
+  { name: "Александр Романов", role: "Зам. Директора Москва LIVE 2" },
   { name: "Рамзан Непупсиков", role: "Министр социальной политики" },
-  { name: "Данил Валерьянов", role: "Директор Москва-LIVE" }
+  { name: "Ксения Ваффентрагер", role: "Заместитель Министра социальной политики" },
+  { name: "Артём Берёзов", role: "Глава Отдела Кадров" },
+  { name: "Даниила Валерьянов", role: "Глава Отдела Журналистики" },
+  { name: "Эрика Краснодарова", role: "Глава Отдела Мероприятий" },
+  { name: "Виктория Ромеро", role: "Глава Отдела Эфиров" },
+  { name: "Никита Куэртов", role: "Зам. Отдела Кадров 1" },
+  { name: "Роман Ангелов", role: "Зам. Отдела Кадров 2" },
+  { name: "Егор Максов", role: "Зам. Отдела Журналистики 1" },
+  { name: "Никита Марковский", role: "Зам. Отдела Журналистики 2" },
+  { name: "Евгений Краснодаров", role: "Зам. Отдела Мероприятий 1" },
+  { name: "Артем Донецкий", role: "Зам. Отдела Мероприятий 2" },
+  { name: "Ара Ахметов", role: "Зам. Отдела Эфиров 1" },
+  { name: "Валерий Валерьянов", role: "Зам. Отдела Эфиров 2" },
+  { name: "Сергей Державин", role: "Главный Администратор" },
+  { name: "Егор Кастров", role: "Заместитель Главного Администратора" },
+  { name: "Константин Славян", role: "Главный куратор Гос. организаций" },
+  { name: "Максим Новик", role: "Помощник Главного Куратора Гос. организаций 1" },
+  { name: "Андрей Медведев", role: "Помощник Главного Куратора Гос. организаций 2" },
+  { name: "Константин Стэго", role: "Помощник Главного Куратора Гос. организаций 3" },
+  { name: "Николай Измайлов", role: "Куратор Фракции" }
 ];
 
-let timerInterval = null, timeLeft = 900, testActive = false, userMatches = {};
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
 
-function shuffle(arr) { for(let i=arr.length-1;i>0;i--){ let j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]]; } return arr; }
+function isMobile() {
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+}
+
+async function sendToDiscord(username, correctCount, total, passed) {
+  const color = passed ? 0x00ff88 : 0xff00d4;
+  const status = passed ? "✅ СДАЛ" : "❌ НЕ СДАЛ";
+  const percent = Math.round(correctCount / total * 100);
+  
+  try {
+    await fetch(DISCORD_RESULTS, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        embeds: [{
+          title: "📊 Результат теста Руководства",
+          description: `**${username}** ${status}\n📊 ${correctCount}/${total} (${percent}%)`,
+          color: color,
+          fields: [
+            { name: "📝 Правильных ответов", value: `${correctCount}/${total}`, inline: true },
+            { name: "📈 Процент", value: `${percent}%`, inline: true },
+            { name: "🎯 Проходной балл", value: `${Math.floor(total * 0.7)} правильных`, inline: true },
+            { name: "📅 Дата", value: new Date().toLocaleString(), inline: false }
+          ],
+          footer: { text: "Москва Лайв | Система тестирования" }
+        }]
+      })
+    });
+  } catch(e) { console.error("Discord send error:", e); }
+}
 
 function startTest() {
   const username = document.getElementById('username').value.trim();
-  if(!username) { alert('Введите имя!'); return; }
+  if (!username) {
+    alert('❌ Введите имя и фамилию!');
+    return;
+  }
+  
   testActive = true;
   timeLeft = 900;
   userMatches = {};
@@ -90,17 +326,47 @@ function startTest() {
 
 function renderGame() {
   const container = document.getElementById('gameContainer');
-  container.innerHTML = `
-    <div class="mb-6">
-      <h2 class="text-xl font-bold mb-3">📌 Должности</h2>
-      <div id="rolesContainer" class="drag-container">${shuffle([...ROLES]).map(role => `<div class="draggable-item" draggable="true" data-role="${role}">${role}</div>`).join('')}</div>
-    </div>
-    <div>
-      <h2 class="text-xl font-bold mb-3">👤 Сотрудники</h2>
-      <div id="namesContainer" class="drag-container">${NAMES.map((n, i) => `<div class="drop-target" data-expected="${n.role}" data-name="${n.name}" id="drop-${i}">${n.name}</div>`).join('')}</div>
-    </div>
-  `;
-  initDragAndDrop();
+  const isMobileDevice = isMobile();
+  
+  if (isMobileDevice) {
+    // Мобильная версия: выпадающие списки
+    container.innerHTML = `
+      <div class="mb-6">
+        <h2 class="text-xl font-bold mb-4 text-center">📌 Выберите соответствия</h2>
+        <div class="space-y-4">
+          ${NAMES.map((n, i) => `
+            <div class="bg-black/30 rounded-xl p-4">
+              <div class="font-bold text-white mb-2">${n.name}</div>
+              <select id="select-${i}" class="w-full p-2 rounded-xl bg-black/50 border border-green-500">
+                <option value="">-- Выберите должность --</option>
+                ${ROLES.map(role => `<option value="${role}">${role}</option>`).join('')}
+              </select>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  } else {
+    // Десктопная версия: drag-and-drop
+    const shuffledRoles = shuffle([...ROLES]);
+    const shuffledNames = shuffle([...NAMES]);
+    
+    container.innerHTML = `
+      <div class="mb-6">
+        <h2 class="text-xl font-bold mb-3 text-center">📌 Должности</h2>
+        <div id="rolesContainer" class="drag-container">
+          ${shuffledRoles.map(role => `<div class="draggable-item" draggable="true" data-role="${role}">${role}</div>`).join('')}
+        </div>
+      </div>
+      <div>
+        <h2 class="text-xl font-bold mb-3 text-center">👤 Сотрудники</h2>
+        <div id="namesContainer" class="drag-container">
+          ${shuffledNames.map((n, i) => `<div class="drop-target" data-expected="${n.role}" data-name="${n.name}" id="drop-${i}">${n.name}</div>`).join('')}
+        </div>
+      </div>
+    `;
+    initDragAndDrop();
+  }
 }
 
 function initDragAndDrop() {
@@ -112,71 +378,100 @@ function initDragAndDrop() {
   });
   document.querySelectorAll('.drop-target').forEach(target => {
     target.ondragover = (e) => e.preventDefault();
+    target.ondragenter = (e) => { e.preventDefault(); target.classList.add('drag-over'); };
+    target.ondragleave = () => target.classList.remove('drag-over');
     target.ondrop = (e) => {
       e.preventDefault();
-      if(!dragged) return;
+      target.classList.remove('drag-over');
+      if (!dragged) return;
       const role = dragged.getAttribute('data-role');
-      const targetId = target.id;
-      const expectedRole = target.getAttribute('data-expected');
       const name = target.getAttribute('data-name');
       userMatches[name] = role;
-      target.innerHTML = `${name}<br><span class="text-xs">→ ${role}</span>`;
+      target.innerHTML = `${name}<br><span class="text-xs text-green-400">→ ${role}</span>`;
       dragged.remove();
-      showToast(`📌 ${name} → ${role}`);
+      showToastMessage(`📌 ${name} → ${role}`);
     };
   });
+}
+
+function showToastMessage(msg) {
+  const toast = document.createElement('div');
+  toast.className = 'fixed bottom-5 right-5 bg-green-500 text-black px-4 py-2 rounded-full z-50 animate-pulse';
+  toast.textContent = msg;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 2000);
 }
 
 function startTimer() {
   updateTimerDisplay();
   timerInterval = setInterval(() => {
-    if(!testActive) return;
+    if (!testActive) return;
     timeLeft--;
     updateTimerDisplay();
-    if(timeLeft <= 0) { clearInterval(timerInterval); alert('Время вышло!'); checkAnswers(); }
+    if (timeLeft <= 0) {
+      clearInterval(timerInterval);
+      alert('⏰ Время вышло!');
+      checkAnswers();
+    }
   }, 1000);
 }
 
 function updateTimerDisplay() {
   const m = Math.floor(timeLeft / 60);
   const s = timeLeft % 60;
-  document.getElementById('timerDisplay').textContent = `${m}:${s.toString().padStart(2,'0')}`;
+  document.getElementById('timerDisplay').textContent = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
 }
 
 function checkAnswers() {
-  if(!testActive) return;
+  if (!testActive) return;
   testActive = false;
   clearInterval(timerInterval);
+  
   const username = document.getElementById('username').value.trim();
+  const isMobileDevice = isMobile();
+  
+  if (isMobileDevice) {
+    // Сбор ответов с мобильной версии
+    for (let i = 0; i < NAMES.length; i++) {
+      const select = document.getElementById(`select-${i}`);
+      if (select && select.value) {
+        userMatches[NAMES[i].name] = select.value;
+      }
+    }
+  }
+  
   let correctCount = 0;
-  NAMES.forEach(n => {
-    const matched = userMatches[n.name];
-    const isCorrect = (matched === n.role);
-    if(isCorrect) correctCount++;
-    const target = document.getElementById(`drop-${NAMES.findIndex(x=>x.name===n.name)}`);
-    if(target) target.classList.add(isCorrect ? 'correct' : 'incorrect');
-  });
+  for (let i = 0; i < NAMES.length; i++) {
+    const matched = userMatches[NAMES[i].name];
+    const isCorrect = (matched === NAMES[i].role);
+    if (isCorrect) correctCount++;
+    
+    if (!isMobileDevice) {
+      const target = document.getElementById(`drop-${i}`);
+      if (target) target.classList.add(isCorrect ? 'correct' : 'incorrect');
+    } else {
+      const select = document.getElementById(`select-${i}`);
+      if (select) {
+        if (isCorrect) select.style.borderColor = '#00ff88';
+        else select.style.borderColor = '#ff00d4';
+        select.disabled = true;
+      }
+    }
+  }
+  
   const total = NAMES.length;
   const pass = Math.floor(total * 0.7);
+  const passed = correctCount >= pass;
+  
   const resultDiv = document.getElementById('resultArea');
-  resultDiv.innerHTML = `<div class="result ${correctCount >= pass ? 'correct' : 'wrong'}">📊 Результат: ${correctCount} / ${total}<br>${correctCount >= pass ? '✅ СДАЛ! Молодец!' : '❌ НЕ СДАЛ! Иди учить руководство!'}</div>`;
-  sendToTelegram(`📝 <b>Тест Руководства</b>\n👤 ${username}\n📊 ${correctCount}/${total}\n${correctCount >= pass ? "✅ СДАЛ" : "❌ НЕ СДАЛ"}`);
-}
-
-async function sendToTelegram(msg) {
-  const url = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`;
-  try {
-    await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: msg, parse_mode: "HTML" }) });
-    for(let id of OTHER_CHATS) fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ chat_id: id, text: msg, parse_mode: "HTML" }) });
-  } catch(e) {}
-}
-
-function showToast(msg) {
-  const t = document.createElement('div');
-  t.className = 'fixed bottom-5 right-5 bg-green-500 text-black px-4 py-2 rounded-full z-50 animate-pulse';
-  t.textContent = msg;
-  document.body.appendChild(t);
-  setTimeout(() => t.remove(), 2000);
+  resultDiv.innerHTML = `
+    <div class="result ${passed ? 'result-success' : 'result-fail'}">
+      📊 Результат: ${correctCount} / ${total}<br>
+      ${passed ? '✅ СДАЛ! Молодец!' : '❌ НЕ СДАЛ! Иди учить руководство!'}
+    </div>
+  `;
+  
+  sendToDiscord(username, correctCount, total, passed);
 }
 
 document.getElementById('startBtn').onclick = startTest;
