@@ -433,10 +433,13 @@ async function loadLeadershipFromFirebase() {
   try {
     const snap = await db.ref('leadership').once('value');
     const data = snap.val();
+    
     if (data && data.roles && data.employees) {
+      // Данные есть — загружаем
       leadershipRoles = data.roles;
       leadershipEmployees = data.employees;
     } else {
+      // Данных нет — создаём узел с дефолтными значениями
       leadershipRoles = ["Председатель-Правительства", "Заместитель-Председателя-Правительства 1", "Министр социальной политики", "Директор Москва-LIVE", "Глава Отдела Кадров"];
       leadershipEmployees = [
         { name: "Виктор Ваффентрагер", role: "Председатель-Правительства" },
@@ -445,16 +448,26 @@ async function loadLeadershipFromFirebase() {
         { name: "Данил Валерьянов", role: "Директор Москва-LIVE" },
         { name: "Артём Берёзов", role: "Глава Отдела Кадров" }
       ];
+      // Сохраняем в Firebase
+      await db.ref('leadership').set({ roles: leadershipRoles, employees: leadershipEmployees });
+      showToast('📁 Узел leadership создан с данными по умолчанию');
     }
-  } catch(e) { console.error(e); }
+  } catch(e) { 
+    console.error(e); 
+    showToast('❌ Ошибка загрузки руководства: ' + e.message, true);
+  }
   renderLeadershipPanels();
 }
-
 async function saveLeadershipData() {
   try {
-    await db.ref('leadership').set({ roles: leadershipRoles, employees: leadershipEmployees });
-    showToast('✅ Данные руководства сохранены');
-  } catch(e) { showToast('❌ Ошибка: ' + e.message, true); }
+    await db.ref('leadership').set({ 
+      roles: leadershipRoles, 
+      employees: leadershipEmployees 
+    });
+    showToast('✅ Данные руководства сохранены в Firebase');
+  } catch(e) { 
+    showToast('❌ Ошибка: ' + e.message, true); 
+  }
 }
 
 function renderLeadershipPanels() {
