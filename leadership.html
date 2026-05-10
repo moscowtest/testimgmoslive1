@@ -36,10 +36,6 @@
       box-shadow: 0 0 30px #00ff88;
       transform: scale(1.02);
     }
-    .btn-neon-green {
-      border-color: #00ff88;
-      color: #00ff88;
-    }
     .btn-home {
       position: fixed;
       top: 20px;
@@ -98,7 +94,6 @@
     @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     .animate-in { animation: fadeInUp 0.4s ease-out; }
     
-    /* Стили для drag-and-drop */
     .drag-container {
       display: flex;
       flex-wrap: wrap;
@@ -130,6 +125,7 @@
       text-align: center;
       min-width: 200px;
       transition: all 0.2s;
+      position: relative;
     }
     .drop-target.correct {
       background: rgba(0, 255, 136, 0.2);
@@ -143,19 +139,29 @@
       border-color: #ff00d4;
       background: rgba(255, 0, 212, 0.2);
     }
-    .selection-item {
-      text-align: center;
-      margin-top: 16px;
-    }
-    select {
-      background: rgba(0, 0, 0, 0.5);
-      border: 1px solid #00ff88;
-      border-radius: 60px;
-      padding: 10px 16px;
+    .reset-btn {
+      position: absolute;
+      top: -10px;
+      right: -10px;
+      background: #ff00d4;
       color: white;
-      width: 100%;
-      max-width: 280px;
-      margin-top: 8px;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+      opacity: 0;
+    }
+    .drop-target:hover .reset-btn {
+      opacity: 1;
+    }
+    .reset-btn:hover {
+      transform: scale(1.1);
+      background: #ff4444;
     }
     @media (max-width: 768px) {
       .drag-container { flex-direction: column; align-items: center; }
@@ -204,70 +210,54 @@ if (!firebase.apps.length) {
 }
 // ===============================================================
 
-// DISCORD WEBHOOKS
 const DISCORD_RESULTS = "https://discord.com/api/webhooks/1500489572025372842/IGJtGda4K64g0comJ-PbOo04fiAVNTfFmD_sZSNk8W0fqbPsgsV0s7yhO-3kMQ-67urU";
 
+let db = firebase.database();
 let timerInterval = null, timeLeft = 900, testActive = false;
 let userMatches = {};
+let currentRoles = [];
+let currentEmployees = [];
 
-const ROLES = [
-  "Председатель-Правительства",
-  "Заместитель-Председателя-Правительства 1",
-  "Заместитель-Председателя-Правительства 2",
-  "Министр социальной политики",
-  "Заместитель Министра социальной политики",
-  "Директор Москва-LIVE",
-  "Зам. Директора Москва LIVE 1",
-  "Зам. Директора Москва LIVE 2",
-  "Глава Отдела Кадров",
-  "Глава Отдела Журналистики",
-  "Глава Отдела Мероприятий",
-  "Глава Отдела Эфиров",
-  "Зам. Отдела Кадров 1",
-  "Зам. Отдела Кадров 2",
-  "Зам. Отдела Журналистики 1",
-  "Зам. Отдела Журналистики 2",
-  "Зам. Отдела Мероприятий 1",
-  "Зам. Отдела Мероприятий 2",
-  "Зам. Отдела Эфиров 1",
-  "Зам. Отдела Эфиров 2",
-  "Главный Администратор",
-  "Заместитель Главного Администратора",
-  "Главный куратор Гос. организаций",
-  "Помощник Главного Куратора Гос. организаций 1",
-  "Помощник Главного Куратора Гос. организаций 2",
-  "Помощник Главного Куратора Гос. организаций 3",
-  "Куратор Фракции"
-];
-
-const NAMES = [
-  { name: "Виктор Ваффентрагер", role: "Председатель-Правительства" },
-  { name: "Даниил Гранде", role: "Заместитель-Председателя-Правительства 1" },
-  { name: "Данил Валерьянов", role: "Директор Москва-LIVE" },
-  { name: "Александр Волчаров", role: "Зам. Директора Москва LIVE 1" },
-  { name: "Александр Романов", role: "Зам. Директора Москва LIVE 2" },
-  { name: "Рамзан Непупсиков", role: "Министр социальной политики" },
-  { name: "Ксения Ваффентрагер", role: "Заместитель Министра социальной политики" },
-  { name: "Артём Берёзов", role: "Глава Отдела Кадров" },
-  { name: "Даниила Валерьянов", role: "Глава Отдела Журналистики" },
-  { name: "Эрика Краснодарова", role: "Глава Отдела Мероприятий" },
-  { name: "Виктория Ромеро", role: "Глава Отдела Эфиров" },
-  { name: "Никита Куэртов", role: "Зам. Отдела Кадров 1" },
-  { name: "Роман Ангелов", role: "Зам. Отдела Кадров 2" },
-  { name: "Егор Максов", role: "Зам. Отдела Журналистики 1" },
-  { name: "Никита Марковский", role: "Зам. Отдела Журналистики 2" },
-  { name: "Евгений Краснодаров", role: "Зам. Отдела Мероприятий 1" },
-  { name: "Артем Донецкий", role: "Зам. Отдела Мероприятий 2" },
-  { name: "Ара Ахметов", role: "Зам. Отдела Эфиров 1" },
-  { name: "Валерий Валерьянов", role: "Зам. Отдела Эфиров 2" },
-  { name: "Сергей Державин", role: "Главный Администратор" },
-  { name: "Егор Кастров", role: "Заместитель Главного Администратора" },
-  { name: "Константин Славян", role: "Главный куратор Гос. организаций" },
-  { name: "Максим Новик", role: "Помощник Главного Куратора Гос. организаций 1" },
-  { name: "Андрей Медведев", role: "Помощник Главного Куратора Гос. организаций 2" },
-  { name: "Константин Стэго", role: "Помощник Главного Куратора Гос. организаций 3" },
-  { name: "Николай Измайлов", role: "Куратор Фракции" }
-];
+async function loadLeadershipData() {
+  try {
+    const snapshot = await db.ref('leadership').once('value');
+    const data = snapshot.val();
+    if (data && data.roles && data.employees) {
+      currentRoles = data.roles;
+      currentEmployees = data.employees;
+    } else {
+      // Дефолтные данные
+      currentRoles = [
+        "Председатель-Правительства",
+        "Заместитель-Председателя-Правительства 1",
+        "Заместитель-Председателя-Правительства 2",
+        "Министр социальной политики",
+        "Заместитель Министра социальной политики",
+        "Директор Москва-LIVE",
+        "Зам. Директора Москва LIVE 1",
+        "Зам. Директора Москва LIVE 2",
+        "Глава Отдела Кадров",
+        "Глава Отдела Журналистики",
+        "Глава Отдела Мероприятий",
+        "Глава Отдела Эфиров"
+      ];
+      currentEmployees = [
+        { name: "Виктор Ваффентрагер", role: "Председатель-Правительства" },
+        { name: "Даниил Гранде", role: "Заместитель-Председателя-Правительства 1" },
+        { name: "Данил Валерьянов", role: "Директор Москва-LIVE" },
+        { name: "Александр Волчаров", role: "Зам. Директора Москва LIVE 1" },
+        { name: "Рамзан Непупсиков", role: "Министр социальной политики" },
+        { name: "Ксения Ваффентрагер", role: "Заместитель Министра социальной политики" },
+        { name: "Артём Берёзов", role: "Глава Отдела Кадров" },
+        { name: "Даниила Валерьянов", role: "Глава Отдела Журналистики" },
+        { name: "Эрика Краснодарова", role: "Глава Отдела Мероприятий" },
+        { name: "Виктория Ромеро", role: "Глава Отдела Эфиров" }
+      ];
+    }
+  } catch(e) {
+    console.error(e);
+  }
+}
 
 function shuffle(arr) {
   for (let i = arr.length - 1; i > 0; i--) {
@@ -275,10 +265,6 @@ function shuffle(arr) {
     [arr[i], arr[j]] = [arr[j], arr[i]];
   }
   return arr;
-}
-
-function isMobile() {
-  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 }
 
 async function sendToDiscord(username, correctCount, total, passed) {
@@ -308,74 +294,35 @@ async function sendToDiscord(username, correctCount, total, passed) {
   } catch(e) { console.error("Discord send error:", e); }
 }
 
-function startTest() {
-  const username = document.getElementById('username').value.trim();
-  if (!username) {
-    alert('❌ Введите имя и фамилию!');
-    return;
-  }
-  
-  testActive = true;
-  timeLeft = 900;
-  userMatches = {};
+function resetEmployeeRole(employeeName) {
+  delete userMatches[employeeName];
   renderGame();
-  startTimer();
-  document.getElementById('step1').classList.add('hidden');
-  document.getElementById('step2').classList.remove('hidden');
+  showToastMessage(`🔄 Сброшено: ${employeeName}`);
 }
 
-function renderGame() {
-  const container = document.getElementById('gameContainer');
-  const isMobileDevice = isMobile();
-  
-  if (isMobileDevice) {
-    // Мобильная версия: выпадающие списки
-    container.innerHTML = `
-      <div class="mb-6">
-        <h2 class="text-xl font-bold mb-4 text-center">📌 Выберите соответствия</h2>
-        <div class="space-y-4">
-          ${NAMES.map((n, i) => `
-            <div class="bg-black/30 rounded-xl p-4">
-              <div class="font-bold text-white mb-2">${n.name}</div>
-              <select id="select-${i}" class="w-full p-2 rounded-xl bg-black/50 border border-green-500">
-                <option value="">-- Выберите должность --</option>
-                ${ROLES.map(role => `<option value="${role}">${role}</option>`).join('')}
-              </select>
-            </div>
-          `).join('')}
-        </div>
-      </div>
-    `;
-  } else {
-    // Десктопная версия: drag-and-drop
-    const shuffledRoles = shuffle([...ROLES]);
-    const shuffledNames = shuffle([...NAMES]);
-    
-    container.innerHTML = `
-      <div class="mb-6">
-        <h2 class="text-xl font-bold mb-3 text-center">📌 Должности</h2>
-        <div id="rolesContainer" class="drag-container">
-          ${shuffledRoles.map(role => `<div class="draggable-item" draggable="true" data-role="${role}">${role}</div>`).join('')}
-        </div>
-      </div>
-      <div>
-        <h2 class="text-xl font-bold mb-3 text-center">👤 Сотрудники</h2>
-        <div id="namesContainer" class="drag-container">
-          ${shuffledNames.map((n, i) => `<div class="drop-target" data-expected="${n.role}" data-name="${n.name}" id="drop-${i}">${n.name}</div>`).join('')}
-        </div>
-      </div>
-    `;
-    initDragAndDrop();
-  }
+function showToastMessage(msg) {
+  const toast = document.createElement('div');
+  toast.className = 'fixed bottom-5 right-5 bg-green-500 text-black px-4 py-2 rounded-full z-50 animate-pulse';
+  toast.textContent = msg;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 2000);
 }
 
 function initDragAndDrop() {
   let dragged = null;
+  const rolesContainer = document.getElementById('rolesContainer');
+  const namesContainer = document.getElementById('namesContainer');
+  
+  if (!rolesContainer || !namesContainer) return;
+  
+  // Настройка перетаскиваемых элементов
   document.querySelectorAll('.draggable-item').forEach(el => {
     el.setAttribute('draggable', 'true');
     el.ondragstart = (e) => { dragged = el; e.dataTransfer.setData('text/plain', ''); };
     el.ondragend = () => { dragged = null; };
   });
+  
+  // Настройка целей для сброса
   document.querySelectorAll('.drop-target').forEach(target => {
     target.ondragover = (e) => e.preventDefault();
     target.ondragenter = (e) => { e.preventDefault(); target.classList.add('drag-over'); };
@@ -386,20 +333,65 @@ function initDragAndDrop() {
       if (!dragged) return;
       const role = dragged.getAttribute('data-role');
       const name = target.getAttribute('data-name');
-      userMatches[name] = role;
-      target.innerHTML = `${name}<br><span class="text-xs text-green-400">→ ${role}</span>`;
-      dragged.remove();
-      showToastMessage(`📌 ${name} → ${role}`);
+      if (role && name) {
+        userMatches[name] = role;
+        renderGame();
+        showToastMessage(`📌 ${name} → ${role}`);
+      }
     };
   });
 }
 
-function showToastMessage(msg) {
-  const toast = document.createElement('div');
-  toast.className = 'fixed bottom-5 right-5 bg-green-500 text-black px-4 py-2 rounded-full z-50 animate-pulse';
-  toast.textContent = msg;
-  document.body.appendChild(toast);
-  setTimeout(() => toast.remove(), 2000);
+async function startTest() {
+  const username = document.getElementById('username').value.trim();
+  if (!username) {
+    alert('❌ Введите имя и фамилию!');
+    return;
+  }
+  
+  await loadLeadershipData();
+  userMatches = {};
+  testActive = true;
+  timeLeft = 900;
+  renderGame();
+  startTimer();
+  document.getElementById('step1').classList.add('hidden');
+  document.getElementById('step2').classList.remove('hidden');
+}
+
+function renderGame() {
+  const container = document.getElementById('gameContainer');
+  const shuffledRoles = shuffle([...currentRoles]);
+  const availableRoles = shuffledRoles.filter(role => !Object.values(userMatches).includes(role));
+  
+  container.innerHTML = `
+    <div class="mb-6">
+      <h2 class="text-xl font-bold mb-3 text-center">📌 Доступные должности</h2>
+      <div id="rolesContainer" class="drag-container">
+        ${availableRoles.map(role => `<div class="draggable-item" draggable="true" data-role="${role}">${role}</div>`).join('')}
+      </div>
+    </div>
+    <div>
+      <h2 class="text-xl font-bold mb-3 text-center">👤 Сотрудники</h2>
+      <div id="namesContainer" class="drag-container">
+        ${currentEmployees.map(emp => {
+          const matchedRole = userMatches[emp.name];
+          if (matchedRole) {
+            return `
+              <div class="drop-target correct" data-expected="${emp.role}" data-name="${emp.name}">
+                ${emp.name}<br><span class="text-xs text-green-400">→ ${matchedRole}</span>
+                <div class="reset-btn" onclick="resetEmployeeRole('${emp.name}')">✖</div>
+              </div>
+            `;
+          } else {
+            return `<div class="drop-target" data-expected="${emp.role}" data-name="${emp.name}">${emp.name}</div>`;
+          }
+        }).join('')}
+      </div>
+    </div>
+  `;
+  
+  initDragAndDrop();
 }
 
 function startTimer() {
@@ -428,38 +420,16 @@ function checkAnswers() {
   clearInterval(timerInterval);
   
   const username = document.getElementById('username').value.trim();
-  const isMobileDevice = isMobile();
-  
-  if (isMobileDevice) {
-    // Сбор ответов с мобильной версии
-    for (let i = 0; i < NAMES.length; i++) {
-      const select = document.getElementById(`select-${i}`);
-      if (select && select.value) {
-        userMatches[NAMES[i].name] = select.value;
-      }
-    }
-  }
-  
   let correctCount = 0;
-  for (let i = 0; i < NAMES.length; i++) {
-    const matched = userMatches[NAMES[i].name];
-    const isCorrect = (matched === NAMES[i].role);
+  
+  for (let i = 0; i < currentEmployees.length; i++) {
+    const emp = currentEmployees[i];
+    const matched = userMatches[emp.name];
+    const isCorrect = (matched === emp.role);
     if (isCorrect) correctCount++;
-    
-    if (!isMobileDevice) {
-      const target = document.getElementById(`drop-${i}`);
-      if (target) target.classList.add(isCorrect ? 'correct' : 'incorrect');
-    } else {
-      const select = document.getElementById(`select-${i}`);
-      if (select) {
-        if (isCorrect) select.style.borderColor = '#00ff88';
-        else select.style.borderColor = '#ff00d4';
-        select.disabled = true;
-      }
-    }
   }
   
-  const total = NAMES.length;
+  const total = currentEmployees.length;
   const pass = Math.floor(total * 0.7);
   const passed = correctCount >= pass;
   
@@ -472,10 +442,14 @@ function checkAnswers() {
   `;
   
   sendToDiscord(username, correctCount, total, passed);
+  
+  // Отключаем drag-and-drop после проверки
+  document.querySelectorAll('.draggable-item').forEach(el => el.setAttribute('draggable', 'false'));
 }
 
 document.getElementById('startBtn').onclick = startTest;
 document.getElementById('checkBtn').onclick = checkAnswers;
+window.resetEmployeeRole = resetEmployeeRole;
 </script>
 </body>
 </html>
