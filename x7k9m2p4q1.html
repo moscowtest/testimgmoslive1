@@ -88,6 +88,7 @@
     </aside>
 
     <main class="flex-1 glass-card">
+      <!-- ЭКРАН АВТОРИЗАЦИИ -->
       <div id="authContainer">
         <div id="passwordSection" class="login-container p-6">
           <h2 class="text-2xl font-bold mb-4 neon-glow">🔐 ВХОД В АДМИНКУ</h2>
@@ -107,6 +108,7 @@
         </div>
       </div>
 
+      <!-- ПОЛНАЯ АДМИН-ПАНЕЛЬ (СКРЫТА ДО 2FA) -->
       <div id="adminPanel" style="display: none;">
         <!-- Панель для вопросов ППО/Устава -->
         <div id="questionsPanel">
@@ -233,12 +235,11 @@ if (!firebase.apps.length) {
 const db = firebase.database();
 const DISCORD_CODE_WEBHOOK = "https://discord.com/api/webhooks/1503013566289281037/5hJsRG7FVQK0hG3j8NSCIqwg-qmf39fi8tzsbL_IaCJnWtjHJ9RMyL-yf8Z5OVdT1MXR";
 
-// ========== ЛОГИН С 2FA (СНАЧАЛА ПАРОЛЬ, ПОТОМ КОД, ПОТОМ АДМИНКА) ==========
+// ========== ЛОГИН С 2FA (ПОЛНЫЙ ДОСТУП ТОЛЬКО ПОСЛЕ 2FA) ==========
 let pending2FACode = null;
 let codeExpiration = null;
 let failedAttempts = 0;
 let blockedUntil = null;
-let isPasswordVerified = false;
 
 function showToast(msg, isError = false) {
   const toast = document.createElement('div');
@@ -301,7 +302,6 @@ async function checkPassword() {
     const correctPassword = snapshot.val();
     
     if (correctPassword && password === correctPassword) {
-      isPasswordVerified = true;
       failedAttempts = 0;
       await db.ref('settings/adminBlock').remove();
       pending2FACode = Math.floor(100000 + Math.random() * 900000).toString();
@@ -330,17 +330,15 @@ async function check2FACode() {
     document.getElementById('passwordInput').value = '';
     document.getElementById('codeInput').value = '';
     pending2FACode = null;
-    isPasswordVerified = false;
     return;
   }
   if (code === pending2FACode) {
     pending2FACode = null;
-    isPasswordVerified = false;
     showToast('✅ Доступ разрешён!');
-    document.getElementById('passwordSection').style.display = 'none';
-    document.getElementById('codeSection').style.display = 'none';
-    document.getElementById('adminPanel').style.display = 'block';
+    // Скрываем форму авторизации и показываем админ-панель
     document.getElementById('authContainer').style.display = 'none';
+    document.getElementById('adminPanel').style.display = 'block';
+    // Инициализируем всё
     initQuestionsPanel();
     loadLeadershipFromFirebase();
     updateToggleButtons();
@@ -359,10 +357,7 @@ async function resendCode() {
     showToast('Код истёк. Начните заново.', true);
     document.getElementById('passwordSection').style.display = 'block';
     document.getElementById('codeSection').style.display = 'none';
-    document.getElementById('passwordInput').value = '';
-    document.getElementById('codeInput').value = '';
     pending2FACode = null;
-    isPasswordVerified = false;
   }
 }
 
