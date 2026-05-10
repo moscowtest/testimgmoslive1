@@ -15,7 +15,7 @@
 </head>
 <body>
 
-<div class="admin-key" onclick="_0x8a2f()">🔧</div>
+<div class="admin-key" onclick="openAdminModal()">🔧</div>
 
 <div class="min-h-screen flex flex-col items-center justify-center p-6">
   <div class="logo">🎮</div>
@@ -29,15 +29,15 @@
   </div>
 
   <div class="footer-btn">
-    <button onclick="_0x5b4c()" class="suggestion-btn">💡 ПРЕДЛОЖЕНИЯ ИЛИ ОШИБКИ</button>
+    <button onclick="sendSuggestion()" class="suggestion-btn">💡 ПРЕДЛОЖЕНИЯ ИЛИ ОШИБКИ</button>
   </div>
 </div>
 
-<div id="adminModal" class="admin-modal" onclick="if(event.target===this) _0x2c8a()">
+<div id="adminModal" class="admin-modal" onclick="if(event.target===this) closeAdminModal()">
   <div class="admin-modal-content">
     <h2 class="text-2xl font-bold mb-4 neon-glow">🔐 ДОСТУП В АДМИНКУ</h2>
     <input type="password" id="adminPassword" placeholder="Введите пароль">
-    <button onclick="_0x4e2b()" class="w-full bg-gradient-to-r from-cyan-500 to-blue-500 py-3 rounded-full font-bold">ВОЙТИ</button>
+    <button onclick="checkPassword()" class="w-full bg-gradient-to-r from-cyan-500 to-blue-500 py-3 rounded-full font-bold">ВОЙТИ</button>
     <div id="adminError" class="text-red-500 text-sm mt-3"></div>
   </div>
 </div>
@@ -170,10 +170,10 @@
   // Запуск и экспорт в глобальную область
   loadVisibility();
   
-  window._0x8a2f = openAdminModal;
-  window._0x4e2b = checkPassword;
-  window._0x2c8a = closeAdminModal;
-  window._0x5b4c = sendSuggestion;
+  window.openAdminModal = openAdminModal;
+  window.checkPassword = checkPassword;
+  window.closeAdminModal = closeAdminModal;
+  window.sendSuggestion = sendSuggestion;
 })();
 </script>
 </body>
