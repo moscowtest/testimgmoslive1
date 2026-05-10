@@ -42,15 +42,8 @@
     .login-container { max-width: 400px; margin: 0 auto; text-align: center; }
     .error-text { color: #ff8888; font-size: 14px; margin-top: 8px; }
     .blocked-text { color: #ffaa00; font-size: 14px; margin-top: 8px; }
-    .leadership-item {
-      background: rgba(20,20,50,0.6);
-      border-radius: 12px;
-      padding: 12px;
-      margin-bottom: 8px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
+    .leadership-item { background: rgba(20,20,50,0.6); border-radius: 12px; padding: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+    .hidden { display: none; }
   </style>
 </head>
 <body>
@@ -95,26 +88,25 @@
     </aside>
 
     <main class="flex-1 glass-card">
-      <!-- ШАГ 1: Ввод пароля -->
-      <div id="passwordSection" class="login-container p-6">
-        <h2 class="text-2xl font-bold mb-4 neon-glow">🔐 ВХОД В АДМИНКУ</h2>
-        <input type="password" id="passwordInput" placeholder="Введите пароль" class="w-full mb-3">
-        <button onclick="checkPassword()" class="btn-neon w-full">ПРОДОЛЖИТЬ</button>
-        <div id="passwordError" class="error-text mt-2 hidden"></div>
-        <div id="blockedMessage" class="blocked-text mt-2 hidden"></div>
+      <div id="authContainer">
+        <div id="passwordSection" class="login-container p-6">
+          <h2 class="text-2xl font-bold mb-4 neon-glow">🔐 ВХОД В АДМИНКУ</h2>
+          <input type="password" id="passwordInput" placeholder="Введите пароль" class="w-full mb-3">
+          <button onclick="checkPassword()" class="btn-neon w-full">ПРОДОЛЖИТЬ</button>
+          <div id="passwordError" class="error-text mt-2 hidden"></div>
+          <div id="blockedMessage" class="blocked-text mt-2 hidden"></div>
+        </div>
+
+        <div id="codeSection" class="login-container p-6" style="display: none;">
+          <h2 class="text-2xl font-bold mb-4 neon-glow">🔢 ДВУХФАКТОРНАЯ АУТЕНТИФИКАЦИЯ</h2>
+          <p class="text-sm text-gray-300 mb-3">Код отправлен в приватный Discord-канал</p>
+          <input type="text" id="codeInput" placeholder="Введите 6-значный код" class="w-full mb-3" maxlength="6">
+          <button onclick="check2FACode()" class="btn-neon btn-neon-green w-full">ПОДТВЕРДИТЬ</button>
+          <button onclick="resendCode()" class="btn-neon w-full mt-2" style="background:#334155">🔄 Отправить код повторно</button>
+          <div id="codeError" class="error-text mt-2 hidden"></div>
+        </div>
       </div>
 
-      <!-- ШАГ 2: 2FA код -->
-      <div id="codeSection" class="login-container p-6" style="display: none;">
-        <h2 class="text-2xl font-bold mb-4 neon-glow">🔢 ДВУХФАКТОРНАЯ АУТЕНТИФИКАЦИЯ</h2>
-        <p class="text-sm text-gray-300 mb-3">Код отправлен в приватный Discord-канал</p>
-        <input type="text" id="codeInput" placeholder="Введите 6-значный код" class="w-full mb-3" maxlength="6">
-        <button onclick="check2FACode()" class="btn-neon btn-neon-green w-full">ПОДТВЕРДИТЬ</button>
-        <button onclick="resendCode()" class="btn-neon w-full mt-2" style="background:#334155">🔄 Отправить код повторно</button>
-        <div id="codeError" class="error-text mt-2 hidden"></div>
-      </div>
-
-      <!-- ШАГ 3: Админ-панель (изначально скрыта) -->
       <div id="adminPanel" style="display: none;">
         <!-- Панель для вопросов ППО/Устава -->
         <div id="questionsPanel">
@@ -156,13 +148,11 @@
           <div class="text-center text-xs text-gray-400 mt-4"><i class="fas fa-arrows-alt mr-1"></i> Перетаскивайте вопросы за значок для изменения порядка</div>
         </div>
 
-        <!-- Панель для управления руководством -->
         <div id="leadershipPanel" style="display: none;">
           <div class="flex gap-4 mb-6">
             <button id="leadershipRolesTab" class="btn-neon active">📌 Должности</button>
             <button id="leadershipEmployeesTab" class="btn-neon">👥 Сотрудники</button>
           </div>
-
           <div id="leadershipRolesPanel">
             <div class="bg-white/5 rounded-xl p-4 mb-6">
               <div class="flex justify-between items-center mb-4 flex-wrap gap-2">
@@ -175,7 +165,6 @@
               <div id="rolesList" class="space-y-2 max-h-[400px] overflow-auto"></div>
             </div>
           </div>
-
           <div id="leadershipEmployeesPanel" style="display: none;">
             <div class="bg-white/5 rounded-xl p-4 mb-6">
               <div class="flex justify-between items-center mb-4 flex-wrap gap-2">
@@ -185,7 +174,6 @@
               <div id="employeesList" class="space-y-2 max-h-[400px] overflow-auto"></div>
             </div>
           </div>
-
           <button onclick="saveLeadershipData()" class="btn-neon btn-neon-green w-full py-3">💾 СОХРАНИТЬ ВСЕ ДАННЫЕ</button>
           <button onclick="switchToQuestions()" class="btn-neon w-full py-3 mt-2">← Вернуться к вопросам</button>
         </div>
@@ -194,7 +182,6 @@
   </div>
 </div>
 
-<!-- Модальное окно для добавления сотрудника -->
 <div id="employeeModal" class="fixed inset-0 bg-black/80 backdrop-blur hidden items-center justify-center z-[2000]">
   <div class="bg-gray-900 rounded-2xl p-6 max-w-md w-full border border-green-400">
     <h3 class="font-bold text-xl mb-3"><i class="fas fa-user-plus text-green-400 mr-2"></i>Добавить сотрудника</h3>
@@ -246,11 +233,12 @@ if (!firebase.apps.length) {
 const db = firebase.database();
 const DISCORD_CODE_WEBHOOK = "https://discord.com/api/webhooks/1503013566289281037/5hJsRG7FVQK0hG3j8NSCIqwg-qmf39fi8tzsbL_IaCJnWtjHJ9RMyL-yf8Z5OVdT1MXR";
 
-// ========== 2FA И ЗАЩИТА ОТ ПЕРЕБОРА ==========
+// ========== ЛОГИН С 2FA (СНАЧАЛА ПАРОЛЬ, ПОТОМ КОД, ПОТОМ АДМИНКА) ==========
 let pending2FACode = null;
 let codeExpiration = null;
 let failedAttempts = 0;
 let blockedUntil = null;
+let isPasswordVerified = false;
 
 function showToast(msg, isError = false) {
   const toast = document.createElement('div');
@@ -313,6 +301,7 @@ async function checkPassword() {
     const correctPassword = snapshot.val();
     
     if (correctPassword && password === correctPassword) {
+      isPasswordVerified = true;
       failedAttempts = 0;
       await db.ref('settings/adminBlock').remove();
       pending2FACode = Math.floor(100000 + Math.random() * 900000).toString();
@@ -339,15 +328,19 @@ async function check2FACode() {
     document.getElementById('passwordSection').style.display = 'block';
     document.getElementById('codeSection').style.display = 'none';
     document.getElementById('passwordInput').value = '';
+    document.getElementById('codeInput').value = '';
     pending2FACode = null;
+    isPasswordVerified = false;
     return;
   }
   if (code === pending2FACode) {
     pending2FACode = null;
+    isPasswordVerified = false;
     showToast('✅ Доступ разрешён!');
     document.getElementById('passwordSection').style.display = 'none';
     document.getElementById('codeSection').style.display = 'none';
     document.getElementById('adminPanel').style.display = 'block';
+    document.getElementById('authContainer').style.display = 'none';
     initQuestionsPanel();
     loadLeadershipFromFirebase();
     updateToggleButtons();
@@ -366,11 +359,14 @@ async function resendCode() {
     showToast('Код истёк. Начните заново.', true);
     document.getElementById('passwordSection').style.display = 'block';
     document.getElementById('codeSection').style.display = 'none';
+    document.getElementById('passwordInput').value = '';
+    document.getElementById('codeInput').value = '';
     pending2FACode = null;
+    isPasswordVerified = false;
   }
 }
 
-// ========== ЛОГИКА ВОПРОСОВ (ППО/УСТАВ) ==========
+// ========== ЛОГИКА ВОПРОСОВ ==========
 let currentSet = "ppoQuestions", questions = [], editingIndex = -1, filteredQuestions = [], currentPage = 1, perPage = 10, formExpanded = true;
 
 function toggleForm() { formExpanded = !formExpanded; document.getElementById('formContent').style.display = formExpanded ? 'block' : 'none'; document.getElementById('formToggleIcon').className = formExpanded ? 'fas fa-chevron-up' : 'fas fa-chevron-down'; }
@@ -458,7 +454,7 @@ function initQuestionsPanel() {
   document.getElementById('type').onchange = () => { document.getElementById('optionFields').style.display = document.getElementById('type').value === 'multiple' ? 'block' : 'none'; };
 }
 
-// ========== УПРАВЛЕНИЕ РУКОВОДСТВОМ (БЕЗ АВТО-СОЗДАНИЯ) ==========
+// ========== УПРАВЛЕНИЕ РУКОВОДСТВОМ ==========
 let leadershipRoles = [], leadershipEmployees = [];
 
 async function loadLeadershipFromFirebase() {
@@ -607,7 +603,6 @@ function deleteLeadershipEmployee(idx) {
   }
 }
 
-// Обработчики вкладок руководства
 document.getElementById('leadershipRolesTab')?.addEventListener('click', () => {
   document.getElementById('leadershipRolesPanel').style.display = 'block';
   document.getElementById('leadershipEmployeesPanel').style.display = 'none';
