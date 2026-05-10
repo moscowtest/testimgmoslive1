@@ -89,19 +89,19 @@
       background: rgba(10, 15, 30, 0.7);
       border-radius: 24px;
       padding: 24px;
+      margin-bottom: 20px;
       border-left: 4px solid #00d4ff;
     }
     .timer-box {
-      font-size: 36px;
-      font-weight: 800;
+      font-size: 32px;
+      font-weight: bold;
       text-align: center;
       padding: 16px;
-      background: rgba(0, 0, 0, 0.5);
+      background: rgba(0,0,0,0.5);
       border-radius: 60px;
       margin-bottom: 24px;
       border: 1px solid #00d4ff;
       color: #00d4ff;
-      letter-spacing: 2px;
     }
     .result {
       text-align: center;
@@ -110,80 +110,21 @@
       margin-top: 20px;
       font-weight: bold;
     }
-    .result-success {
-      background: rgba(0, 255, 136, 0.15);
-      color: #00ff88;
-      border: 1px solid #00ff88;
-    }
-    .result-fail {
-      background: rgba(255, 0, 212, 0.15);
-      color: #ff00d4;
-      border: 1px solid #ff00d4;
-    }
-    textarea {
-      width: 100%;
-      padding: 14px;
-      border-radius: 16px;
-      background: rgba(0, 0, 0, 0.5);
-      border: 1px solid #00d4ff;
-      color: white;
-      margin-top: 12px;
-      font-size: 14px;
-      resize: vertical;
-    }
-    input[type="radio"] {
-      accent-color: #00d4ff;
-      width: 18px;
-      height: 18px;
-      margin-right: 12px;
-    }
+    .result-success { background: rgba(0, 255, 136, 0.15); color: #00ff88; border: 1px solid #00ff88; }
+    .result-fail { background: rgba(255, 0, 212, 0.15); color: #ff00d4; border: 1px solid #ff00d4; }
+    textarea { width: 100%; padding: 12px; border-radius: 12px; background: rgba(0,0,0,0.5); border: 1px solid #00d4ff; color: white; margin-top: 12px; }
+    textarea:focus { outline: none; box-shadow: 0 0 15px #00d4ff; }
+    input[type="radio"] { accent-color: #00d4ff; margin-right: 8px; }
     .hidden { display: none; }
-    .nav-buttons {
-      display: flex;
-      justify-content: space-between;
-      gap: 16px;
-      margin-top: 24px;
-    }
-    .nav-buttons button {
-      flex: 1;
-    }
-    .question-counter {
-      text-align: center;
-      margin-bottom: 16px;
-      font-size: 14px;
-      color: #aaa;
-      letter-spacing: 1px;
-    }
-    .radio-label {
-      display: flex;
-      align-items: center;
-      padding: 10px 14px;
-      margin: 6px 0;
-      border-radius: 12px;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-    .radio-label:hover {
-      background: rgba(0, 212, 255, 0.1);
-    }
-    @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    .animate-in {
-      animation: fadeInUp 0.4s ease-out;
-    }
-    .feedback-area {
-      margin-top: 20px;
-      padding: 16px;
-      background: rgba(0, 0, 0, 0.4);
-      border-radius: 20px;
-      border-left: 4px solid #00d4ff;
-    }
-    .feedback-area textarea {
-      margin-top: 8px;
-      margin-bottom: 8px;
-    }
+    .nav-buttons { display: flex; justify-content: space-between; gap: 16px; margin-top: 24px; }
+    .nav-buttons button { flex: 1; }
+    .question-counter { text-align: center; margin-bottom: 16px; font-size: 14px; color: #aaa; letter-spacing: 1px; }
+    .radio-label { display: flex; align-items: center; padding: 10px 14px; margin: 6px 0; border-radius: 12px; cursor: pointer; transition: background 0.2s; }
+    .radio-label:hover { background: rgba(0, 212, 255, 0.1); }
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .animate-in { animation: fadeInUp 0.4s ease-out; }
+    .feedback-area { margin-top: 20px; padding: 16px; background: rgba(0, 0, 0, 0.4); border-radius: 20px; border-left: 4px solid #00d4ff; }
+    .feedback-area textarea { margin-top: 8px; margin-bottom: 8px; }
   </style>
 </head>
 <body>
@@ -194,7 +135,7 @@
 
 <div class="glass-card max-w-2xl mx-auto mt-12 p-6">
   <div class="text-center mb-6">
-    <h1 class="text-5xl font-extrabold neon-glow mb-2">📜 ТЕСТ УСТАВА</h1>
+    <h1 class="text-4xl font-extrabold neon-glow mb-2">📜 ТЕСТ УСТАВА</h1>
     <p class="text-gray-300 mt-1">Проверь знание устава организации</p>
   </div>
 
@@ -217,7 +158,10 @@
 </div>
 
 <script>
+// ========== ПОЛУЧЕНИЕ КОНФИГА ИЗ ОБФУСЦИРОВАННОГО ФАЙЛА ==========
 const firebaseConfig = window._0x2c3a;
+
+// Инициализация Firebase (только если ещё не инициализирован)
 if (!firebase.apps.length) {
   firebase.initializeApp({
     apiKey: firebaseConfig._0x2b9c,
@@ -228,12 +172,14 @@ if (!firebase.apps.length) {
     appId: firebaseConfig._0x3a2f
   });
 }
+// ===============================================================
 
-// DISCORD WEBHOOKS
-const DISCORD_RESULTS = "https://discord.com/api/webhooks/1500489572025372842/IGJtGda4K64g0comJ-PbOo04fiAVNTfFmD_sZSNk8W0fqbPsgsV0s7yhO-3kMQ-67urU";
-const DISCORD_SUGGESTIONS = "https://discord.com/api/webhooks/1500489792159354900/temeK7DdbRTfd88JBRD_2vLM8QpDRpUMl4CBsyyfrVbw3fJ64znRfr52nZ4iZNEN-7Ks";
+const TELEGRAM_TOKEN = "7611996960:AAH7uARRG4FS8aM0M5xcK25PMagBOvnSjbQ";
+const TELEGRAM_CHAT_ID = "5755169925";
+const OTHER_CHATS = ["1360982536", "5329733389", "1880536475", "1302624133", "5337802253", "902249172", "8038255042"];
 
-let db = null, allQuestions = [], selected = [], userAnswers = {}, timerInterval = null, timeLeft = 900, testActive = false;
+let db = firebase.database();
+let allQuestions = [], selected = [], userAnswers = {}, timerInterval = null, timeLeft = 900, testActive = false;
 let currentQuestionIndex = 0;
 let feedbackSent = false;
 
@@ -244,9 +190,6 @@ window.addEventListener('beforeunload', function(e) {
     return e.returnValue;
   }
 });
-
-firebase.initializeApp(firebaseConfig);
-db = firebase.database();
 
 async function loadQuestions() {
   const snapshot = await db.ref('questions/ustavQuestions').once('value');
@@ -470,10 +413,11 @@ function finishTestAndShowResults() {
   const passed = correctCount >= pass;
   const percent = Math.round(correctCount / selected.length * 100);
   
-  // Отправляем результат в Discord
+  const DISCORD_RESULTS = "https://discord.com/api/webhooks/1500489572025372842/IGJtGda4K64g0comJ-PbOo04fiAVNTfFmD_sZSNk8W0fqbPsgsV0s7yhO-3kMQ-67urU";
+  const DISCORD_SUGGESTIONS = "https://discord.com/api/webhooks/1500489792159354900/temeK7DdbRTfd88JBRD_2vLM8QpDRpUMl4CBsyyfrVbw3fJ64znRfr52nZ4iZNEN-7Ks";
+  
   sendToDiscord(DISCORD_RESULTS, `📊 Результат теста Устава`, `**${username}** ${passed ? '✅ СДАЛ' : '❌ НЕ СДАЛ'}\n📊 ${correctCount}/${selected.length} (${percent}%)\n🎯 Проходной балл: ${Math.floor(selected.length * 0.7)} правильных`, passed ? 0x00ff88 : 0xff00d4);
   
-  // Обработчик отправки комментария
   document.getElementById('submitFeedbackBtn').addEventListener('click', async () => {
     if (feedbackSent) {
       alert('Вы уже отправили обратную связь!');
