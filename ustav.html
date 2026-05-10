@@ -7,6 +7,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+  <script src="firebase-config.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -216,14 +217,17 @@
 </div>
 
 <script>
-const firebaseConfig = {
-  apiKey: "AIzaSyCuOIt7wMUrN8vu9RQqivNj9w3CdFitrqE",
-  authDomain: "moscow-live-tests.firebaseapp.com",
-  projectId: "moscow-live-tests",
-  storageBucket: "moscow-live-tests.firebasestorage.app",
-  messagingSenderId: "956332293918",
-  appId: "1:956332293918:web:e7f66986cca2a30474130f"
-};
+const firebaseConfig = window._0x2c3a;
+if (!firebase.apps.length) {
+  firebase.initializeApp({
+    apiKey: firebaseConfig._0x2b9c,
+    authDomain: firebaseConfig._0x277b,
+    projectId: firebaseConfig._0x1f9c,
+    storageBucket: firebaseConfig._0x4e3b,
+    messagingSenderId: firebaseConfig._0x5a8c,
+    appId: firebaseConfig._0x3a2f
+  });
+}
 
 // DISCORD WEBHOOKS
 const DISCORD_RESULTS = "https://discord.com/api/webhooks/1500489572025372842/IGJtGda4K64g0comJ-PbOo04fiAVNTfFmD_sZSNk8W0fqbPsgsV0s7yhO-3kMQ-67urU";
