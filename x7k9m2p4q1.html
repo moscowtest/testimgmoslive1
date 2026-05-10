@@ -611,9 +611,26 @@
 </script>
 <!-- ========== ДОБАВЛЕНИЕ УПРАВЛЕНИЯ РУКОВОДСТВОМ ========== -->
 <script>
+// Функция для поиска основной панели (универсально)
+function findStandardPanel() {
+  // По id
+  let panel = document.getElementById('standardPanel');
+  if (panel) return panel;
+  // По классу с сеткой
+  panel = document.querySelector('.grid');
+  if (panel && panel.parentElement) return panel.parentElement;
+  // По содержимому (статистика)
+  const statBlock = document.querySelector('.grid.grid-cols-2.md\\:grid-cols-4');
+  if (statBlock && statBlock.parentElement) return statBlock.parentElement;
+  // Если ничего не нашли, создаём обёртку
+  const mainContent = document.querySelector('#panel') || document.querySelector('.flex-1');
+  if (mainContent) return mainContent;
+  return null;
+}
+
 // Добавляем кнопку в левое меню
 (function addLeadershipButton() {
-  const sidebar = document.querySelector('.sidebar-item-list') || document.querySelector('.space-y-1');
+  const sidebar = document.querySelector('.space-y-1') || document.querySelector('.sidebar-item-list');
   if (sidebar && !document.getElementById('btn-leadership')) {
     const btn = document.createElement('div');
     btn.id = 'btn-leadership';
@@ -624,37 +641,59 @@
   }
 })();
 
-// Добавляем панель в main
-(function addLeadershipPanel() {
-  const main = document.querySelector('#panel');
-  if (main && !document.getElementById('leadershipPanel')) {
-    const panel = document.createElement('div');
-    panel.id = 'leadershipPanel';
-    panel.style.display = 'none';
-    panel.innerHTML = `
-      <h2 class="text-xl font-bold mb-4 neon-glow">👔 Управление тестом Руководства</h2>
-      <div class="bg-white/5 rounded-xl p-4 mb-6">
-        <div class="flex justify-between items-center mb-3">
-          <h3 class="text-lg font-semibold"><i class="fas fa-tags mr-2 text-green-400"></i>Должности</h3>
-          <div class="flex gap-2">
-            <input type="text" id="newRoleName" placeholder="Новая должность" class="text-sm p-2 bg-black/50 border border-cyan-500 rounded-lg">
-            <button onclick="addLeadershipRole()" class="btn-neon text-sm py-1 px-3">➕ Добавить</button>
-          </div>
-        </div>
-        <div id="rolesList" class="space-y-2 max-h-[300px] overflow-auto"></div>
-      </div>
-      <div class="bg-white/5 rounded-xl p-4 mb-6">
-        <div class="flex justify-between items-center mb-3">
-          <h3 class="text-lg font-semibold"><i class="fas fa-users mr-2 text-green-400"></i>Сотрудники</h3>
-          <button onclick="showAddEmployeeModal()" class="btn-neon text-sm py-1 px-3">➕ Добавить сотрудника</button>
-        </div>
-        <div id="employeesList" class="space-y-2 max-h-[300px] overflow-auto"></div>
-      </div>
-      <button onclick="saveLeadershipData()" class="btn-neon btn-neon-green w-full mt-4">💾 СОХРАНИТЬ ВСЕ ДАННЫЕ</button>
-    `;
-    main.appendChild(panel);
+// Сохраняем оригинальную панель и создаём новую
+let originalPanelContent = null;
+let leadershipPanelCreated = false;
+
+function createLeadershipPanel() {
+  if (leadershipPanelCreated) return;
+  
+  const standardPanel = findStandardPanel();
+  if (!standardPanel) {
+    console.error('Не удалось найти основную панель');
+    return;
   }
-})();
+  
+  // Сохраняем оригинальное содержимое
+  if (!originalPanelContent) {
+    originalPanelContent = standardPanel.innerHTML;
+  }
+  
+  // Создаём панель руководства
+  const leadershipPanel = document.createElement('div');
+  leadershipPanel.id = 'leadershipPanel';
+  leadershipPanel.style.display = 'none';
+  leadershipPanel.innerHTML = `
+    <h2 class="text-xl font-bold mb-4 neon-glow">👔 Управление тестом Руководства</h2>
+    <div class="bg-white/5 rounded-xl p-4 mb-6">
+      <div class="flex justify-between items-center mb-3">
+        <h3 class="text-lg font-semibold"><i class="fas fa-tags mr-2 text-green-400"></i>Должности</h3>
+        <div class="flex gap-2">
+          <input type="text" id="newRoleName" placeholder="Новая должность" class="text-sm p-2 bg-black/50 border border-cyan-500 rounded-lg">
+          <button onclick="addLeadershipRole()" class="btn-neon text-sm py-1 px-3">➕ Добавить</button>
+        </div>
+      </div>
+      <div id="rolesList" class="space-y-2 max-h-[300px] overflow-auto"></div>
+    </div>
+    <div class="bg-white/5 rounded-xl p-4 mb-6">
+      <div class="flex justify-between items-center mb-3">
+        <h3 class="text-lg font-semibold"><i class="fas fa-users mr-2 text-green-400"></i>Сотрудники</h3>
+        <button onclick="showAddEmployeeModal()" class="btn-neon text-sm py-1 px-3">➕ Добавить сотрудника</button>
+      </div>
+      <div id="employeesList" class="space-y-2 max-h-[300px] overflow-auto"></div>
+    </div>
+    <button onclick="saveLeadershipData()" class="btn-neon btn-neon-green w-full mt-4">💾 СОХРАНИТЬ ВСЕ ДАННЫЕ</button>
+  `;
+  
+  // Вставляем панель после стандартной или внутрь
+  if (standardPanel.parentElement) {
+    standardPanel.parentElement.insertBefore(leadershipPanel, standardPanel.nextSibling);
+  } else {
+    standardPanel.appendChild(leadershipPanel);
+  }
+  
+  leadershipPanelCreated = true;
+}
 
 // Добавляем модальное окно
 (function addModal() {
@@ -800,11 +839,17 @@ function deleteLeadershipEmployee(idx) {
 }
 
 function switchSetLeadership() {
-  const standardPanel = document.querySelector('#standardPanel') || document.querySelector('.grid');
+  const standardPanel = findStandardPanel();
   const leadershipPanel = document.getElementById('leadershipPanel');
-  if (standardPanel && leadershipPanel) {
+  
+  if (!leadershipPanel) {
+    createLeadershipPanel();
+  }
+  
+  const panel = document.getElementById('leadershipPanel');
+  if (standardPanel && panel) {
     standardPanel.style.display = 'none';
-    leadershipPanel.style.display = 'block';
+    panel.style.display = 'block';
     loadLeadershipFromFirebase();
   }
 }
@@ -822,27 +867,10 @@ function showToast(msg, isError = false) {
   setTimeout(() => toast.remove(), 3000);
 }
 
-// Добавляем переключение обратно на стандартную панель для существующей switchSet
-const originalSwitchSet = window.switchSet;
-if (originalSwitchSet) {
-  window.switchSet = function(set) {
-    const leadershipPanel = document.getElementById('leadershipPanel');
-    const standardPanel = document.querySelector('#standardPanel') || document.querySelector('.grid');
-    if (leadershipPanel && standardPanel) {
-      if (set === 'leadership') {
-        standardPanel.style.display = 'none';
-        leadershipPanel.style.display = 'block';
-        loadLeadershipFromFirebase();
-      } else {
-        standardPanel.style.display = 'block';
-        leadershipPanel.style.display = 'none';
-        if (originalSwitchSet) originalSwitchSet(set);
-      }
-    } else if (originalSwitchSet) {
-      originalSwitchSet(set);
-    }
-  };
-}
+// Создаём панель при загрузке
+setTimeout(() => {
+  createLeadershipPanel();
+}, 1000);
 </script>
 <!-- ========== КОНЕЦ ДОБАВЛЕНИЯ ========== -->
 </body>
