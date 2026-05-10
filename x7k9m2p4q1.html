@@ -59,7 +59,7 @@
   <div class="flex justify-between items-center mb-6">
     <div class="flex items-center gap-3">
       <div class="w-10 h-10 bg-gradient-to-r from-cyan-400 to-pink-500 rounded-xl flex items-center justify-center"><i class="fas fa-crown text-white"></i></div>
-      <div><h1 class="text-2xl font-bold neon-glow">NEON ADMIN</h1><p class="text-gray-400 text-sm">Управление тестами</p></div>
+      <div><h1 class="text-2xl font-bold neon-glow">NEON ADMIN</h1><p class="text-gray-400 text-sm">Безопасная панель управления</p></div>
     </div>
   </div>
 
@@ -95,8 +95,8 @@
     </aside>
 
     <main class="flex-1 glass-card">
-      <!-- ШАГ 1: Вход в админку -->
-      <div id="step1" class="login-container p-6">
+      <!-- ШАГ 1: Ввод пароля -->
+      <div id="passwordSection" class="login-container p-6">
         <h2 class="text-2xl font-bold mb-4 neon-glow">🔐 ВХОД В АДМИНКУ</h2>
         <input type="password" id="passwordInput" placeholder="Введите пароль" class="w-full mb-3">
         <button onclick="checkPassword()" class="btn-neon w-full">ПРОДОЛЖИТЬ</button>
@@ -105,7 +105,7 @@
       </div>
 
       <!-- ШАГ 2: 2FA код -->
-      <div id="step2" class="login-container p-6" style="display: none;">
+      <div id="codeSection" class="login-container p-6" style="display: none;">
         <h2 class="text-2xl font-bold mb-4 neon-glow">🔢 ДВУХФАКТОРНАЯ АУТЕНТИФИКАЦИЯ</h2>
         <p class="text-sm text-gray-300 mb-3">Код отправлен в приватный Discord-канал</p>
         <input type="text" id="codeInput" placeholder="Введите 6-значный код" class="w-full mb-3" maxlength="6">
@@ -114,7 +114,7 @@
         <div id="codeError" class="error-text mt-2 hidden"></div>
       </div>
 
-      <!-- ШАГ 3: Админ-панель -->
+      <!-- ШАГ 3: Админ-панель (изначально скрыта) -->
       <div id="adminPanel" style="display: none;">
         <!-- Панель для вопросов ППО/Устава -->
         <div id="questionsPanel">
@@ -319,8 +319,8 @@ async function checkPassword() {
       codeExpiration = Date.now() + 5 * 60 * 1000;
       await sendCodeToDiscord(pending2FACode);
       showToast('✅ Код отправлен в Discord!');
-      document.getElementById('step1').style.display = 'none';
-      document.getElementById('step2').style.display = 'block';
+      document.getElementById('passwordSection').style.display = 'none';
+      document.getElementById('codeSection').style.display = 'block';
     } else {
       failedAttempts++;
       await saveBlock(failedAttempts);
@@ -336,23 +336,25 @@ async function check2FACode() {
   if (!code) { showToast('Введите код!', true); return; }
   if (!pending2FACode || Date.now() > codeExpiration) {
     showToast('Код истёк. Начните заново.', true);
-    document.getElementById('step2').style.display = 'none';
-    document.getElementById('step1').style.display = 'block';
+    document.getElementById('passwordSection').style.display = 'block';
+    document.getElementById('codeSection').style.display = 'none';
+    document.getElementById('passwordInput').value = '';
     pending2FACode = null;
     return;
   }
   if (code === pending2FACode) {
     pending2FACode = null;
     showToast('✅ Доступ разрешён!');
-    document.getElementById('step1').style.display = 'none';
-    document.getElementById('step2').style.display = 'none';
+    document.getElementById('passwordSection').style.display = 'none';
+    document.getElementById('codeSection').style.display = 'none';
     document.getElementById('adminPanel').style.display = 'block';
-    document.getElementById('questionsPanel').style.display = 'block';
-    document.getElementById('leadershipPanel').style.display = 'none';
     initQuestionsPanel();
     loadLeadershipFromFirebase();
+    updateToggleButtons();
   } else {
     showToast('Неверный код!', true);
+    document.getElementById('codeError').innerText = 'Неверный код!';
+    document.getElementById('codeError').classList.remove('hidden');
   }
 }
 
@@ -362,8 +364,8 @@ async function resendCode() {
     showToast('✅ Код отправлен повторно!');
   } else {
     showToast('Код истёк. Начните заново.', true);
-    document.getElementById('step2').style.display = 'none';
-    document.getElementById('step1').style.display = 'block';
+    document.getElementById('passwordSection').style.display = 'block';
+    document.getElementById('codeSection').style.display = 'none';
     pending2FACode = null;
   }
 }
@@ -413,8 +415,6 @@ function del(i){ if(confirm('Удалить вопрос?')){ questions.splice(i
 function switchToQuestions() {
   document.getElementById('leadershipPanel').style.display = 'none';
   document.getElementById('questionsPanel').style.display = 'block';
-  
-  // Снимаем подсветку с кнопки руководства
   document.querySelectorAll('.sidebar-item').forEach(btn => btn.classList.remove('active'));
   const activeBtn = document.querySelector(`.sidebar-item[onclick*="switchSet('ppo"]`) || document.querySelector(`.sidebar-item[onclick*="switchSet('ustav"]`);
   if (activeBtn) activeBtn.classList.add('active');
@@ -424,8 +424,6 @@ function switchToLeadership() {
   document.getElementById('questionsPanel').style.display = 'none';
   document.getElementById('leadershipPanel').style.display = 'block';
   loadLeadershipFromFirebase();
-  
-  // Подсветка кнопки
   document.querySelectorAll('.sidebar-item').forEach(btn => btn.classList.remove('active'));
   const leadershipBtn = document.getElementById('btn-leadership');
   if (leadershipBtn) leadershipBtn.classList.add('active');
@@ -460,7 +458,7 @@ function initQuestionsPanel() {
   document.getElementById('type').onchange = () => { document.getElementById('optionFields').style.display = document.getElementById('type').value === 'multiple' ? 'block' : 'none'; };
 }
 
-// ========== УПРАВЛЕНИЕ РУКОВОДСТВОМ ==========
+// ========== УПРАВЛЕНИЕ РУКОВОДСТВОМ (БЕЗ АВТО-СОЗДАНИЯ) ==========
 let leadershipRoles = [], leadershipEmployees = [];
 
 async function loadLeadershipFromFirebase() {
@@ -479,18 +477,14 @@ async function loadLeadershipFromFirebase() {
 }
 
 async function saveLeadershipData() {
-  try {
-    // Сохраняем ВСЕ данные в Firebase
-    await db.ref('leadership').set({ 
-      roles: leadershipRoles, 
-      employees: leadershipEmployees 
-    });
-    showToast('✅ Данные руководства сохранены в Firebase');
-    // После сохранения перезагружаем, чтобы убедиться
-    await loadLeadershipFromFirebase();
-  } catch(e) { 
-    showToast('❌ Ошибка: ' + e.message, true); 
+  if (leadershipRoles.length === 0 && leadershipEmployees.length === 0) {
+    showToast('❌ Нет данных для сохранения. Сначала добавьте должности или сотрудников!', true);
+    return;
   }
+  try {
+    await db.ref('leadership').set({ roles: leadershipRoles, employees: leadershipEmployees });
+    showToast('✅ Данные руководства сохранены в Firebase');
+  } catch(e) { showToast('❌ Ошибка: ' + e.message, true); }
 }
 
 function renderLeadershipPanels() {
