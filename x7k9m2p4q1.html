@@ -426,39 +426,65 @@ function initQuestionsPanel() {
   document.getElementById('type').onchange = () => { document.getElementById('optionFields').style.display = document.getElementById('type').value === 'multiple' ? 'block' : 'none'; };
 }
 
-// ========== УПРАВЛЕНИЕ РУКОВОДСТВОМ ==========
+// ========== УПРАВЛЕНИЕ РУКОВОДСТВОМ (БЕЗ АВТО-СОЗДАНИЯ) ==========
 let leadershipRoles = [], leadershipEmployees = [];
 
 async function loadLeadershipFromFirebase() {
   try {
     const snap = await db.ref('leadership').once('value');
     const data = snap.val();
-    
     if (data && data.roles && data.employees) {
-      // Данные есть — загружаем
       leadershipRoles = data.roles;
       leadershipEmployees = data.employees;
     } else {
-      // Данных нет — создаём узел с дефолтными значениями
-      leadershipRoles = ["Председатель-Правительства", "Заместитель-Председателя-Правительства 1", "Министр социальной политики", "Директор Москва-LIVE", "Глава Отдела Кадров"];
-      leadershipEmployees = [
-        { name: "Виктор Ваффентрагер", role: "Председатель-Правительства" },
-        { name: "Даниил Гранде", role: "Заместитель-Председателя-Правительства 1" },
-        { name: "Рамзан Непупсиков", role: "Министр социальной политики" },
-        { name: "Данил Валерьянов", role: "Директор Москва-LIVE" },
-        { name: "Артём Берёзов", role: "Глава Отдела Кадров" }
-      ];
-      // Сохраняем в Firebase
-      await db.ref('leadership').set({ roles: leadershipRoles, employees: leadershipEmployees });
-      showToast('📁 Узел leadership создан с данными по умолчанию');
+      // Если узла нет — просто пустые массивы, НИЧЕГО НЕ СОЗДАЁМ
+      leadershipRoles = [];
+      leadershipEmployees = [];
     }
   } catch(e) { 
     console.error(e); 
     showToast('❌ Ошибка загрузки руководства: ' + e.message, true);
   }
   renderLeadershipPanels();
+  updateLeadershipEmptyMessage();
 }
+
+function updateLeadershipEmptyMessage() {
+  const rolesContainer = document.getElementById('rolesList');
+  const employeesContainer = document.getElementById('employeesList');
+  
+  if (rolesContainer && leadershipRoles.length === 0) {
+    if (!document.getElementById('emptyRolesMsg')) {
+      const msg = document.createElement('div');
+      msg.id = 'emptyRolesMsg';
+      msg.className = 'text-center text-gray-400 py-8';
+      msg.innerHTML = '📌 Нет должностей. Добавьте первую!';
+      rolesContainer.appendChild(msg);
+    }
+  } else if (rolesContainer) {
+    const msg = document.getElementById('emptyRolesMsg');
+    if (msg) msg.remove();
+  }
+  
+  if (employeesContainer && leadershipEmployees.length === 0) {
+    if (!document.getElementById('emptyEmployeesMsg')) {
+      const msg = document.createElement('div');
+      msg.id = 'emptyEmployeesMsg';
+      msg.className = 'text-center text-gray-400 py-8';
+      msg.innerHTML = '👥 Нет сотрудников. Добавьте первого!';
+      employeesContainer.appendChild(msg);
+    }
+  } else if (employeesContainer) {
+    const msg = document.getElementById('emptyEmployeesMsg');
+    if (msg) msg.remove();
+  }
+}
+
 async function saveLeadershipData() {
+  if (leadershipRoles.length === 0 && leadershipEmployees.length === 0) {
+    showToast('❌ Нет данных для сохранения. Сначала добавьте должности или сотрудников!', true);
+    return;
+  }
   try {
     await db.ref('leadership').set({ 
       roles: leadershipRoles, 
@@ -473,30 +499,45 @@ async function saveLeadershipData() {
 function renderLeadershipPanels() {
   const rolesContainer = document.getElementById('rolesList');
   if (rolesContainer) {
-    rolesContainer.innerHTML = leadershipRoles.map((role, idx) => `
-      <div class="leadership-item">
-        <span>${escapeHtml(role)}</span>
-        <div>
-          <button onclick="editLeadershipRole(${idx})" class="text-cyan-400 mr-2"><i class="fas fa-edit"></i></button>
-          <button onclick="deleteLeadershipRole(${idx})" class="text-pink-400"><i class="fas fa-trash"></i></button>
+    if (leadershipRoles.length === 0) {
+      rolesContainer.innerHTML = '<div class="text-center text-gray-400 py-8">📌 Нет должностей. Добавьте первую!</div>';
+    } else {
+      rolesContainer.innerHTML = leadershipRoles.map((role, idx) => `
+        <div class="leadership-item">
+          <span>${escapeHtml(role)}</span>
+          <div>
+            <button onclick="editLeadershipRole(${idx})" class="text-cyan-400 mr-2"><i class="fas fa-edit"></i></button>
+            <button onclick="deleteLeadershipRole(${idx})" class="text-pink-400"><i class="fas fa-trash"></i></button>
+          </div>
         </div>
-      </div>
-    `).join('');
+      `).join('');
+    }
   }
+  
   const employeesContainer = document.getElementById('employeesList');
   if (employeesContainer) {
-    employeesContainer.innerHTML = leadershipEmployees.map((emp, idx) => `
-      <div class="leadership-item">
-        <div><div class="font-medium">${escapeHtml(emp.name)}</div><div class="text-sm text-gray-400">→ ${escapeHtml(emp.role)}</div></div>
-        <div>
-          <button onclick="editLeadershipEmployee(${idx})" class="text-cyan-400 mr-2"><i class="fas fa-edit"></i></button>
-          <button onclick="deleteLeadershipEmployee(${idx})" class="text-pink-400"><i class="fas fa-trash"></i></button>
+    if (leadershipEmployees.length === 0) {
+      employeesContainer.innerHTML = '<div class="text-center text-gray-400 py-8">👥 Нет сотрудников. Добавьте первого!</div>';
+    } else {
+      employeesContainer.innerHTML = leadershipEmployees.map((emp, idx) => `
+        <div class="leadership-item">
+          <div><div class="font-medium">${escapeHtml(emp.name)}</div><div class="text-sm text-gray-400">→ ${escapeHtml(emp.role)}</div></div>
+          <div>
+            <button onclick="editLeadershipEmployee(${idx})" class="text-cyan-400 mr-2"><i class="fas fa-edit"></i></button>
+            <button onclick="deleteLeadershipEmployee(${idx})" class="text-pink-400"><i class="fas fa-trash"></i></button>
+          </div>
         </div>
-      </div>
-    `).join('');
+      `).join('');
+    }
   }
+  
   const roleSelect = document.getElementById('empRole');
-  if (roleSelect) roleSelect.innerHTML = leadershipRoles.map(role => `<option value="${escapeHtml(role)}">${escapeHtml(role)}</option>`).join('');
+  if (roleSelect) {
+    roleSelect.innerHTML = leadershipRoles.map(role => `<option value="${escapeHtml(role)}">${escapeHtml(role)}</option>`).join('');
+    if (leadershipRoles.length === 0) {
+      roleSelect.innerHTML = '<option disabled>Сначала добавьте должности</option>';
+    }
+  }
 }
 
 function addLeadershipRole() {
@@ -529,7 +570,10 @@ function deleteLeadershipRole(idx) {
 }
 
 function showAddEmployeeModal() {
-  if (leadershipRoles.length === 0) { showToast('Сначала добавьте должности!', true); return; }
+  if (leadershipRoles.length === 0) { 
+    showToast('Сначала добавьте должности!', true); 
+    return; 
+  }
   document.getElementById('empName').value = '';
   document.getElementById('employeeModal').classList.remove('hidden');
   document.getElementById('employeeModal').style.display = 'flex';
@@ -578,7 +622,6 @@ function switchToLeadership() {
   document.querySelectorAll('.sidebar-item').forEach(btn => btn.classList.remove('active'));
   document.getElementById('btn-leadership').classList.add('active');
 }
-
 // Кнопки переключения вкладок в руководстве
 document.getElementById('leadershipRolesTab')?.addEventListener('click', () => {
   document.getElementById('leadershipRolesPanel').style.display = 'block';
