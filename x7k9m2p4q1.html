@@ -460,7 +460,7 @@ function initQuestionsPanel() {
   document.getElementById('type').onchange = () => { document.getElementById('optionFields').style.display = document.getElementById('type').value === 'multiple' ? 'block' : 'none'; };
 }
 
-// ========== УПРАВЛЕНИЕ РУКОВОДСТВОМ (БЕЗ АВТО-СОЗДАНИЯ) ==========
+// ========== УПРАВЛЕНИЕ РУКОВОДСТВОМ ==========
 let leadershipRoles = [], leadershipEmployees = [];
 
 async function loadLeadershipFromFirebase() {
@@ -471,27 +471,23 @@ async function loadLeadershipFromFirebase() {
       leadershipRoles = data.roles;
       leadershipEmployees = data.employees;
     } else {
-      // НЕ СОЗДАЁМ ДЕФОЛТНЫЕ ДАННЫЕ — оставляем пустыми
       leadershipRoles = [];
       leadershipEmployees = [];
     }
-  } catch(e) { 
-    console.error(e); 
-  }
+  } catch(e) { console.error(e); }
   renderLeadershipPanels();
 }
 
 async function saveLeadershipData() {
-  if (leadershipRoles.length === 0 && leadershipEmployees.length === 0) {
-    showToast('❌ Нет данных для сохранения. Сначала добавьте должности или сотрудников!', true);
-    return;
-  }
   try {
+    // Сохраняем ВСЕ данные в Firebase
     await db.ref('leadership').set({ 
       roles: leadershipRoles, 
       employees: leadershipEmployees 
     });
     showToast('✅ Данные руководства сохранены в Firebase');
+    // После сохранения перезагружаем, чтобы убедиться
+    await loadLeadershipFromFirebase();
   } catch(e) { 
     showToast('❌ Ошибка: ' + e.message, true); 
   }
@@ -549,7 +545,7 @@ function addLeadershipRole() {
   leadershipRoles.push(newRole);
   renderLeadershipPanels();
   document.getElementById('newRoleName').value = '';
-  showToast('✅ Должность добавлена');
+  showToast('✅ Должность добавлена (не забудьте сохранить!)');
 }
 
 function editLeadershipRole(idx) {
@@ -559,15 +555,17 @@ function editLeadershipRole(idx) {
     leadershipRoles[idx] = newName.trim();
     leadershipEmployees.forEach(emp => { if (emp.role === oldName) emp.role = newName.trim(); });
     renderLeadershipPanels();
-    showToast('✅ Должность обновлена');
+    showToast('✅ Должность обновлена (не забудьте сохранить!)');
   }
 }
 
 function deleteLeadershipRole(idx) {
   if (confirm('Удалить должность?')) {
+    const roleToDelete = leadershipRoles[idx];
     leadershipRoles.splice(idx, 1);
+    leadershipEmployees = leadershipEmployees.filter(emp => emp.role !== roleToDelete);
     renderLeadershipPanels();
-    showToast('🗑️ Должность удалена');
+    showToast('🗑️ Должность удалена (не забудьте сохранить!)');
   }
 }
 
@@ -594,7 +592,7 @@ function addEmployee() {
   leadershipEmployees.push({ name, role });
   renderLeadershipPanels();
   closeEmployeeModal();
-  showToast('✅ Сотрудник добавлен');
+  showToast('✅ Сотрудник добавлен (не забудьте сохранить!)');
 }
 
 function editLeadershipEmployee(idx) {
@@ -603,7 +601,7 @@ function editLeadershipEmployee(idx) {
   if (newName && newName.trim()) {
     leadershipEmployees[idx].name = newName.trim();
     renderLeadershipPanels();
-    showToast('✅ Сотрудник обновлён');
+    showToast('✅ Сотрудник обновлён (не забудьте сохранить!)');
   }
 }
 
@@ -611,7 +609,7 @@ function deleteLeadershipEmployee(idx) {
   if (confirm('Удалить сотрудника?')) {
     leadershipEmployees.splice(idx, 1);
     renderLeadershipPanels();
-    showToast('🗑️ Сотрудник удалён');
+    showToast('🗑️ Сотрудник удалён (не забудьте сохранить!)');
   }
 }
 
