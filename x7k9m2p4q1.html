@@ -609,112 +609,128 @@
   loadBlockStatus();
 })();
 </script>
-<!-- ========== ДОБАВЛЕНИЕ УПРАВЛЕНИЯ РУКОВОДСТВОМ ========== -->
-<script>
-// Функция для поиска основной панели (универсально)
-function findStandardPanel() {
-  // По id
-  let panel = document.getElementById('standardPanel');
-  if (panel) return panel;
-  // По классу с сеткой
-  panel = document.querySelector('.grid');
-  if (panel && panel.parentElement) return panel.parentElement;
-  // По содержимому (статистика)
-  const statBlock = document.querySelector('.grid.grid-cols-2.md\\:grid-cols-4');
-  if (statBlock && statBlock.parentElement) return statBlock.parentElement;
-  // Если ничего не нашли, создаём обёртку
-  const mainContent = document.querySelector('#panel') || document.querySelector('.flex-1');
-  if (mainContent) return mainContent;
-  return null;
+<!-- ========== УПРАВЛЕНИЕ РУКОВОДСТВОМ ========== -->
+<style>
+.leadership-tab-btn {
+  background: rgba(0,212,255,0.1);
+  border: 1px solid rgba(0,212,255,0.3);
+  border-radius: 60px;
+  padding: 8px 20px;
+  cursor: pointer;
+  transition: all 0.2s;
 }
+.leadership-tab-btn.active {
+  background: #00d4ff;
+  color: #050510;
+  border-color: #00d4ff;
+}
+</style>
 
-// Добавляем кнопку в левое меню
+<script>
+// Создаём кнопку в левом меню
 (function addLeadershipButton() {
-  const sidebar = document.querySelector('.space-y-1') || document.querySelector('.sidebar-item-list');
-  if (sidebar && !document.getElementById('btn-leadership')) {
+  const sidebar = document.querySelector('.space-y-1');
+  if (sidebar && !document.getElementById('leadershipSidebarBtn')) {
     const btn = document.createElement('div');
-    btn.id = 'btn-leadership';
+    btn.id = 'leadershipSidebarBtn';
     btn.className = 'sidebar-item flex items-center gap-3 p-2 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800';
-    btn.setAttribute('onclick', 'switchSetLeadership()');
     btn.innerHTML = '<i class="fas fa-users text-green-400 w-5"></i><span class="text-sm">👔 Руководство</span>';
+    btn.onclick = function() {
+      // Показываем панель руководства, скрываем основную
+      const mainContent = document.querySelector('#panel');
+      if (mainContent) {
+        if (!document.getElementById('leadershipMainPanel')) {
+          createLeadershipMainPanel();
+        }
+        document.querySelectorAll('#panel > div').forEach(div => {
+          if (div.id !== 'leadershipMainPanel') div.style.display = 'none';
+        });
+        document.getElementById('leadershipMainPanel').style.display = 'block';
+      }
+      // Подсвечиваем активную кнопку
+      document.querySelectorAll('.sidebar-item').forEach(item => item.classList.remove('active'));
+      btn.classList.add('active');
+    };
     sidebar.appendChild(btn);
   }
 })();
 
-// Сохраняем оригинальную панель и создаём новую
-let originalPanelContent = null;
-let leadershipPanelCreated = false;
-
-function createLeadershipPanel() {
-  if (leadershipPanelCreated) return;
+// Создаём основную панель руководства
+function createLeadershipMainPanel() {
+  const panel = document.querySelector('#panel');
+  if (!panel) return;
   
-  const standardPanel = findStandardPanel();
-  if (!standardPanel) {
-    console.error('Не удалось найти основную панель');
-    return;
-  }
+  // Проверяем, не создана ли уже
+  if (document.getElementById('leadershipMainPanel')) return;
   
-  // Сохраняем оригинальное содержимое
-  if (!originalPanelContent) {
-    originalPanelContent = standardPanel.innerHTML;
-  }
-  
-  // Создаём панель руководства
   const leadershipPanel = document.createElement('div');
-  leadershipPanel.id = 'leadershipPanel';
-  leadershipPanel.style.display = 'none';
+  leadershipPanel.id = 'leadershipMainPanel';
+  leadershipPanel.className = 'space-y-6';
   leadershipPanel.innerHTML = `
-    <h2 class="text-xl font-bold mb-4 neon-glow">👔 Управление тестом Руководства</h2>
-    <div class="bg-white/5 rounded-xl p-4 mb-6">
-      <div class="flex justify-between items-center mb-3">
-        <h3 class="text-lg font-semibold"><i class="fas fa-tags mr-2 text-green-400"></i>Должности</h3>
-        <div class="flex gap-2">
-          <input type="text" id="newRoleName" placeholder="Новая должность" class="text-sm p-2 bg-black/50 border border-cyan-500 rounded-lg">
-          <button onclick="addLeadershipRole()" class="btn-neon text-sm py-1 px-3">➕ Добавить</button>
+    <div class="flex gap-4 mb-4">
+      <button id="leadershipRolesTab" class="leadership-tab-btn active">📌 Должности</button>
+      <button id="leadershipEmployeesTab" class="leadership-tab-btn">👥 Сотрудники</button>
+    </div>
+    
+    <div id="leadershipRolesPanel">
+      <div class="bg-white/5 rounded-xl p-4 mb-6">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-lg font-semibold"><i class="fas fa-tags mr-2 text-green-400"></i>Список должностей</h3>
+          <div class="flex gap-2">
+            <input type="text" id="newRoleName" placeholder="Новая должность" class="text-sm p-2 bg-black/50 border border-cyan-500 rounded-lg">
+            <button onclick="addLeadershipRole()" class="btn-neon text-sm py-1 px-3">➕ Добавить</button>
+          </div>
         </div>
+        <div id="rolesList" class="space-y-2 max-h-[400px] overflow-auto"></div>
       </div>
-      <div id="rolesList" class="space-y-2 max-h-[300px] overflow-auto"></div>
     </div>
-    <div class="bg-white/5 rounded-xl p-4 mb-6">
-      <div class="flex justify-between items-center mb-3">
-        <h3 class="text-lg font-semibold"><i class="fas fa-users mr-2 text-green-400"></i>Сотрудники</h3>
-        <button onclick="showAddEmployeeModal()" class="btn-neon text-sm py-1 px-3">➕ Добавить сотрудника</button>
+    
+    <div id="leadershipEmployeesPanel" style="display: none;">
+      <div class="bg-white/5 rounded-xl p-4 mb-6">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-lg font-semibold"><i class="fas fa-users mr-2 text-green-400"></i>Список сотрудников</h3>
+          <button onclick="showAddEmployeeModal()" class="btn-neon text-sm py-1 px-3">➕ Добавить сотрудника</button>
+        </div>
+        <div id="employeesList" class="space-y-2 max-h-[400px] overflow-auto"></div>
       </div>
-      <div id="employeesList" class="space-y-2 max-h-[300px] overflow-auto"></div>
     </div>
-    <button onclick="saveLeadershipData()" class="btn-neon btn-neon-green w-full mt-4">💾 СОХРАНИТЬ ВСЕ ДАННЫЕ</button>
+    
+    <button onclick="saveLeadershipData()" class="btn-neon btn-neon-green w-full py-3 mt-4">💾 СОХРАНИТЬ ВСЕ ДАННЫЕ</button>
+    <button onclick="returnToMain()" class="btn-neon w-full py-3 mt-2">← Вернуться к вопросам</button>
   `;
   
-  // Вставляем панель после стандартной или внутрь
-  if (standardPanel.parentElement) {
-    standardPanel.parentElement.insertBefore(leadershipPanel, standardPanel.nextSibling);
-  } else {
-    standardPanel.appendChild(leadershipPanel);
-  }
+  panel.appendChild(leadershipPanel);
   
-  leadershipPanelCreated = true;
+  // Переключение вкладок
+  document.getElementById('leadershipRolesTab').onclick = () => {
+    document.getElementById('leadershipRolesPanel').style.display = 'block';
+    document.getElementById('leadershipEmployeesPanel').style.display = 'none';
+    document.getElementById('leadershipRolesTab').classList.add('active');
+    document.getElementById('leadershipEmployeesTab').classList.remove('active');
+  };
+  document.getElementById('leadershipEmployeesTab').onclick = () => {
+    document.getElementById('leadershipRolesPanel').style.display = 'none';
+    document.getElementById('leadershipEmployeesPanel').style.display = 'block';
+    document.getElementById('leadershipEmployeesTab').classList.add('active');
+    document.getElementById('leadershipRolesTab').classList.remove('active');
+  };
+  
+  // Загружаем данные
+  loadLeadershipFromFirebase();
 }
 
-// Добавляем модальное окно
-(function addModal() {
-  if (!document.getElementById('employeeModal')) {
-    const modal = document.createElement('div');
-    modal.id = 'employeeModal';
-    modal.className = 'fixed inset-0 bg-black/80 backdrop-blur hidden items-center justify-center z-[2000]';
-    modal.innerHTML = `
-      <div class="bg-gray-900 rounded-2xl p-6 max-w-md w-full border border-green-400">
-        <h3 class="font-bold text-xl mb-3"><i class="fas fa-user-plus text-green-400 mr-2"></i>Добавить сотрудника</h3>
-        <input type="text" id="empName" placeholder="Имя и фамилия" class="w-full p-2 bg-black/50 border border-cyan-500 rounded-lg mb-3">
-        <select id="empRole" class="w-full p-2 bg-black/50 border border-cyan-500 rounded-lg mb-3"></select>
-        <div class="flex gap-2">
-          <button onclick="addEmployee()" class="btn-neon btn-neon-green flex-1">Добавить</button>
-          <button onclick="closeEmployeeModal()" class="btn-neon flex-1">Отмена</button>
-        </div>
-      </div>
-    `;
-    document.body.appendChild(modal);
+// Возврат к основной панели
+function returnToMain() {
+  const mainContent = document.querySelector('#panel');
+  if (mainContent) {
+    document.querySelectorAll('#panel > div').forEach(div => {
+      if (div.id !== 'leadershipMainPanel') div.style.display = 'block';
+    });
+    document.getElementById('leadershipMainPanel').style.display = 'none';
   }
-})();
+  // Снимаем подсветку с кнопки руководства
+  document.querySelectorAll('.sidebar-item').forEach(item => item.classList.remove('active'));
+}
 
 // ========== ЛОГИКА РАБОТЫ ==========
 let leadershipRoles = [], leadershipEmployees = [];
@@ -727,7 +743,6 @@ async function loadLeadershipFromFirebase() {
       leadershipRoles = data.roles;
       leadershipEmployees = data.employees;
     } else {
-      // Дефолтные данные, если узла нет
       leadershipRoles = ["Председатель-Правительства", "Заместитель-Председателя-Правительства 1", "Министр социальной политики", "Директор Москва-LIVE", "Глава Отдела Кадров"];
       leadershipEmployees = [
         { name: "Виктор Ваффентрагер", role: "Председатель-Правительства" },
@@ -736,18 +751,9 @@ async function loadLeadershipFromFirebase() {
         { name: "Данил Валерьянов", role: "Директор Москва-LIVE" },
         { name: "Артём Берёзов", role: "Глава Отдела Кадров" }
       ];
-      // Сразу создаём узел в Firebase с дефолтными данными
-      await firebase.database().ref('leadership').set({
-        roles: leadershipRoles,
-        employees: leadershipEmployees
-      });
-      showToast('📁 Узел leadership создан с данными по умолчанию');
     }
-  } catch (error) {
-    console.error(error);
-    showToast('❌ Ошибка загрузки: ' + error.message, true);
-  }
-  renderLeadershipPanel();
+  } catch(e) { console.error(e); }
+  renderLeadershipPanels();
 }
 
 async function saveLeadershipData() {
@@ -757,19 +763,19 @@ async function saveLeadershipData() {
       employees: leadershipEmployees
     });
     showToast('✅ Данные руководства сохранены в Firebase');
-  } catch (error) {
-    console.error(error);
-    showToast('❌ Ошибка сохранения: ' + error.message, true);
-  }
+  } catch(e) { showToast('❌ Ошибка: ' + e.message, true); }
 }
 
-function renderLeadershipPanel() {
+function renderLeadershipPanels() {
   const rolesContainer = document.getElementById('rolesList');
   if (rolesContainer) {
     rolesContainer.innerHTML = leadershipRoles.map((role, idx) => `
       <div class="flex justify-between items-center bg-black/30 p-3 rounded-lg mb-2">
         <span>${escapeHtml(role)}</span>
-        <div><button onclick="editLeadershipRole(${idx})" class="text-cyan-400 mr-2"><i class="fas fa-edit"></i></button><button onclick="deleteLeadershipRole(${idx})" class="text-pink-400"><i class="fas fa-trash"></i></button></div>
+        <div>
+          <button onclick="editLeadershipRole(${idx})" class="text-cyan-400 mr-2"><i class="fas fa-edit"></i></button>
+          <button onclick="deleteLeadershipRole(${idx})" class="text-pink-400"><i class="fas fa-trash"></i></button>
+        </div>
       </div>
     `).join('');
   }
@@ -778,7 +784,10 @@ function renderLeadershipPanel() {
     employeesContainer.innerHTML = leadershipEmployees.map((emp, idx) => `
       <div class="flex justify-between items-center bg-black/30 p-3 rounded-lg mb-2">
         <div><div class="font-medium">${escapeHtml(emp.name)}</div><div class="text-sm text-gray-400">→ ${escapeHtml(emp.role)}</div></div>
-        <div><button onclick="editLeadershipEmployee(${idx})" class="text-cyan-400 mr-2"><i class="fas fa-edit"></i></button><button onclick="deleteLeadershipEmployee(${idx})" class="text-pink-400"><i class="fas fa-trash"></i></button></div>
+        <div>
+          <button onclick="editLeadershipEmployee(${idx})" class="text-cyan-400 mr-2"><i class="fas fa-edit"></i></button>
+          <button onclick="deleteLeadershipEmployee(${idx})" class="text-pink-400"><i class="fas fa-trash"></i></button>
+        </div>
       </div>
     `).join('');
   }
@@ -791,7 +800,7 @@ function addLeadershipRole() {
   if (!newRole) { showToast('Введите название должности', true); return; }
   if (leadershipRoles.includes(newRole)) { showToast('Такая должность уже есть', true); return; }
   leadershipRoles.push(newRole);
-  renderLeadershipPanel();
+  renderLeadershipPanels();
   document.getElementById('newRoleName').value = '';
   showToast('✅ Должность добавлена');
 }
@@ -802,17 +811,15 @@ function editLeadershipRole(idx) {
     const oldName = leadershipRoles[idx];
     leadershipRoles[idx] = newName.trim();
     leadershipEmployees.forEach(emp => { if (emp.role === oldName) emp.role = newName.trim(); });
-    renderLeadershipPanel();
+    renderLeadershipPanels();
     showToast('✅ Должность обновлена');
   }
 }
 
 function deleteLeadershipRole(idx) {
   if (confirm('Удалить должность?')) {
-    const roleToDelete = leadershipRoles[idx];
     leadershipRoles.splice(idx, 1);
-    leadershipEmployees = leadershipEmployees.filter(emp => emp.role !== roleToDelete);
-    renderLeadershipPanel();
+    renderLeadershipPanels();
     showToast('🗑️ Должность удалена');
   }
 }
@@ -835,7 +842,7 @@ function addEmployee() {
   if (!name) { showToast('Введите имя сотрудника', true); return; }
   if (!role) { showToast('Выберите должность', true); return; }
   leadershipEmployees.push({ name, role });
-  renderLeadershipPanel();
+  renderLeadershipPanels();
   closeEmployeeModal();
   showToast('✅ Сотрудник добавлен');
 }
@@ -845,7 +852,7 @@ function editLeadershipEmployee(idx) {
   const newName = prompt('Новое имя сотрудника:', emp.name);
   if (newName && newName.trim()) {
     leadershipEmployees[idx].name = newName.trim();
-    renderLeadershipPanel();
+    renderLeadershipPanels();
     showToast('✅ Сотрудник обновлён');
   }
 }
@@ -853,7 +860,7 @@ function editLeadershipEmployee(idx) {
 function deleteLeadershipEmployee(idx) {
   if (confirm('Удалить сотрудника?')) {
     leadershipEmployees.splice(idx, 1);
-    renderLeadershipPanel();
+    renderLeadershipPanels();
     showToast('🗑️ Сотрудник удалён');
   }
 }
@@ -871,11 +878,27 @@ function showToast(msg, isError = false) {
   setTimeout(() => toast.remove(), 3000);
 }
 
-// Создаём панель при загрузке
-setTimeout(() => {
-  createLeadershipPanel();
-}, 1000);
+// Модальное окно
+(function addModal() {
+  if (!document.getElementById('employeeModal')) {
+    const modal = document.createElement('div');
+    modal.id = 'employeeModal';
+    modal.className = 'fixed inset-0 bg-black/80 backdrop-blur hidden items-center justify-center z-[2000]';
+    modal.innerHTML = `
+      <div class="bg-gray-900 rounded-2xl p-6 max-w-md w-full border border-green-400">
+        <h3 class="font-bold text-xl mb-3"><i class="fas fa-user-plus text-green-400 mr-2"></i>Добавить сотрудника</h3>
+        <input type="text" id="empName" placeholder="Имя и фамилия" class="w-full p-2 bg-black/50 border border-cyan-500 rounded-lg mb-3">
+        <select id="empRole" class="w-full p-2 bg-black/50 border border-cyan-500 rounded-lg mb-3"></select>
+        <div class="flex gap-2">
+          <button onclick="addEmployee()" class="btn-neon btn-neon-green flex-1">Добавить</button>
+          <button onclick="closeEmployeeModal()" class="btn-neon flex-1">Отмена</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+  }
+})();
 </script>
-<!-- ========== КОНЕЦ ДОБАВЛЕНИЯ ========== -->
+<!-- ========== КОНЕЦ ========== -->
 </body>
 </html>
