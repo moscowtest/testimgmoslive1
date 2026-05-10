@@ -720,22 +720,47 @@ function createLeadershipPanel() {
 let leadershipRoles = [], leadershipEmployees = [];
 
 async function loadLeadershipFromFirebase() {
-  const snap = await firebase.database().ref('leadership').once('value');
-  const data = snap.val();
-  if (data) {
-    leadershipRoles = data.roles || [];
-    leadershipEmployees = data.employees || [];
-  } else {
-    leadershipRoles = ["Председатель-Правительства", "Заместитель-Председателя-Правительства 1", "Министр социальной политики", "Директор Москва-LIVE", "Глава Отдела Кадров"];
-    leadershipEmployees = [
-      { name: "Виктор Ваффентрагер", role: "Председатель-Правительства" },
-      { name: "Даниил Гранде", role: "Заместитель-Председателя-Правительства 1" },
-      { name: "Рамзан Непупсиков", role: "Министр социальной политики" },
-      { name: "Данил Валерьянов", role: "Директор Москва-LIVE" },
-      { name: "Артём Берёзов", role: "Глава Отдела Кадров" }
-    ];
+  try {
+    const snap = await firebase.database().ref('leadership').once('value');
+    const data = snap.val();
+    if (data && data.roles && data.employees) {
+      leadershipRoles = data.roles;
+      leadershipEmployees = data.employees;
+    } else {
+      // Дефолтные данные, если узла нет
+      leadershipRoles = ["Председатель-Правительства", "Заместитель-Председателя-Правительства 1", "Министр социальной политики", "Директор Москва-LIVE", "Глава Отдела Кадров"];
+      leadershipEmployees = [
+        { name: "Виктор Ваффентрагер", role: "Председатель-Правительства" },
+        { name: "Даниил Гранде", role: "Заместитель-Председателя-Правительства 1" },
+        { name: "Рамзан Непупсиков", role: "Министр социальной политики" },
+        { name: "Данил Валерьянов", role: "Директор Москва-LIVE" },
+        { name: "Артём Берёзов", role: "Глава Отдела Кадров" }
+      ];
+      // Сразу создаём узел в Firebase с дефолтными данными
+      await firebase.database().ref('leadership').set({
+        roles: leadershipRoles,
+        employees: leadershipEmployees
+      });
+      showToast('📁 Узел leadership создан с данными по умолчанию');
+    }
+  } catch (error) {
+    console.error(error);
+    showToast('❌ Ошибка загрузки: ' + error.message, true);
   }
   renderLeadershipPanel();
+}
+
+async function saveLeadershipData() {
+  try {
+    await firebase.database().ref('leadership').set({
+      roles: leadershipRoles,
+      employees: leadershipEmployees
+    });
+    showToast('✅ Данные руководства сохранены в Firebase');
+  } catch (error) {
+    console.error(error);
+    showToast('❌ Ошибка сохранения: ' + error.message, true);
+  }
 }
 
 function renderLeadershipPanel() {
@@ -759,11 +784,6 @@ function renderLeadershipPanel() {
   }
   const roleSelect = document.getElementById('empRole');
   if (roleSelect) roleSelect.innerHTML = leadershipRoles.map(role => `<option value="${escapeHtml(role)}">${escapeHtml(role)}</option>`).join('');
-}
-
-async function saveLeadershipData() {
-  await firebase.database().ref('leadership').set({ roles: leadershipRoles, employees: leadershipEmployees });
-  showToast('✅ Данные руководства сохранены');
 }
 
 function addLeadershipRole() {
@@ -835,22 +855,6 @@ function deleteLeadershipEmployee(idx) {
     leadershipEmployees.splice(idx, 1);
     renderLeadershipPanel();
     showToast('🗑️ Сотрудник удалён');
-  }
-}
-
-function switchSetLeadership() {
-  const standardPanel = findStandardPanel();
-  const leadershipPanel = document.getElementById('leadershipPanel');
-  
-  if (!leadershipPanel) {
-    createLeadershipPanel();
-  }
-  
-  const panel = document.getElementById('leadershipPanel');
-  if (standardPanel && panel) {
-    standardPanel.style.display = 'none';
-    panel.style.display = 'block';
-    loadLeadershipFromFirebase();
   }
 }
 
