@@ -221,16 +221,17 @@
     }
   }
 
-  window.checkPassword = async function() {
+ window.checkPassword = async function() {
     const password = document.getElementById('passwordInput').value;
     if (!password) { showToast('Введите пароль!', true); return; }
     if (blockedUntil && blockedUntil > Date.now()) { showToast('Доступ временно заблокирован!', true); return; }
     
     try {
-      const snapshot = await db.ref('settings/adminPassword').once('value');
-      const correctPassword = snapshot.val();
+      const snapshot = await db.ref('settings/adminHash').once('value');
+      const correctHash = snapshot.val();
+      const inputHash = await sha256(password);
       
-      if (correctPassword && password === correctPassword) {
+      if (correctHash && inputHash === correctHash) {
         failedAttempts = 0;
         await db.ref('settings/adminBlock').remove();
         pending2FACode = Math.floor(100000 + Math.random() * 900000).toString();
@@ -775,7 +776,7 @@
   });
 
   // ========== ВИДИМОСТЬ ТЕСТОВ ==========
-  function loadTestVisibility(){ 
+ function loadTestVisibility(){ 
     let saved = localStorage.getItem('testVisibility'); 
     return saved ? { ppo: true, ustav: true, leadership: true, ...JSON.parse(saved) } : { ppo: true, ustav: true, leadership: true }; 
   }
@@ -799,6 +800,14 @@
     document.getElementById('toggleLeadership').checked = s.leadership; 
   }
   
+ 
+  async function sha256(message) {
+    const msgBuffer = new TextEncoder().encode(message);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  }
+
   function initAdminPanel() {
     document.getElementById('perPage').onchange = changePerPage;
     document.getElementById('searchInput').oninput = filterQuestions;
