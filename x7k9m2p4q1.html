@@ -11,6 +11,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="firebase-config.js"></script>
   <style>
+    *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif}body{background:radial-gradient(ellipse at 20% 30%,#0a0a2a,#050510);min-height:100vh;color:#fff}.neon-glow{text-shadow:0 0 5px #00d4ff,0 0 10px #00d4ff,0 0 20px #00d4ff}.btn-neon{background:rgba(0,0,0,0.6);border:2px solid #00d4ff;color:#00d4ff;padding:10px 20px;border-radius:60px;font-weight:700;cursor:pointer;transition:all .3s ease;backdrop-filter:blur(10px)}.btn-neon:hover{background:#00d4ff;color:#050510;box-shadow:0 0 20px #00d4ff;transform:scale(1.02)}.btn-neon-pink{border-color:#ff00d4;color:#ff00d4}.btn-neon-pink:hover{background:#ff00d4;box-shadow:0 0 20px #ff00d4}.btn-neon-green{border-color:#00ff88;color:#00ff88}.btn-neon-green:hover{background:#00ff88;box-shadow:0 0 20px #00ff88}.glass-card{background:rgba(20,20,50,0.4);backdrop-filter:blur(12px);border-radius:24px;border:1px solid rgba(0,212,255,0.3);padding:20px}input,textarea,select{background:rgba(0,0,0,0.5);border:1px solid #00d4ff;border-radius:12px;padding:10px;color:#00d4ff;outline:0}input:focus,textarea:focus,select:focus{box-shadow:0 0 15px rgba(0,212,255,0.3)}.question-card{background:rgba(20,20,50,0.6);border-radius:16px;padding:16px;margin-bottom:12px;cursor:grab;border-left:4px solid #00d4ff}.question-card.selected{border-left-color:#00ff88;background:rgba(0,255,136,0.1)}.tag{background:#00d4ff20;color:#00d4ff;padding:2px 8px;border-radius:20px;font-size:10px;display:inline-block;margin-right:6px;margin-bottom:4px}.pagination-btn{background:rgba(0,212,255,0.2);padding:6px 12px;border-radius:8px;cursor:pointer;margin:0 3px}.pagination-btn.active{background:#00d4ff;color:#050510}.toast{position:fixed;bottom:20px;right:20px;background:#00d4ff;color:#050510;padding:12px 20px;border-radius:12px;z-index:1000;font-weight:700}.toast.error{background:#ff00d4}.sidebar-item{transition:all .2s;cursor:pointer;padding:8px 12px;border-radius:12px}.sidebar-item:hover{background:rgba(0,212,255,0.2)}.sidebar-item.active{background:rgba(0,212,255,0.3);border-left:2px solid #00d4ff}.toggle-switch{position:relative;display:inline-block;width:48px;height:24px}.toggle-switch input{opacity:0;width:0;height:0}.toggle-slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background-color:#ccc;transition:.3s;border-radius:24px}.toggle-slider:before{position:absolute;content:"";height:18px;width:18px;left:3px;bottom:3px;background-color:#fff;transition:.3s;border-radius:50%}input:checked+.toggle-slider{background-color:#22c55e}input:checked+.toggle-slider:before{transform:translateX(24px)}.login-container{max-width:400px;margin:0 auto;text-align:center}.error-text{color:#ff8888;font-size:14px;margin-top:8px}.blocked-text{color:#ffaa00;font-size:14px;margin-top:8px}
     *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif}body{background:radial-gradient(ellipse at 20% 30%,#0a0a2a,#050510);min-height:100vh;color:#fff}.neon-glow{text-shadow:0 0 5px #00d4ff,0 0 10px #00d4ff,0 0 20px #00d4ff}.btn-neon{background:rgba(0,0,0,0.6);border:2px solid #00d4ff;color:#00d4ff;padding:10px 20px;border-radius:60px;font-weight:700;cursor:pointer;transition:all .3s ease;backdrop-filter:blur(10px)}.btn-neon:hover{background:#00d4ff;color:#050510;box-shadow:0 0 20px #00d4ff;transform:scale(1.02)}.btn-neon-pink{border-color:#ff00d4;color:#ff00d4}.btn-neon-pink:hover{background:#ff00d4;box-shadow:0 0 20px #ff00d4}.btn-neon-green{border-color:#00ff88;color:#00ff88}.btn-neon-green:hover{background:#00ff88;box-shadow:0 0 20px #00ff88}.glass-card{background:rgba(20,20,50,0.4);backdrop-filter:blur(12px);border-radius:24px;border:1px solid rgba(0,212,255,0.3);padding:20px}input,textarea,select{background:rgba(0,0,0,0.5);border:1px solid #00d4ff;border-radius:12px;padding:10px;color:#00d4ff;outline:0}input:focus,textarea:focus,select:focus{box-shadow:0 0 15px rgba(0,212,255,0.3)}.question-card{background:rgba(20,20,50,0.6);border-radius:16px;padding:16px;margin-bottom:12px;cursor:grab;border-left:4px solid #00d4ff}.question-card.selected{border-left-color:#00ff88;background:rgba(0,255,136,0.1)}.tag{background:#00d4ff20;color:#00d4ff;padding:2px 8px;border-radius:20px;font-size:10px;display:inline-block;margin-right:6px;margin-bottom:4px}.pagination-btn{background:rgba(0,212,255,0.2);padding:6px 12px;border-radius:8px;cursor:pointer;margin:0 3px}.pagination-btn.active{background:#00d4ff;color:#050510}.toast{position:fixed;bottom:20px;right:20px;background:#00d4ff;color:#050510;padding:12px 20px;border-radius:12px;z-index:1000;font-weight:700}.toast.error{background:#ff00d4}.sidebar-item{transition:all .2s;cursor:pointer;padding:8px 12px;border-radius:12px}.sidebar-item:hover{background:rgba(0,212,255,0.2)}.sidebar-item.active{background:rgba(0,212,255,0.3);border-left:2px solid #00d4ff}.toggle-switch{position:relative;display:inline-block;width:48px;height:24px}.toggle-switch input{opacity:0;width:0;height:0}.toggle-slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background-color:#ccc;transition:.3s;border-radius:24px}.toggle-slider:before{position:absolute;content:"";height:18px;width:18px;left:3px;bottom:3px;background-color:#fff;transition:.3s;border-radius:50%}input:checked+.toggle-slider{background-color:#22c55e}input:checked+.toggle-slider:before{transform:translateX(24px)}.login-container{max-width:400px;margin:0 auto;text-align:center}.error-text{color:#ff8888;font-size:14px;margin-top:8px}.blocked-text{color:#ffaa00;font-size:14px;margin-top:8px}.leadership-item{background:rgba(20,20,50,0.6);border-radius:12px;padding:12px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
   </style>
 </head>
@@ -43,6 +44,7 @@
 
   <div id="adminPanel" class="glass-card" style="display: none;">
     <div class="flex flex-col lg:flex-row gap-6">
+      <aside class="lg:w-64">
       <aside class="lg:w-72">
         <div class="space-y-4">
           <div><p class="text-sm font-semibold mb-3"><i class="fas fa-eye mr-2"></i>Видимость тестов</p>
@@ -51,9 +53,11 @@
             <div class="flex justify-between items-center"><span><i class="fas fa-users mr-2 text-green-400"></i>Руководство</span><label class="toggle-switch"><input type="checkbox" id="toggleLeadership" onchange="toggleTestVisibility('leadership',this.checked)"><span class="toggle-slider"></span></label></div></div>
           </div>
           <hr class="border-gray-700">
+          <div><p class="text-sm font-semibold mb-3"><i class="fas fa-database mr-2"></i>Наборы вопросов</p>
           <div><p class="text-sm font-semibold mb-3"><i class="fas fa-database mr-2"></i>Наборы</p>
             <div class="space-y-1"><div onclick="switchSet('ppoQuestions')" id="btn-ppoQuestions" class="sidebar-item flex items-center gap-3 p-2 rounded-lg"><i class="fas fa-check-circle text-purple-400"></i><span>PPO Выбор</span></div>
             <div onclick="switchSet('ppoWrittenQuestions')" id="btn-ppoWrittenQuestions" class="sidebar-item flex items-center gap-3 p-2 rounded-lg"><i class="fas fa-pen text-green-400"></i><span>PPO Письменные</span></div>
+            <div onclick="switchSet('ustavQuestions')" id="btn-ustavQuestions" class="sidebar-item flex items-center gap-3 p-2 rounded-lg"><i class="fas fa-gavel text-blue-400"></i><span>Устав</span></div></div>
             <div onclick="switchSet('ustavQuestions')" id="btn-ustavQuestions" class="sidebar-item flex items-center gap-3 p-2 rounded-lg"><i class="fas fa-gavel text-blue-400"></i><span>Устав</span></div>
             <div onclick="switchSet('leadership')" id="btn-leadership" class="sidebar-item flex items-center gap-3 p-2 rounded-lg"><i class="fas fa-users text-green-400"></i><span>Руководство</span></div></div>
           </div>
@@ -67,6 +71,11 @@
         </div>
       </aside>
       <main class="flex-1">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+          <div class="bg-gradient-to-br from-cyan-500 to-blue-600 rounded-xl p-3"><p class="text-xs opacity-80">Всего</p><p class="text-2xl font-bold" id="statTotal">0</p></div>
+          <div class="bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl p-3"><p class="text-xs opacity-80">Выбор</p><p class="text-2xl font-bold" id="statMultiple">0</p></div>
+          <div class="bg-gradient-to-br from-green-500 to-emerald-500 rounded-xl p-3"><p class="text-xs opacity-80">Письменные</p><p class="text-2xl font-bold" id="statWritten">0</p></div>
+          <div class="bg-gradient-to-br from-orange-500 to-red-500 rounded-xl p-3"><p class="text-xs opacity-80">В тесте</p><p class="text-2xl font-bold" id="statSelected">0</p></div>
         <div id="questionsPanel">
           <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
             <div class="bg-gradient-to-br from-cyan-500 to-blue-600 rounded-xl p-3"><p class="text-xs opacity-80">Всего</p><p class="text-2xl font-bold" id="statTotal">0</p></div>
@@ -112,6 +121,13 @@
           <button onclick="saveLeadershipData()" class="btn-neon btn-neon-green w-full py-3">💾 СОХРАНИТЬ ВСЕ ДАННЫЕ</button>
           <button onclick="switchToQuestions()" class="btn-neon w-full py-3 mt-2">← Вернуться к вопросам</button>
         </div>
+        <div class="bg-gradient-to-r from-cyan-500/20 to-purple-500/20 rounded-xl p-4 mb-6"><div class="flex flex-wrap justify-between gap-3"><div><i class="fas fa-check-double mr-2"></i><span class="font-semibold">Отбор вопросов для теста</span></div><div class="flex flex-wrap gap-2"><button onclick="selectAll()" class="btn-neon text-sm py-1">Выбрать все</button><button onclick="selectNone()" class="btn-neon text-sm py-1">Снять все</button><div class="flex gap-1"><input id="randomCount" type="number" value="20" min="1" class="w-16 text-center"><button onclick="selectRandom()" class="btn-neon text-sm py-1">Рандом</button></div></div></div></div>
+        <div class="bg-white/5 rounded-xl p-4 mb-6"><div class="flex justify-between cursor-pointer" onclick="toggleForm()"><h2><i class="fas fa-plus-circle text-green-400"></i> Добавить вопрос</h2><i id="formToggleIcon" class="fas fa-chevron-up"></i></div><div id="formContent" class="mt-4 space-y-3"><div class="flex gap-2"><select id="type" class="flex-1"><option value="multiple">Выбор ответа</option><option value="written">Письменный</option></select><button onclick="clearForm()" class="btn-neon text-sm">Очистить</button></div><textarea id="q" placeholder="Вопрос..." rows="2" class="w-full"></textarea><div id="optionFields"><input id="a1" placeholder="Вариант 1" class="w-full mb-2"><input id="a2" placeholder="Вариант 2" class="w-full mb-2"><input id="a3" placeholder="Вариант 3" class="w-full mb-2"></div><input id="correct" placeholder="Правильный ответ" class="w-full"><input id="tags" placeholder="Теги (через запятую)" class="w-full"><div class="flex gap-2"><button id="addBtn" onclick="addQuestion()" class="btn-neon btn-neon-green flex-1"><i class="fas fa-plus"></i> Добавить</button><button onclick="showPreview()" class="btn-neon flex-1"><i class="fas fa-eye"></i> Предпросмотр</button></div></div></div>
+        <div class="flex flex-wrap gap-3 mb-4"><div class="flex-1 relative"><i class="fas fa-search absolute left-3 top-3 text-gray-400"></i><input id="searchInput" type="text" placeholder="Поиск..." class="w-full pl-9"></div><select id="perPage" class="w-24" onchange="changePerPage()"><option value="5">5</option><option value="10" selected>10</option><option value="20">20</option><option value="50">50</option></select></div>
+        <div class="flex justify-between items-center mb-3"><h2><i class="fas fa-list-ul mr-2 text-cyan-400"></i>Список вопросов</h2><span id="questionCount" class="text-sm text-gray-400"></span></div>
+        <div id="list" class="space-y-2 max-h-[500px] overflow-auto"></div>
+        <div id="pagination" class="flex justify-center gap-1 mt-4"></div>
+        <div class="text-center text-xs text-gray-400 mt-4"><i class="fas fa-arrows-alt mr-1"></i> Перетаскивайте вопросы за значок для изменения порядка</div>
       </main>
     </div>
   </div>
@@ -135,6 +151,7 @@
 
 <script>
 (function(){
+  // ========== ЗАЩИТА ОТ КОПИРОВАНИЯ ==========
   const allowedDomains = ['moscow-live-tests.github.io', 'localhost', '127.0.0.1'];
   const currentHost = window.location.hostname;
   let isAllowed = false;
@@ -149,8 +166,10 @@
     throw new Error('Access denied');
   }
 
+  // ========== ЗАГРУЗКА КОНФИГА ИЗ ОБФУСЦИРОВАННОГО ФАЙЛА ==========
   // ========== ЗАГРУЗКА КОНФИГА ==========
   const firebaseConfig = window._0x2c3a;
+  
   if (!firebase.apps.length) {
     firebase.initializeApp({
       apiKey: firebaseConfig._0x2b9c,
@@ -164,7 +183,7 @@
   const db = firebase.database();
 
   // ========== 2FA НАСТРОЙКИ ==========
-  const DISCORD_CODE_WEBHOOK = window._0x2c3a._0x7d8e;
+  const DISCORD_CODE_WEBHOOK = "https://discord.com/api/webhooks/1503013566289281037/5hJsRG7FVQK0hG3j8NSCIqwg-qmf39fi8tzsbL_IaCJnWtjHJ9RMyL-yf8Z5OVdT1MXR";
   let pending2FACode = null;
   let codeExpiration = null;
   let failedAttempts = 0;
@@ -221,19 +240,17 @@
     }
   }
 
- window.sha256 = async function(message) {
-  const msgBuffer = new TextEncoder().encode(message);
-  const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-}
-    
+  async function checkPassword() {
+  window.checkPassword = async function() {
+    const password = document.getElementById('passwordInput').value;
+    if (!password) { showToast('Введите пароль!', true); return; }
+    if (blockedUntil && blockedUntil > Date.now()) { showToast('Доступ временно заблокирован!', true); return; }
+
     try {
-      const snapshot = await db.ref('settings/adminHash').once('value');
-      const correctHash = snapshot.val();
-      const inputHash = await sha256(password);
-      
-      if (correctHash && inputHash === correctHash) {
+      const snapshot = await db.ref('settings/adminPassword').once('value');
+      const correctPassword = snapshot.val();
+
+      if (correctPassword && password === correctPassword) {
         failedAttempts = 0;
         await db.ref('settings/adminBlock').remove();
         pending2FACode = Math.floor(100000 + Math.random() * 900000).toString();
@@ -252,6 +269,7 @@
     } catch(e) { showToast('Ошибка: ' + e.message, true); }
   }
 
+  async function check2FACode() {
   window.check2FACode = async function() {
     const code = document.getElementById('codeInput').value;
     if (!code) { showToast('Введите код!', true); return; }
@@ -274,6 +292,7 @@
     }
   }
 
+  async function resendCode() {
   window.resendCode = async function() {
     if (pending2FACode && Date.now() < codeExpiration) {
       await sendCodeToDiscord(pending2FACode);
@@ -286,15 +305,17 @@
     }
   }
 
+  // ========== ОСНОВНАЯ ЛОГИКА АДМИНКИ ==========
   // ========== ЛОГИКА ВОПРОСОВ ==========
   let currentSet = "ppoQuestions", questions = [], editingIndex = -1, filteredQuestions = [], currentPage = 1, perPage = 10, formExpanded = true;
 
+  function toggleForm() { 
   window.toggleForm = function() { 
     formExpanded = !formExpanded; 
     document.getElementById('formContent').style.display = formExpanded ? 'block' : 'none'; 
     document.getElementById('formToggleIcon').className = formExpanded ? 'fas fa-chevron-up' : 'fas fa-chevron-down'; 
   }
-  
+
   function updateStats() { 
     let mc = questions.filter(q => q.options).length;
     let wr = questions.filter(q => !q.options).length;
@@ -304,7 +325,7 @@
     document.getElementById('statWritten').innerText = wr;
     document.getElementById('statSelected').innerText = sel;
   }
-  
+
   async function loadFromFirebase() { 
     let snap = await db.ref(`questions/${currentSet}`).once('value'); 
     if(snap.exists()) questions = snap.val().map(q => ({ ...q, inTest: q.inTest !== undefined ? q.inTest : true })); 
@@ -313,9 +334,10 @@
     renderList(); 
     updateStats(); 
   }
-  
+
   async function syncToFirebase() { await db.ref(`questions/${currentSet}`).set(questions); }
-  
+
+  function toggleQuestionInTest(i) { 
   window.toggleQuestionInTest = function(i) { 
     questions[i].inTest = !questions[i].inTest; 
     syncToFirebase(); 
@@ -323,10 +345,13 @@
     updateStats(); 
     showToast(questions[i].inTest ? '✅ Вопрос в тесте' : '❌ Вопрос исключён'); 
   }
-  
+
+  function selectAll() { questions.forEach(q => q.inTest = true); syncToFirebase(); renderList(); updateStats(); showToast('✅ Все вопросы в тесте'); }
+  function selectNone() { questions.forEach(q => q.inTest = false); syncToFirebase(); renderList(); updateStats(); showToast('❌ Все вопросы исключены'); }
   window.selectAll = function() { questions.forEach(q => q.inTest = true); syncToFirebase(); renderList(); updateStats(); showToast('✅ Все вопросы в тесте'); }
   window.selectNone = function() { questions.forEach(q => q.inTest = false); syncToFirebase(); renderList(); updateStats(); showToast('❌ Все вопросы исключены'); }
-  
+
+  function selectRandom() { 
   window.selectRandom = function() { 
     let cnt = parseInt(document.getElementById('randomCount').value); 
     if(cnt > questions.length) { showToast(`Максимум ${questions.length}`, true); return; } 
@@ -336,27 +361,29 @@
     for(let i=0;i<cnt;i++) questions[idx[i]].inTest = true; 
     syncToFirebase(); renderList(); updateStats(); showToast(`🎲 Выбрано ${cnt} вопросов`); 
   }
-  
+
   let dragStartIndex = null;
   function onDragStart(e,i){ dragStartIndex=i; e.dataTransfer.effectAllowed='move'; e.target.classList.add('opacity-50'); }
   function onDragOver(e,i){ e.preventDefault(); let t=e.target.closest('.question-card'); if(t && dragStartIndex!==null && dragStartIndex!==i) t.classList.add('drag-over'); }
   function onDragLeave(e){ let t=e.target.closest('.question-card'); if(t) t.classList.remove('drag-over'); }
   function onDrop(e,i){ e.preventDefault(); let t=e.target.closest('.question-card'); if(t) t.classList.remove('drag-over'); if(dragStartIndex!==null && dragStartIndex!==i){ let item = questions[dragStartIndex]; questions.splice(dragStartIndex,1); questions.splice(i,0,item); filteredQuestions=[...questions]; renderList(); syncToFirebase(); showToast('📌 Порядок изменён'); } dragStartIndex=null; }
   function onDragEnd(e){ e.target.classList.remove('opacity-50'); dragStartIndex=null; }
-  
+
+  function filterQuestions(){ 
   window.filterQuestions = function() { 
     let term=document.getElementById('searchInput').value.toLowerCase(); 
     filteredQuestions=term ? questions.filter(q=>q.q.toLowerCase().includes(term)||(q.answer&&q.answer.toLowerCase().includes(term))) : [...questions]; 
     currentPage=1; 
     renderList(); 
   }
-  
+
+  function changePerPage(){ 
   window.changePerPage = function() { 
     perPage = parseInt(document.getElementById('perPage').value); 
     currentPage = 1; 
     renderList(); 
   }
-  
+
   function renderPagination(){ 
     let total = Math.ceil(filteredQuestions.length / perPage); 
     let div = document.getElementById('pagination'); 
@@ -368,12 +395,14 @@
     } 
     div.innerHTML = html; 
   }
-  
+
+  function goToPage(p){ 
   window.goToPage = function(p){ 
     currentPage = p; 
     renderList(); 
   }
-  
+
+  function showPreview(){ 
   window.showPreview = function() { 
     let q = document.getElementById('q').value.trim(); 
     if(!q){showToast('Введите вопрос!',true);return;} 
@@ -388,14 +417,16 @@
     document.getElementById('previewModal').classList.remove('hidden'); 
     document.getElementById('previewModal').style.display = 'flex'; 
   }
-  
+
+  function closePreview(){ 
   window.closePreview = function() { 
     document.getElementById('previewModal').classList.add('hidden'); 
     document.getElementById('previewModal').style.display = 'none'; 
   }
-  
+
   function escapeHtml(t){ return t ? t.replace(/[&<>]/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[m])) : ''; }
-  
+
+  function copyQuestion(i){ 
   window.copyQuestion = function(i){ 
     let copy = JSON.parse(JSON.stringify(questions[i])); 
     copy.q = copy.q + " (копия)"; 
@@ -406,7 +437,7 @@
     updateStats(); 
     showToast('📋 Вопрос скопирован'); 
   }
-  
+
   function renderList(){ 
     let list = document.getElementById('list'); 
     if(!list) return; 
@@ -460,7 +491,8 @@
     renderPagination(); 
     document.getElementById('questionCount').innerHTML = `<i class="fas fa-database mr-1"></i>${questions.length} вопросов (${filteredQuestions.length})`; 
   }
-  
+
+  function addQuestion(){ 
   window.addQuestion = function() { 
     let type = document.getElementById('type').value, 
         q = document.getElementById('q').value.trim(), 
@@ -494,7 +526,8 @@
     updateStats(); 
     clearForm(); 
   }
-  
+
+  function clearForm(){ 
   window.clearForm = function() { 
     document.getElementById('q').value = ''; 
     document.getElementById('a1').value = ''; 
@@ -507,7 +540,8 @@
     document.getElementById('addBtn').innerHTML = '<i class="fas fa-plus"></i> Добавить'; 
     document.getElementById('optionFields').style.display = 'block'; 
   }
-  
+
+  function editQuestion(i){ 
   window.editQuestion = function(i) { 
     let q = questions[i]; 
     document.getElementById('q').value = q.q; 
@@ -528,7 +562,8 @@
     window.scrollTo({top:0}); 
     if(!formExpanded) toggleForm(); 
   }
-  
+
+  function del(i){ 
   window.del = function(i) { 
     if(confirm('Удалить вопрос?')){ 
       questions.splice(i,1); 
@@ -539,7 +574,14 @@
       showToast('🗑️ Вопрос удалён'); 
     } 
   }
-  
+
+  function switchSet(set){ 
+    currentSet = set; 
+    loadFromFirebase(); 
+    clearForm(); 
+    document.getElementById('searchInput').value = ''; 
+    currentPage = 1; 
+    ['ppoQuestions', 'ppoWrittenQuestions', 'ustavQuestions'].forEach(id => { 
   window.switchSet = function(set) { 
     if (set === 'leadership') {
       document.getElementById('questionsPanel').style.display = 'none';
@@ -569,10 +611,13 @@
     const activeSet = currentSet;
     ['ppoQuestions', 'ppoWrittenQuestions', 'ustavQuestions', 'leadership'].forEach(id => { 
       let btn = document.getElementById(`btn-${id}`); 
+      if(btn) btn.classList.toggle('active', id === set); 
+    }); 
       if(btn) btn.classList.toggle('active', id === activeSet); 
     });
   }
-  
+
+  function exportAllData(){ 
   window.exportAllData = function() { 
     let data = { [currentSet]: questions }; 
     let blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }); 
@@ -582,7 +627,8 @@
     a.click(); 
     showToast('💾 Экспорт'); 
   }
-  
+
+  function importAllData(input){ 
   window.importAllData = function(input) { 
     let file = input.files[0]; 
     if(!file) return; 
@@ -603,7 +649,8 @@
     reader.readAsText(file); 
     input.value = ''; 
   }
-  
+
+  async function clearAllData(){ 
   window.clearAllData = async function() { 
     if(confirm('Удалить ВСЕ вопросы?')){ 
       questions = []; 
@@ -614,7 +661,7 @@
       showToast('🗑️ Все вопросы удалены'); 
     } 
   }
-  
+
   // ========== УПРАВЛЕНИЕ РУКОВОДСТВОМ ==========
   let leadershipRoles = [], leadershipEmployees = [];
 
@@ -778,54 +825,66 @@
   });
 
   // ========== ВИДИМОСТЬ ТЕСТОВ ==========
- function loadTestVisibility(){ 
+  function loadTestVisibility(){ 
     let saved = localStorage.getItem('testVisibility'); 
     return saved ? { ppo: true, ustav: true, leadership: true, ...JSON.parse(saved) } : { ppo: true, ustav: true, leadership: true }; 
   }
-  
+
   function saveTestVisibility(s){ 
     localStorage.setItem('testVisibility', JSON.stringify(s)); 
     db.ref('settings/testVisibility').set(s); 
   }
-  
+
+  function toggleTestVisibility(t, v){ 
   window.toggleTestVisibility = function(t, v) { 
     let s = loadTestVisibility(); 
     s[t] = v; 
     saveTestVisibility(s); 
     showToast({ ppo: 'ППО', ustav: 'Устав', leadership: 'Руководство' }[t] + ' ' + (v ? 'показан' : 'скрыт')); 
   }
-  
+
   function updateToggleButtons(){ 
     let s = loadTestVisibility(); 
     document.getElementById('togglePpo').checked = s.ppo; 
     document.getElementById('toggleUstav').checked = s.ustav; 
     document.getElementById('toggleLeadership').checked = s.leadership; 
   }
-  
- 
-  window.sha256 = async function(message) {
-  const msgBuffer = new TextEncoder().encode(message);
-  const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-}
 
   function initAdminPanel() {
+    // Вешаем обработчики
     document.getElementById('perPage').onchange = changePerPage;
     document.getElementById('searchInput').oninput = filterQuestions;
     document.getElementById('type').onchange = () => { 
       document.getElementById('optionFields').style.display = document.getElementById('type').value === 'multiple' ? 'block' : 'none'; 
     };
+    
     loadFromFirebase();
     updateToggleButtons();
     loadLeadershipFromFirebase();
   }
-  window.sha256 = async function(message) {
-  const msgBuffer = new TextEncoder().encode(message);
-  const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-}
+
+  // Экспорт глобальных функций
+  window.checkPassword = checkPassword;
+  window.check2FACode = check2FACode;
+  window.resendCode = resendCode;
+  window.toggleForm = toggleForm;
+  window.selectAll = selectAll;
+  window.selectNone = selectNone;
+  window.selectRandom = selectRandom;
+  window.exportAllData = exportAllData;
+  window.clearAllData = clearAllData;
+  window.addQuestion = addQuestion;
+  window.showPreview = showPreview;
+  window.closePreview = closePreview;
+  window.editQuestion = editQuestion;
+  window.del = del;
+  window.copyQuestion = copyQuestion;
+  window.switchSet = switchSet;
+  window.toggleTestVisibility = toggleTestVisibility;
+  window.changePerPage = changePerPage;
+  window.goToPage = goToPage;
+  window.filterQuestions = filterQuestions;
+  
   loadBlockStatus();
 })();
 </script>
