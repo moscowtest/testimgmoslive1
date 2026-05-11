@@ -258,7 +258,7 @@
     document.getElementById('statSelected').innerText = sel;
   }
   
- async function loadFromFirebase() { 
+async function loadFromFirebase() { 
   let path;
   if (currentSet === 'leadership') {
     path = 'leadership';
@@ -383,7 +383,8 @@ async function syncToFirebase() {
     showToast('📋 Вопрос скопирован'); 
   }
   
-  function renderList(){ 
+  function renderList(){
+    if (!filteredQuestions) filteredQuestions = [];
     let list = document.getElementById('list'); 
     if(!list) return; 
     let start = (currentPage - 1) * perPage; 
