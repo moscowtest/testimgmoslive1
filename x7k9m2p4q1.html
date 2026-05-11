@@ -258,30 +258,39 @@
     document.getElementById('statSelected').innerText = sel;
   }
   
-  async function loadFromFirebase() { 
-    let path;
-    if (currentSet === 'leadership') {
-      path = 'leadership';
-    } else {
-      path = `questions/${currentSet}`;
-    }
-    let snap = await db.ref(path).once('value'); 
-    if(snap.exists()) questions = snap.val().map(q => ({ ...q, inTest: q.inTest !== undefined ? q.inTest : true })); 
-    else questions = []; 
-    filteredQuestions = [...questions]; 
-    renderList(); 
-    updateStats(); 
+ async function loadFromFirebase() { 
+  let path;
+  if (currentSet === 'leadership') {
+    path = 'leadership';
+  } else {
+    path = `questions/${currentSet}`;
   }
-  
-  async function syncToFirebase() { 
-    let path;
-    if (currentSet === 'leadership') {
-      path = 'leadership';
+  let snap = await db.ref(path).once('value'); 
+  if(snap.exists()) {
+    let data = snap.val();
+    // Если data - объект (не массив), преобразуем в массив
+    if (data && !Array.isArray(data)) {
+      questions = Object.values(data).map(q => ({ ...q, inTest: q.inTest !== undefined ? q.inTest : true }));
     } else {
-      path = `questions/${currentSet}`;
+      questions = data.map(q => ({ ...q, inTest: q.inTest !== undefined ? q.inTest : true }));
     }
-    await db.ref(path).set(questions); 
+  } else { 
+    questions = []; 
   }
+  filteredQuestions = [...questions]; 
+  renderList(); 
+  updateStats(); 
+}
+
+async function syncToFirebase() { 
+  let path;
+  if (currentSet === 'leadership') {
+    path = 'leadership';
+  } else {
+    path = `questions/${currentSet}`;
+  }
+  await db.ref(path).set(questions); 
+}
   
   function toggleQuestionInTest(i) { 
     questions[i].inTest = !questions[i].inTest; 
