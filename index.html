@@ -135,26 +135,12 @@
     document.getElementById('adminModal').classList.add('active');
   }
 
-  async function checkPassword() {
-    const password = document.getElementById('adminPassword').value;
-    if (!password) {
-      document.getElementById('adminError').textContent = 'Введите пароль!';
-      return;
-    }
-    
-    try {
-      const snapshot = await database.ref('settings/adminPassword').once('value');
-      const correctPassword = snapshot.val();
-      
-      if (correctPassword && password === correctPassword) {
-        window.location.href = 'x7k9m2p4q1.html';
-      } else {
-        document.getElementById('adminError').textContent = 'Неверный пароль!';
-      }
-    } catch(e) {
-      document.getElementById('adminError').textContent = 'Ошибка проверки пароля!';
-    }
-  }
+  window.sha256 = async function(message) {
+  const msgBuffer = new TextEncoder().encode(message);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
 
   function closeAdminModal() {
     document.getElementById('adminModal').classList.remove('active');
