@@ -93,7 +93,6 @@
 
 <script>
 (function(){
-  // ========== ЗАЩИТА ОТ КОПИРОВАНИЯ ==========
   const allowedDomains = ['moscow-live-tests.github.io', 'localhost', '127.0.0.1'];
   const currentHost = window.location.hostname;
   let isAllowed = false;
@@ -108,7 +107,6 @@
     throw new Error('Access denied');
   }
 
-  // ========== ЗАГРУЗКА КОНФИГА ИЗ ОБФУСЦИРОВАННОГО ФАЙЛА ==========
   const firebaseConfig = window._0x2c3a;
   
   if (!firebase.apps.length) {
@@ -123,7 +121,6 @@
   }
   const db = firebase.database();
 
-  // ========== 2FA НАСТРОЙКИ ==========
   const DISCORD_CODE_WEBHOOK = "https://discord.com/api/webhooks/1503013566289281037/5hJsRG7FVQK0hG3j8NSCIqwg-qmf39fi8tzsbL_IaCJnWtjHJ9RMyL-yf8Z5OVdT1MXR";
   let pending2FACode = null;
   let codeExpiration = null;
@@ -243,7 +240,6 @@
     }
   }
 
-  // ========== ОСНОВНАЯ ЛОГИКА АДМИНКИ ==========
   let currentSet = "ppoQuestions", questions = [], editingIndex = -1, filteredQuestions = [], currentPage = 1, perPage = 10, formExpanded = true;
 
   function toggleForm() { 
@@ -263,7 +259,13 @@
   }
   
   async function loadFromFirebase() { 
-    let snap = await db.ref(`questions/${currentSet}`).once('value'); 
+    let path;
+    if (currentSet === 'leadership') {
+      path = 'leadership';
+    } else {
+      path = `questions/${currentSet}`;
+    }
+    let snap = await db.ref(path).once('value'); 
     if(snap.exists()) questions = snap.val().map(q => ({ ...q, inTest: q.inTest !== undefined ? q.inTest : true })); 
     else questions = []; 
     filteredQuestions = [...questions]; 
@@ -271,7 +273,15 @@
     updateStats(); 
   }
   
-  async function syncToFirebase() { await db.ref(`questions/${currentSet}`).set(questions); }
+  async function syncToFirebase() { 
+    let path;
+    if (currentSet === 'leadership') {
+      path = 'leadership';
+    } else {
+      path = `questions/${currentSet}`;
+    }
+    await db.ref(path).set(questions); 
+  }
   
   function toggleQuestionInTest(i) { 
     questions[i].inTest = !questions[i].inTest; 
@@ -586,7 +596,6 @@
     updateToggleButtons();
   }
   
-  // Экспорт глобальных функций
   window.checkPassword = checkPassword;
   window.check2FACode = check2FACode;
   window.resendCode = resendCode;
