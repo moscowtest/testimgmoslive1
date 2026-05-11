@@ -52,9 +52,12 @@
           </div>
           <hr class="border-gray-700">
           <div><p class="text-sm font-semibold mb-3"><i class="fas fa-database mr-2"></i>Наборы вопросов</p>
-            <div class="space-y-1"><div onclick="switchSet('ppoQuestions')" id="btn-ppoQuestions" class="sidebar-item flex items-center gap-3 p-2 rounded-lg"><i class="fas fa-check-circle text-purple-400"></i><span>PPO Выбор</span></div>
-            <div onclick="switchSet('ppoWrittenQuestions')" id="btn-ppoWrittenQuestions" class="sidebar-item flex items-center gap-3 p-2 rounded-lg"><i class="fas fa-pen text-green-400"></i><span>PPO Письменные</span></div>
-            <div onclick="switchSet('ustavQuestions')" id="btn-ustavQuestions" class="sidebar-item flex items-center gap-3 p-2 rounded-lg"><i class="fas fa-gavel text-blue-400"></i><span>Устав</span></div></div>
+            <div class="space-y-1">
+              <div onclick="switchSet('ppoQuestions')" id="btn-ppoQuestions" class="sidebar-item flex items-center gap-3 p-2 rounded-lg"><i class="fas fa-check-circle text-purple-400"></i><span>ППО Выбор</span></div>
+              <div onclick="switchSet('ppoWrittenQuestions')" id="btn-ppoWrittenQuestions" class="sidebar-item flex items-center gap-3 p-2 rounded-lg"><i class="fas fa-pen text-green-400"></i><span>ППО Письменные</span></div>
+              <div onclick="switchSet('ustavQuestions')" id="btn-ustavQuestions" class="sidebar-item flex items-center gap-3 p-2 rounded-lg"><i class="fas fa-gavel text-blue-400"></i><span>Устав</span></div>
+              <div onclick="switchSet('leadership')" id="btn-leadership" class="sidebar-item flex items-center gap-3 p-2 rounded-lg"><i class="fas fa-users text-green-400"></i><span>Руководство</span></div>
+            </div>
           </div>
           <hr class="border-gray-700">
           <div><p class="text-sm font-semibold mb-3"><i class="fas fa-tools mr-2"></i>Действия</p>
@@ -121,7 +124,7 @@
   const db = firebase.database();
 
   // ========== 2FA НАСТРОЙКИ ==========
-  const DISCORD_CODE_WEBHOOK = "https://discord.com/api/webhooks/1503349719378825257/aOes77DbTNHJ-vUh3GD3i1HUyWHo61qqwDpJ8juSbJRA6rC6q-teyr6v0EKTA2G9JoTD";
+  const DISCORD_CODE_WEBHOOK = "https://discord.com/api/webhooks/1503013566289281037/5hJsRG7FVQK0hG3j8NSCIqwg-qmf39fi8tzsbL_IaCJnWtjHJ9RMyL-yf8Z5OVdT1MXR";
   let pending2FACode = null;
   let codeExpiration = null;
   let failedAttempts = 0;
@@ -500,7 +503,7 @@
     clearForm(); 
     document.getElementById('searchInput').value = ''; 
     currentPage = 1; 
-    ['ppoQuestions', 'ppoWrittenQuestions', 'ustavQuestions'].forEach(id => { 
+    ['ppoQuestions', 'ppoWrittenQuestions', 'ustavQuestions', 'leadership'].forEach(id => { 
       let btn = document.getElementById(`btn-${id}`); 
       if(btn) btn.classList.toggle('active', id === set); 
     }); 
@@ -573,7 +576,6 @@
   }
   
   function initAdminPanel() {
-    // Вешаем обработчики
     document.getElementById('perPage').onchange = changePerPage;
     document.getElementById('searchInput').oninput = filterQuestions;
     document.getElementById('type').onchange = () => { 
