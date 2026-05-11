@@ -221,10 +221,12 @@
     }
   }
 
- window.checkPassword = async function() {
-    const password = document.getElementById('passwordInput').value;
-    if (!password) { showToast('Введите пароль!', true); return; }
-    if (blockedUntil && blockedUntil > Date.now()) { showToast('Доступ временно заблокирован!', true); return; }
+ window.sha256 = async function(message) {
+  const msgBuffer = new TextEncoder().encode(message);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
     
     try {
       const snapshot = await db.ref('settings/adminHash').once('value');
