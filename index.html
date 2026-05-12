@@ -135,37 +135,55 @@
     document.getElementById('adminModal').classList.add('active');
   }
 
-  async function checkPassword() {
-    const password = document.getElementById('adminPassword').value;
-    if (!password) {
-      document.getElementById('adminError').textContent = 'Введите пароль!';
+  async function sha256(message) {
+  const msgBuffer = new TextEncoder().encode(message);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+async function checkPassword() {
+  const password = document.getElementById('adminPassword').value;
+  if (!password) {
+    document.getElementById('adminError').textContent = 'Введите пароль!';
+    return;
+  }
+  
+  try {
+    // Путь к ХЭШУ пароля (не к самому паролю!)
+    const snapshot = await database.ref('settings/adminPasswordHash').once('value');
+    const storedHash = snapshot.val();
+    
+    if (!storedHash) {
+      document.getElementById('adminError').textContent = 'Ошибка: хэш пароля не найден! Обратитесь к администратору.';
       return;
     }
     
-    try {
-      const snapshot = await database.ref('settings/adminPassword').once('value');
-      const correctPassword = snapshot.val();
-      
-      if (correctPassword && password === correctPassword) {
-        window.location.href = 'x7k9m2p4q1.html';
-      } else {
-        document.getElementById('adminError').textContent = 'Неверный пароль!';
-      }
-    } catch(e) {
-      document.getElementById('adminError').textContent = 'Ошибка проверки пароля!';
+    // Хэшируем введённый пароль
+    const inputHash = await sha256(password);
+    
+    // Сравниваем хэши
+    if (inputHash === storedHash) {
+      window.location.href = 'x7k9m2p4q1.html';
+    } else {
+      document.getElementById('adminError').textContent = 'Неверный пароль!';
     }
+  } catch(e) {
+    console.error(e);
+    document.getElementById('adminError').textContent = 'Ошибка проверки пароля!';
   }
+}
 
-  function closeAdminModal() {
-    document.getElementById('adminModal').classList.remove('active');
-    document.getElementById('adminPassword').value = '';
-    document.getElementById('adminError').textContent = '';
-  }
+function closeAdminModal() {
+  document.getElementById('adminModal').classList.remove('active');
+  document.getElementById('adminPassword').value = '';
+  document.getElementById('adminError').textContent = '';
+}
 
-  function sendSuggestion() {
-    const suggestion = prompt('Ваше предложение или описание ошибки:');
-    if (suggestion) alert('Спасибо за обращение!');
-  }
+function sendSuggestion() {
+  const suggestion = prompt('Ваше предложение или описание ошибки:');
+  if (suggestion) alert('Спасибо за обращение!');
+}
 
   // Запуск и экспорт в глобальную область
   loadVisibility();
