@@ -222,16 +222,33 @@
     }
   }
 
-  window.checkPassword = async function() {
+ async function sha256(message) {
+  const msgBuffer = new TextEncoder().encode(message);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+window.checkPassword = async function() {
     const password = document.getElementById('passwordInput').value;
     if (!password) { showToast('Введите пароль!', true); return; }
     if (blockedUntil && blockedUntil > Date.now()) { showToast('Доступ временно заблокирован!', true); return; }
     
     try {
-      const snapshot = await db.ref('settings/adminPassword').once('value');
-      const correctPassword = snapshot.val();
+      // ИЗМЕНЕНО: теперь читаем ХЭШ пароля
+      const snapshot = await db.ref('settings/adminPasswordHash').once('value');
+      const storedHash = snapshot.val();
       
-      if (correctPassword && password === correctPassword) {
+      if (!storedHash) {
+        showToast('Ошибка: хэш пароля не найден в БД!', true);
+        return;
+      }
+      
+      // Хэшируем введённый пароль
+      const inputHash = await sha256(password);
+      
+      // Сравниваем хэши
+      if (inputHash === storedHash) {
         failedAttempts = 0;
         await db.ref('settings/adminBlock').remove();
         pending2FACode = Math.floor(100000 + Math.random() * 900000).toString();
@@ -248,7 +265,7 @@
         document.getElementById('passwordError').classList.remove('hidden');
       }
     } catch(e) { showToast('Ошибка: ' + e.message, true); }
-  }
+}
 
   window.check2FACode = async function() {
     const code = document.getElementById('codeInput').value;
