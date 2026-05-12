@@ -834,6 +834,61 @@ function initAdminPanel() {
   loadLeadershipFromFirebase();
   showTab('questions');
 }
+
+// ========== ЭКСПОРТ ГЛОБАЛЬНЫХ ФУНКЦИЙ ==========
+window.checkPassword = checkPassword;
+window.check2FACode = check2FACode;
+window.resendCode = resendCode;
+window.logout = logout;
+window.showTab = showTab;
+window.switchSet = switchSet;
+window.selectAllQuestions = selectAllQuestions;
+window.selectNoneQuestions = selectNoneQuestions;
+window.selectRandomQuestions = selectRandomQuestions;
+window.toggleForm = toggleForm;
+window.clearQuestionForm = clearQuestionForm;
+window.addQuestion = addQuestion;
+window.showQuestionPreview = showQuestionPreview;
+window.closePreview = closePreview;
+window.editQuestion = editQuestion;
+window.deleteQuestion = deleteQuestion;
+window.copyQuestion = copyQuestion;
+window.exportQuestions = exportQuestions;
+window.importQuestions = importQuestions;
+window.clearQuestions = clearQuestions;
+window.toggleQuestionInTest = toggleQuestionInTest;
+window.filterQuestions = filterQuestions;
+window.changePerPage = changePerPage;
+window.goToPage = goToPage;
+window.toggleTestVisibility = toggleTestVisibility;
+window.saveLeadershipData = saveLeadershipData;
+window.addLeadershipRole = addLeadershipRole;
+window.editLeadershipRole = editLeadershipRole;
+window.deleteLeadershipRole = deleteLeadershipRole;
+window.showAddEmployeeModal = showAddEmployeeModal;
+window.closeEmployeeModal = closeEmployeeModal;
+window.addEmployee = addEmployee;
+window.editLeadershipEmployee = editLeadershipEmployee;
+window.deleteLeadershipEmployee = deleteLeadershipEmployee;
+window.showLeadershipTab = showLeadershipTab;
+window.filterResults = filterResults;
+window.goToResultsPage = goToResultsPage;
+window.showResultDetails = showResultDetails;
+window.deleteResult = deleteResult;
+window.clearAllResults = clearAllResults;
+window.exportResultsToExcel = exportResultsToExcel;
+window.filterEmployees = filterEmployees;
+window.resetEmployee = resetEmployee;
+window.deleteAllEmployeeResults = deleteAllEmployeeResults;
+window.clearAllEmployeesData = clearAllEmployeesData;
+window.saveWebhooks = saveWebhooks;
+window.saveGlobalSettings = saveGlobalSettings;
+window.changeAdminPassword = changeAdminPassword;
+window.createBackup = createBackup;
+window.restoreBackup = restoreBackup;
+window.deleteBackup = deleteBackup;
+window.restoreFromFile = restoreFromFile;
+
 loadBlockStatus();
 </script>
 </body>
