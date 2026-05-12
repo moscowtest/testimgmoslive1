@@ -12,9 +12,10 @@
   <script src="firebase-config.js"></script>
   <script src="firebase-config.js"></script>
   <script>
-  // Инициализация Firebase
-  const firebaseConfig = window._0x2c3a;
-  if (!firebase.apps.length) {
+  <script>
+  // Инициализация Firebase (если ещё не инициализирована)
+  if (typeof firebase !== 'undefined' && !firebase.apps.length) {
+    const firebaseConfig = window._0x2c3a;
     firebase.initializeApp({
       apiKey: firebaseConfig._0x2b9c,
       authDomain: firebaseConfig._0x277b,
@@ -24,8 +25,7 @@
       appId: firebaseConfig._0x3a2f
     });
   }
-  const db = firebase.database();
-  </script>
+</script>
   <style>
     *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif}
     body{background:radial-gradient(ellipse at 20% 30%,#0a0a2a,#050510);min-height:100vh;color:#fff}
