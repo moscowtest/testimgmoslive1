@@ -10,6 +10,22 @@
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="firebase-config.js"></script>
+  <script src="firebase-config.js"></script>
+  <script>
+  // Инициализация Firebase
+  const firebaseConfig = window._0x2c3a;
+  if (!firebase.apps.length) {
+    firebase.initializeApp({
+      apiKey: firebaseConfig._0x2b9c,
+      authDomain: firebaseConfig._0x277b,
+      projectId: firebaseConfig._0x1f9c,
+      storageBucket: firebaseConfig._0x4e3b,
+      messagingSenderId: firebaseConfig._0x5a8c,
+      appId: firebaseConfig._0x3a2f
+    });
+  }
+  const db = firebase.database();
+  </script>
   <style>
     *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif}
     body{background:radial-gradient(ellipse at 20% 30%,#0a0a2a,#050510);min-height:100vh;color:#fff}
